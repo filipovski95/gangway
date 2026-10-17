@@ -1,0 +1,520 @@
+{
+"USA": {
+"currency": "US dollar (USD)",
+"usd": null,
+"language": "English",
+"emergency": "911",
+"plugs": "A, B"
+},
+"Puerto Rico": {
+"currency": "US dollar (USD)",
+"usd": null,
+"language": "Spanish, English",
+"emergency": "911",
+"plugs": "A, B"
+},
+"US Virgin Islands": {
+"currency": "US dollar (USD)",
+"usd": null,
+"language": "English",
+"emergency": "911",
+"plugs": "A, B"
+},
+"Canada": {
+"currency": "Canadian dollar (CAD)",
+"usd": "Sometimes, at poor rates",
+"language": "English, French",
+"emergency": "911",
+"plugs": "A, B"
+},
+"Bermuda": {
+"currency": "Bermudian dollar (BMD)",
+"usd": "Accepted at par",
+"language": "English",
+"emergency": "911",
+"plugs": "A, B"
+},
+"Bahamas": {
+"currency": "Bahamian dollar (BSD)",
+"usd": "Accepted at par",
+"language": "English",
+"emergency": "911 or 919",
+"plugs": "A, B"
+},
+"Turks & Caicos": {
+"currency": "US dollar (USD)",
+"usd": null,
+"language": "English",
+"emergency": "911",
+"plugs": "A, B"
+},
+"Mexico": {
+"currency": "Mexican peso (MXN)",
+"usd": "Accepted near the pier",
+"language": "Spanish",
+"emergency": "911",
+"plugs": "A, B"
+},
+"Cayman Islands": {
+"currency": "Cayman dollar (KYD)",
+"usd": "Widely accepted",
+"language": "English",
+"emergency": "911",
+"plugs": "A, B"
+},
+"Jamaica": {
+"currency": "Jamaican dollar (JMD)",
+"usd": "Widely accepted",
+"language": "English",
+"emergency": "119 police, 110 ambulance",
+"plugs": "A, B"
+},
+"Honduras": {
+"currency": "Honduran lempira (HNL)",
+"usd": "Widely accepted",
+"language": "Spanish, English on Roatán",
+"emergency": "911",
+"plugs": "A, B"
+},
+"Belize": {
+"currency": "Belize dollar (BZD)",
+"usd": "Accepted (2 BZD = 1 USD)",
+"language": "English",
+"emergency": "911",
+"plugs": "A, B, G"
+},
+"Colombia": {
+"currency": "Colombian peso (COP)",
+"usd": "Rarely; pay in pesos",
+"language": "Spanish",
+"emergency": "123",
+"plugs": "A, B"
+},
+"Panama": {
+"currency": "US dollar (USD)",
+"usd": null,
+"language": "Spanish",
+"emergency": "911",
+"plugs": "A, B"
+},
+"Costa Rica": {
+"currency": "Costa Rican colón (CRC)",
+"usd": "Widely accepted",
+"language": "Spanish",
+"emergency": "911",
+"plugs": "A, B"
+},
+"Dominican Republic": {
+"currency": "Dominican peso (DOP)",
+"usd": "Widely accepted",
+"language": "Spanish",
+"emergency": "911",
+"plugs": "A, B"
+},
+"Sint Maarten": {
+"currency": "Caribbean guilder (XCG)",
+"usd": "Widely accepted",
+"language": "English, Dutch",
+"emergency": "911",
+"plugs": "A, B"
+},
+"St. Kitts & Nevis": {
+"currency": "East Caribbean dollar (XCD)",
+"usd": "Widely accepted",
+"language": "English",
+"emergency": "911",
+"plugs": "A, B, D, G"
+},
+"Antigua & Barbuda": {
+"currency": "East Caribbean dollar (XCD)",
+"usd": "Widely accepted",
+"language": "English",
+"emergency": "911",
+"plugs": "A, B"
+},
+"Dominica": {
+"currency": "East Caribbean dollar (XCD)",
+"usd": "Widely accepted",
+"language": "English",
+"emergency": "999",
+"plugs": "D, G"
+},
+"St. Lucia": {
+"currency": "East Caribbean dollar (XCD)",
+"usd": "Widely accepted",
+"language": "English",
+"emergency": "911",
+"plugs": "G"
+},
+"St. Vincent": {
+"currency": "East Caribbean dollar (XCD)",
+"usd": "Widely accepted",
+"language": "English",
+"emergency": "911",
+"plugs": "A, C, E, G, I, K"
+},
+"Grenada": {
+"currency": "East Caribbean dollar (XCD)",
+"usd": "Widely accepted",
+"language": "English",
+"emergency": "911",
+"plugs": "G"
+},
+"Barbados": {
+"currency": "Barbados dollar (BBD)",
+"usd": "Accepted (2 BBD = 1 USD)",
+"language": "English",
+"emergency": "211 police, 511 ambulance",
+"plugs": "A, B"
+},
+"Guadeloupe": {
+"currency": "Euro (EUR)",
+"usd": "Rarely",
+"language": "French",
+"emergency": "112",
+"plugs": "C, E"
+},
+"Martinique": {
+"currency": "Euro (EUR)",
+"usd": "Rarely",
+"language": "French",
+"emergency": "112",
+"plugs": "C, E"
+},
+"St. Barthélemy": {
+"currency": "Euro (EUR)",
+"usd": "Often",
+"language": "French",
+"emergency": "112",
+"plugs": "C, E"
+},
+"Aruba": {
+"currency": "Aruban florin (AWG)",
+"usd": "Widely accepted",
+"language": "Dutch, Papiamento, English",
+"emergency": "911",
+"plugs": "A, B"
+},
+"Curaçao": {
+"currency": "Caribbean guilder (XCG)",
+"usd": "Widely accepted",
+"language": "Dutch, Papiamentu, English",
+"emergency": "911",
+"plugs": "A, B"
+},
+"Bonaire": {
+"currency": "US dollar (USD)",
+"usd": null,
+"language": "Dutch, Papiamentu, English",
+"emergency": "911",
+"plugs": "A, B"
+},
+"British Virgin Islands": {
+"currency": "US dollar (USD)",
+"usd": null,
+"language": "English",
+"emergency": "911 or 999",
+"plugs": "A, B"
+},
+"Spain": {
+"currency": "Euro (EUR)",
+"usd": "No",
+"language": "Spanish",
+"emergency": "112",
+"plugs": "C, F"
+},
+"Italy": {
+"currency": "Euro (EUR)",
+"usd": "No",
+"language": "Italian",
+"emergency": "112",
+"plugs": "C, F, L"
+},
+"France": {
+"currency": "Euro (EUR)",
+"usd": "No",
+"language": "French",
+"emergency": "112",
+"plugs": "C, E"
+},
+"Monaco": {
+"currency": "Euro (EUR)",
+"usd": "No",
+"language": "French",
+"emergency": "112",
+"plugs": "C, E, F"
+},
+"Greece": {
+"currency": "Euro (EUR)",
+"usd": "No",
+"language": "Greek",
+"emergency": "112",
+"plugs": "C, F"
+},
+"Croatia": {
+"currency": "Euro (EUR)",
+"usd": "No",
+"language": "Croatian",
+"emergency": "112",
+"plugs": "C, F"
+},
+"Montenegro": {
+"currency": "Euro (EUR)",
+"usd": "No",
+"language": "Montenegrin",
+"emergency": "112",
+"plugs": "C, F"
+},
+"Malta": {
+"currency": "Euro (EUR)",
+"usd": "No",
+"language": "Maltese, English",
+"emergency": "112",
+"plugs": "G"
+},
+"Portugal": {
+"currency": "Euro (EUR)",
+"usd": "No",
+"language": "Portuguese",
+"emergency": "112",
+"plugs": "C, F"
+},
+"Gibraltar": {
+"currency": "Gibraltar pound (GIP), UK pound accepted",
+"usd": "No",
+"language": "English",
+"emergency": "112 or 999",
+"plugs": "C, G"
+},
+"Turkey": {
+"currency": "Turkish lira (TRY)",
+"usd": "Sometimes, in tourist areas",
+"language": "Turkish",
+"emergency": "112",
+"plugs": "C, F"
+},
+"Morocco": {
+"currency": "Moroccan dirham (MAD)",
+"usd": "Rarely",
+"language": "Arabic, French",
+"emergency": "19 police, 15 ambulance",
+"plugs": "C, E"
+},
+"Egypt": {
+"currency": "Egyptian pound (EGP)",
+"usd": "Often, in tourist areas",
+"language": "Arabic",
+"emergency": "122 police, 123 ambulance",
+"plugs": "C, F"
+},
+"United Kingdom": {
+"currency": "Pound sterling (GBP)",
+"usd": "No",
+"language": "English",
+"emergency": "999 or 112",
+"plugs": "G"
+},
+"Ireland": {
+"currency": "Euro (EUR)",
+"usd": "No",
+"language": "English, Irish",
+"emergency": "112 or 999",
+"plugs": "G"
+},
+"Netherlands": {
+"currency": "Euro (EUR)",
+"usd": "No",
+"language": "Dutch",
+"emergency": "112",
+"plugs": "C, F"
+},
+"Belgium": {
+"currency": "Euro (EUR)",
+"usd": "No",
+"language": "Dutch, French",
+"emergency": "112",
+"plugs": "C, E"
+},
+"Germany": {
+"currency": "Euro (EUR)",
+"usd": "No",
+"language": "German",
+"emergency": "112",
+"plugs": "C, F"
+},
+"Denmark": {
+"currency": "Danish krone (DKK)",
+"usd": "No",
+"language": "Danish",
+"emergency": "112",
+"plugs": "C, E, F, K"
+},
+"Norway": {
+"currency": "Norwegian krone (NOK)",
+"usd": "No",
+"language": "Norwegian",
+"emergency": "112 police, 113 ambulance",
+"plugs": "C, F"
+},
+"Sweden": {
+"currency": "Swedish krona (SEK)",
+"usd": "No",
+"language": "Swedish",
+"emergency": "112",
+"plugs": "C, F"
+},
+"Finland": {
+"currency": "Euro (EUR)",
+"usd": "No",
+"language": "Finnish, Swedish",
+"emergency": "112",
+"plugs": "C, F"
+},
+"Estonia": {
+"currency": "Euro (EUR)",
+"usd": "No",
+"language": "Estonian",
+"emergency": "112",
+"plugs": "C, F"
+},
+"Iceland": {
+"currency": "Icelandic króna (ISK)",
+"usd": "No; cards everywhere",
+"language": "Icelandic",
+"emergency": "112",
+"plugs": "C, F"
+},
+"Australia": {
+"currency": "Australian dollar (AUD)",
+"usd": "No",
+"language": "English",
+"emergency": "000",
+"plugs": "I"
+},
+"New Zealand": {
+"currency": "New Zealand dollar (NZD)",
+"usd": "No",
+"language": "English, Māori",
+"emergency": "111",
+"plugs": "I"
+},
+"New Caledonia": {
+"currency": "CFP franc (XPF)",
+"usd": "No",
+"language": "French",
+"emergency": "17 police, 15 ambulance",
+"plugs": "C, E"
+},
+"Fiji": {
+"currency": "Fijian dollar (FJD)",
+"usd": "Rarely",
+"language": "English, Fijian, Hindi",
+"emergency": "917 police, 911 ambulance",
+"plugs": "I"
+},
+"Japan": {
+"currency": "Japanese yen (JPY)",
+"usd": "No",
+"language": "Japanese",
+"emergency": "110 police, 119 ambulance",
+"plugs": "A, B"
+},
+"South Korea": {
+"currency": "Korean won (KRW)",
+"usd": "No",
+"language": "Korean",
+"emergency": "112 police, 119 ambulance",
+"plugs": "C, F"
+},
+"Taiwan": {
+"currency": "New Taiwan dollar (TWD)",
+"usd": "No",
+"language": "Mandarin",
+"emergency": "110 police, 119 ambulance",
+"plugs": "A, B"
+},
+"China": {
+"currency": "Hong Kong dollar (HKD)",
+"usd": "Rarely",
+"language": "Cantonese, English",
+"emergency": "999",
+"plugs": "G"
+},
+"Singapore": {
+"currency": "Singapore dollar (SGD)",
+"usd": "No",
+"language": "English, Malay, Mandarin, Tamil",
+"emergency": "999 police, 995 ambulance",
+"plugs": "G"
+},
+"Malaysia": {
+"currency": "Malaysian ringgit (MYR)",
+"usd": "No",
+"language": "Malay, English",
+"emergency": "999",
+"plugs": "G"
+},
+"Thailand": {
+"currency": "Thai baht (THB)",
+"usd": "No",
+"language": "Thai",
+"emergency": "191 police, 1669 ambulance, 1155 tourist police",
+"plugs": "A, B, C, O"
+},
+"Vietnam": {
+"currency": "Vietnamese dong (VND)",
+"usd": "Sometimes",
+"language": "Vietnamese",
+"emergency": "113 police, 115 ambulance",
+"plugs": "A, C"
+},
+"Indonesia": {
+"currency": "Indonesian rupiah (IDR)",
+"usd": "Rarely",
+"language": "Indonesian",
+"emergency": "112",
+"plugs": "C, F"
+},
+"Argentina": {
+"currency": "Argentine peso (ARS)",
+"usd": "Often, cash dollars are welcome",
+"language": "Spanish",
+"emergency": "911",
+"plugs": "C, I"
+},
+"Uruguay": {
+"currency": "Uruguayan peso (UYU)",
+"usd": "Often",
+"language": "Spanish",
+"emergency": "911",
+"plugs": "C, F, L"
+},
+"Brazil": {
+"currency": "Brazilian real (BRL)",
+"usd": "No",
+"language": "Portuguese",
+"emergency": "190 police, 192 ambulance",
+"plugs": "C, N"
+},
+"Chile": {
+"currency": "Chilean peso (CLP)",
+"usd": "Rarely",
+"language": "Spanish",
+"emergency": "133 police, 131 ambulance",
+"plugs": "C, L"
+},
+"Peru": {
+"currency": "Peruvian sol (PEN)",
+"usd": "Often",
+"language": "Spanish",
+"emergency": "105 police, 106 ambulance",
+"plugs": "A, C"
+},
+"Ecuador": {
+"currency": "US dollar (USD)",
+"usd": null,
+"language": "Spanish",
+"emergency": "911",
+"plugs": "A, B"
+}
+}

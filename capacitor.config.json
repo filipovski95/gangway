@@ -1,0 +1,9 @@
+{
+  "appId": "com.ruflo.gangway",
+  "appName": "Gangway",
+  "webDir": "www",
+  "backgroundColor": "#0f2a3a",
+  "plugins": {
+    "SystemBars": { "insetsHandling": "css", "initialViewportFitValueHint": "cover", "style": "DARK" }
+  }
+}

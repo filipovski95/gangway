@@ -1,9 +1,9 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Gangway</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <meta name="theme-color" content="#0f2a3a">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;800&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap">
+<link rel="stylesheet" href="fonts/fonts.css">
 <style>
 /* Layout: one-screen phone app. Harbour-chart header band, then a port list or a port page with tabbed place cards. */
 :root {
@@ -37,8 +37,9 @@
   --sea: #5fb7c7; --open: #4cc584; --closing: #e0a84a; --closed: #ef7a7a; color-scheme: dark;
 }
 * { box-sizing: border-box; }
+[hidden] { display: none !important; }
 html, body { height: 100%; }
-body { background: var(--bg); color: var(--ink); font: 15px/1.45 var(--body); }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.45 var(--body); -webkit-tap-highlight-color: transparent; }
 body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--band); }
 button, input { font: inherit; color: inherit; }
 button { cursor: pointer; }
@@ -112,6 +113,14 @@ main .wrap { padding-block: 16px 40px; display: grid; gap: 16px; }
 .btn { display: inline-flex; align-items: center; gap: 6px; text-decoration: none; border-radius: 8px; padding: 7px 12px; font-size: 13.5px; font-weight: 600; border: 1px solid var(--line); color: var(--ink); background: var(--bg); }
 .btn.go { background: var(--sea); border-color: var(--sea); color: #fff; }
 .btn svg { width: 15px; height: 15px; }
+.near { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; border: 0; border-radius: 10px; padding: 12px; background: var(--sea); color: #fff; font-weight: 600; }
+.near svg { width: 18px; height: 18px; }
+.basics { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; }
+.basics summary { font-weight: 600; cursor: pointer; }
+.basics dl { display: grid; grid-template-columns: repeat(auto-fit, minmax(128px, 1fr)); gap: 10px 16px; margin: 10px 0 6px; }
+.basics dt { font-size: 11.5px; text-transform: uppercase; letter-spacing: .07em; color: var(--muted); }
+.basics dd { margin: 2px 0 0; min-width: 0; overflow-wrap: anywhere; }
+.basics small { color: var(--muted); }
 .foot { color: var(--muted); font-size: 12px; text-align: center; }
 .toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(20px + env(safe-area-inset-bottom, 0px)); background: var(--ink); color: var(--bg); padding: 10px 16px; border-radius: 999px; font-size: 14px; z-index: 20; max-width: calc(100% - 32px); }
 @media (prefers-reduced-motion: reduce) { .refresh.spin svg { animation: none; } }
@@ -135,7 +144,8 @@ main .wrap { padding-block: 16px 40px; display: grid; gap: 16px; }
 <div class="toast" id="toast" hidden></div>
 
 <script>
-const DATA = "data/";
+const BUNDLED = "data/";
+const REMOTE = "https://raw.githubusercontent.com/filipovski95/linguapath/claude/project-thread-gib0pa/data/";
 const KINDS = {
   restaurant: "Restaurant", cafe: "Café", fast_food: "Quick bite", bar: "Bar", pub: "Pub", ice_cream: "Ice cream",
   attraction: "Attraction", museum: "Museum", viewpoint: "Viewpoint", gallery: "Gallery", zoo: "Zoo", aquarium: "Aquarium",
@@ -152,6 +162,7 @@ const store = {
   get(k, d) { try { const v = localStorage.getItem("gw:" + k); return v ? JSON.parse(v) : d; } catch { return d; } },
   set(k, v) { try { localStorage.setItem("gw:" + k, JSON.stringify(v)); } catch {} }
 };
+let COUNTRIES = {};
 const state = { index: store.get("index", null), port: null, tab: "food", openOnly: false, region: "All", q: "" };
 const $ = s => document.querySelector(s);
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
@@ -214,15 +225,27 @@ function status(p, now = new Date()) {
 }
 
 /* ---- Data ---- */
-async function getJSON(path, fresh) {
-  const r = await fetch(DATA + path + (fresh ? "?t=" + Date.now() : ""), { cache: fresh ? "no-store" : "default" });
+async function fetchJSON(url, fresh) {
+  const r = await fetch(url + (fresh ? "?t=" + Date.now() : ""), { cache: fresh ? "no-store" : "default" });
   if (!r.ok) throw new Error(r.status);
   return r.json();
+}
+// Refresh asks the online copy first; otherwise the copy shipped inside the app is used.
+async function getJSON(path, fresh) {
+  const order = fresh ? [REMOTE, BUNDLED] : [BUNDLED, REMOTE];
+  let err;
+  for (const base of order) {
+    try { return await fetchJSON(base + path, fresh && base === REMOTE); } catch (e) { err = e; }
+  }
+  throw err;
 }
 async function loadPort(id, fresh) {
   const cached = store.get("port:" + id, null);
   if (cached && !fresh) return cached;
-  try { const p = await getJSON("ports/" + id + ".json", fresh); store.set("port:" + id, p); return p; }
+  try {
+    const p = fresh ? await fetchJSON(REMOTE + "ports/" + id + ".json", true) : await getJSON("ports/" + id + ".json");
+    store.set("port:" + id, p); return p;
+  }
   catch { if (cached) return cached; throw new Error("offline"); }
 }
 function stampText() {
@@ -236,7 +259,7 @@ function toast(msg) { const t = $("#toast"); t.textContent = msg; t.hidden = fal
 async function refresh() {
   const btn = $("#refresh"); btn.classList.add("spin"); btn.disabled = true;
   try {
-    state.index = await getJSON("index.json", true); store.set("index", state.index);
+    state.index = await fetchJSON(REMOTE + "index.json", true); store.set("index", state.index);
     if (state.port) state.port = await loadPort(state.port.id, true);
     store.set("checked", Date.now());
     toast(state.port ? `${state.port.name} is up to date for ${DAY_NAMES[new Date().getDay()]}` : "Ports are up to date");
@@ -260,6 +283,7 @@ function renderList() {
   const groups = {};
   for (const p of list) (groups[p.region] ||= []).push(p);
   $("#view").innerHTML = `
+    <button class="near" id="near"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/><circle cx="12" cy="12" r="8"/></svg>Find the port I'm in</button>
     <input class="search" id="q" type="search" placeholder="Search ${idx.ports.length} ports, e.g. Cozumel" value="${esc(state.q)}" aria-label="Search ports">
     <div class="chips" role="group" aria-label="Regions">${regions.map(r => `<button class="chip" data-region="${esc(r)}" aria-pressed="${r === state.region}">${esc(r)}</button>`).join("")}</div>
     ${list.length ? Object.entries(groups).map(([r, ps]) => `
@@ -267,6 +291,7 @@ function renderList() {
         <ul class="ports">${ps.map(p => `<li><button data-port="${p.id}"><span><span class="nm">${esc(p.name)}</span><br><span class="ct">${esc(p.country)}</span></span>${p.tender ? '<span class="tag">TENDER</span>' : ""}</button></li>`).join("")}</ul>
       </section>`).join("") : `<p class="empty">No port matches “${esc(state.q)}”.</p>`}
     <p class="foot">Places from OpenStreetMap contributors. Check hours locally before you go.</p>`;
+  $("#near").onclick = findNearest;
   const qi = $("#q");
   qi.oninput = e => { state.q = e.target.value; const pos = e.target.selectionStart; renderList(); const n = $("#q"); n.focus(); n.setSelectionRange(pos, pos); };
   document.querySelectorAll("[data-region]").forEach(b => b.onclick = () => { state.region = b.dataset.region; renderList(); });
@@ -281,6 +306,15 @@ const icon = {
 };
 function directions(p) { return `https://www.google.com/maps/dir/?api=1&destination=${p.la},${p.lo}&travelmode=${p.d > 4000 ? "driving" : "walking"}`; }
 
+function basics(country) {
+  const c = COUNTRIES[country];
+  if (!c) return "";
+  const row = (k, v) => `<div><dt>${k}</dt><dd>${esc(v)}</dd></div>`;
+  return `<details class="basics" open><summary>Port basics</summary><dl>
+    ${row("Money", c.currency)}${c.usd ? row("US dollars", c.usd) : ""}
+    ${row("Language", c.language)}${row("Emergency", c.emergency)}${row("Plug types", c.plugs)}
+  </dl><small>General guidance. Check locally.</small></details>`;
+}
 function renderPort() {
   const P = state.port, now = new Date();
   const all = P.places.filter(p => p.g === state.tab).map(p => ({ ...p, st: status(p, now) }));
@@ -291,6 +325,7 @@ function renderPort() {
       <h2>${esc(P.name)}</h2>
       <div class="meta"><span>${esc(P.country)}</span><span class="coords">${dms(P.lat, "N", "S")} ${dms(P.lon, "E", "W")}</span>${P.tender ? '<span class="badge">Tender port</span>' : ""}<span>Today is ${DAY_NAMES[now.getDay()]}</span></div>
     </section>
+    ${basics(P.country)}
     <section class="aboard" aria-label="All aboard timer">
       <div class="row"><label for="aboardTime">All aboard</label><input id="aboardTime" type="time" value="${esc(aboard)}"><small>${P.tender ? "Tender port: add time for the tender queue." : "Walking times are from the pier."}</small></div>
       <div class="row"><span class="countdown" id="countdown">--:--</span><small id="cdText">Set the all-aboard time from your ship's daily planner.</small></div>
@@ -323,15 +358,37 @@ function tick() {
 }
 setInterval(tick, 30000);
 
+function findNearest() {
+  if (!navigator.geolocation) { toast("Location isn't available here. Pick your port from the list."); return; }
+  toast("Finding your location…");
+  navigator.geolocation.getCurrentPosition(pos => {
+    const { latitude: la, longitude: lo } = pos.coords;
+    let best, bd = Infinity;
+    for (const p of state.index.ports) { const d = distKm(la, lo, p.lat, p.lon); if (d < bd) { bd = d; best = p; } }
+    if (bd > 40) toast(`No Gangway port nearby. The closest is ${best.name}, ${Math.round(bd)} km away.`);
+    else openPort(best.id);
+  }, () => toast("Couldn't get your location. Pick your port from the list."), { enableHighAccuracy: false, timeout: 15000, maximumAge: 600000 });
+}
+function distKm(a, b, c, d) {
+  const r = Math.PI / 180, x = Math.sin((c - a) * r / 2) ** 2 + Math.cos(a * r) * Math.cos(c * r) * Math.sin((d - b) * r / 2) ** 2;
+  return 12742 * Math.asin(Math.sqrt(x));
+}
 async function openPort(id) {
-  try { state.port = await loadPort(id); state.tab = "food"; state.openOnly = false; render(); scrollTo(0, 0); location.hash = id; }
+  try {
+    state.port = await loadPort(id); state.tab = "food"; state.openOnly = false; render(); scrollTo(0, 0);
+    if (location.hash.slice(1) !== id) history.pushState({ port: id }, "", "#" + id);
+  }
   catch { toast("This port isn't saved yet. Connect to wifi and tap Refresh."); }
 }
-$("#back").onclick = () => { state.port = null; history.replaceState(null, "", location.pathname); render(); };
+function closePort() { state.port = null; render(); }
+$("#back").onclick = () => { if (history.state && history.state.port) history.back(); else { history.replaceState(null, "", location.pathname); closePort(); } };
+addEventListener("popstate", () => { const id = location.hash.slice(1); if (id) openPort(id); else closePort(); });
 $("#refresh").onclick = refresh;
 
 (async function start() {
   render();
+  getJSON("countries.json").then(c => { COUNTRIES = c; store.set("countries", c); if (state.port) renderPort(); })
+    .catch(() => { COUNTRIES = store.get("countries", {}); });
   if (!state.index) { try { state.index = await getJSON("index.json"); store.set("index", state.index); } catch { $("#view").innerHTML = `<p class="empty">Connect to wifi and tap Refresh to download the ports.</p>`; return; } }
   const id = location.hash.slice(1);
   if (id && state.index.ports.some(p => p.id === id)) openPort(id); else render();

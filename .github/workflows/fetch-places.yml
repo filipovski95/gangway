@@ -19,11 +19,13 @@ jobs:
           git config user.email "actions@users.noreply.github.com"
       - name: Fetch places (only ports missing data; weekly run refreshes all)
         run: |
-          if [ "${{ github.event_name }}" = "schedule" ]; then rm -rf data/ports; fi
+          if [ "${{ github.event_name }}" = "schedule" ]; then export REFRESH_ALL=1; fi
           python tools/fetch_places.py
+          python tools/countries.py
       - name: Commit data
         if: always()
         run: |
           git add data
           git diff --cached --quiet || git commit -m "Update port places from OpenStreetMap"
+          git pull --rebase || true
           git push || true

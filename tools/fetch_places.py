@@ -7,40 +7,46 @@ sys.path.insert(0, os.path.dirname(__file__))
 from ports_src import PORTS
 
 MIRRORS = [
-    "https://overpass.private.coffee/api/interpreter",
     "https://overpass-api.de/api/interpreter",
+    "https://overpass.private.coffee/api/interpreter",
+    "https://maps.mail.ru/osm/tools/overpass/api/interpreter",
     "https://overpass.kumi.systems/api/interpreter",
+    "https://overpass.osm.jp/api/interpreter",
 ]
 OUT = os.path.join(os.path.dirname(__file__), "..", "data")
 LIMITS = {"food": 40, "sights": 25, "essentials": 30}
 UA = "Gangway/0.1 (offline cruise port guide)"
 
 
-def query(lat, lon):
+# Three small queries per port: busy Overpass servers accept short, light
+# queries far more readily than one large one.
+def queries(lat, lon):
     a = lambda r: f"(around:{r},{lat},{lon})"
-    return f"""[out:json][timeout:120];
-(nwr{a(2500)}[amenity~"^(restaurant|cafe|fast_food|bar|pub|ice_cream)$"][name];);out center tags 300;
-(nwr{a(8000)}[tourism~"^(attraction|museum|viewpoint|gallery|zoo|aquarium|theme_park)$"][name];
- nwr{a(8000)}[historic~"^(castle|fort|ruins|monument|archaeological_site)$"][name];
- nwr{a(10000)}[natural=beach][name];);out center tags 250;
-(nwr{a(3000)}[amenity~"^(pharmacy|atm|bank|bureau_de_change|internet_cafe|post_office|hospital)$"];
- nwr{a(3000)}[shop~"^(mobile_phone|supermarket|laundry|dry_cleaning)$"];
- nwr{a(3000)}[internet_access~"^(wlan|yes)$"][name];);out center tags 250;"""
+    head = "[out:json][timeout:30][maxsize:16000000];"
+    return [
+        head + f"""nwr{a(2000)}[amenity~"^(restaurant|cafe|fast_food|bar|pub|ice_cream)$"][name];out center tags 150;""",
+        head + f"""(nwr{a(7000)}[tourism~"^(attraction|museum|viewpoint|gallery|zoo|aquarium|theme_park)$"][name];
+ nwr{a(7000)}[historic~"^(castle|fort|ruins|monument|archaeological_site)$"][name];
+ nwr{a(9000)}[natural=beach][name];);out center tags 120;""",
+        head + f"""(nwr{a(2500)}[amenity~"^(pharmacy|atm|bank|bureau_de_change|internet_cafe|post_office|hospital)$"];
+ nwr{a(2500)}[shop~"^(mobile_phone|supermarket|laundry|dry_cleaning)$"];
+ nwr{a(2500)}[internet_access~"^(wlan|yes)$"][name];);out center tags 120;""",
+    ]
 
 
 def fetch(q):
     body = urllib.parse.urlencode({"data": q}).encode()
     last = None
-    for attempt in range(6):
+    for attempt in range(8):
         url = MIRRORS[attempt % len(MIRRORS)]
         try:
             req = urllib.request.Request(url, data=body, headers={"User-Agent": UA})
-            with urllib.request.urlopen(req, timeout=150) as r:
+            with urllib.request.urlopen(req, timeout=60) as r:
                 return json.load(r)
         except Exception as e:  # busy servers and timeouts: rotate mirrors, back off
             last = e
             print(f"  {url.split('/')[2]}: {e}", flush=True)
-            time.sleep(5 * (attempt + 1))
+            time.sleep(3 + 4 * attempt)
     raise RuntimeError(f"Overpass failed: {last}")
 
 
@@ -97,7 +103,12 @@ def save_progress(msg):
     subprocess.run(["git", "add", "data"], check=True)
     if subprocess.run(["git", "diff", "--cached", "--quiet"]).returncode:
         subprocess.run(["git", "commit", "-qm", msg], check=True)
-        subprocess.run(["git", "push", "-q"], check=False)
+    # Other commits (app changes) may land on the branch while this runs.
+    for _ in range(3):
+        subprocess.run(["git", "pull", "-q", "--rebase"], check=False)
+        if subprocess.run(["git", "push", "-q"]).returncode == 0:
+            break
+        time.sleep(5)
 
 
 def main():
@@ -106,17 +117,30 @@ def main():
     index = [dict(id=p[0], name=p[1], country=p[2], region=p[3], lat=p[4], lon=p[5], tender=p[6]) for p in PORTS]
     write_index(index)
     done = 0
-    for pid, name, country, region, lat, lon, tender in PORTS:
+    refresh_all = os.environ.get("REFRESH_ALL") == "1"  # weekly: refetch every port, keep old data on failure
+    todo = [p for p in PORTS if (p[0] in only) or (not only and (refresh_all or not os.path.exists(os.path.join(OUT, "ports", f"{p[0]}.json"))))]
+    for attempt in range(2):  # second pass retries ports the busy servers refused
+        todo = fetch_ports(todo, index, done)
+        if not todo:
+            break
+        print(f"Retrying {len(todo)} ports", flush=True)
+        time.sleep(60)
+    write_index(index)
+    save_progress("Port places: final batch")
+
+
+def fetch_ports(todo, index, done):
+    failed = []
+    for pid, name, country, region, lat, lon, tender in todo:
         entry = {"id": pid, "name": name, "country": country, "region": region,
                  "lat": lat, "lon": lon, "tender": tender}
         path = os.path.join(OUT, "ports", f"{pid}.json")
-        if (only and pid not in only) or (not only and os.path.exists(path)):
-            continue
         print(f"{pid} {name}", flush=True)
         try:
-            data = fetch(query(lat, lon))
+            data = {"elements": [el for q in queries(lat, lon) for el in fetch(q).get("elements", [])]}
         except RuntimeError as e:
             print(f"  skipped: {e}", flush=True)
+            failed.append((pid, name, country, region, lat, lon, tender))
             continue
         seen, groups = set(), {g: [] for g in LIMITS}
         for el in data.get("elements", []):
@@ -139,8 +163,7 @@ def main():
             write_index(index)
             save_progress(f"Port places: {done} more ports")
         time.sleep(2)
-    write_index(index)
-    save_progress("Port places: final batch")
+    return failed
 
 
 if __name__ == "__main__":

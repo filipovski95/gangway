@@ -1,0 +1,66 @@
+name: Build Gangway Android app
+on:
+  push:
+    paths: ["app/**", "brand/**", "capacitor.config.json", "package.json", ".github/workflows/build-android.yml"]
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  android:
+    runs-on: ubuntu-latest
+    env:
+      KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: "22" }
+      - uses: actions/setup-java@v5
+        with: { distribution: temurin, java-version: "21" }
+      - name: Assemble web app with the port data inside
+        run: |
+          mkdir -p www && cp -r app/. www/ && cp -r data www/data
+          cp brand/play-icon-512.png www/icon.png
+      - run: npm install
+      - name: Create Android project
+        run: |
+          npx cap add android
+          cp -r brand/res/* android/app/src/main/res/
+          # Location lets "Find the port I'm in" work.
+          sed -i 's#<uses-permission android:name="android.permission.INTERNET" />#<uses-permission android:name="android.permission.INTERNET" />\n    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />\n    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />#' android/app/src/main/AndroidManifest.xml
+          sed -i "s/versionCode 1$/versionCode ${{ github.run_number }}/; s/versionName \"1.0\"/versionName \"1.0.${{ github.run_number }}\"/" android/app/build.gradle
+          npx cap sync android
+      - name: Build
+        working-directory: android
+        env:
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+        run: |
+          chmod +x gradlew
+          if [ -n "$KEYSTORE_BASE64" ]; then
+            echo "$KEYSTORE_BASE64" | base64 -d > "$RUNNER_TEMP/upload.jks"
+            SIGN="-Pandroid.injected.signing.store.file=$RUNNER_TEMP/upload.jks -Pandroid.injected.signing.store.password=$KEYSTORE_PASSWORD -Pandroid.injected.signing.key.alias=$KEY_ALIAS -Pandroid.injected.signing.key.password=$KEY_PASSWORD"
+            ./gradlew bundleRelease assembleRelease $SIGN
+            cp app/build/outputs/apk/release/app-release.apk ../Gangway.apk
+          else
+            ./gradlew bundleRelease assembleDebug
+            cp app/build/outputs/apk/debug/app-debug.apk ../Gangway.apk
+          fi
+          cp app/build/outputs/bundle/release/app-release.aab ../Gangway.aab
+      - uses: actions/upload-artifact@v4
+        with:
+          name: gangway-android
+          path: |
+            Gangway.apk
+            Gangway.aab
+      - name: Publish test build for phones
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: gangway-test-build
+          name: Gangway test build
+          prerelease: true
+          make_latest: false
+          body: |
+            Gangway test build from ${{ github.sha }}.
+            On your Android phone: download Gangway.apk, open it, and allow installing from this source when asked.
+          files: Gangway.apk
