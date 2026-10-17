@@ -1,0 +1,339 @@
+<title>Gangway</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="theme-color" content="#0f2a3a">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;800&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+/* Layout: one-screen phone app. Harbour-chart header band, then a port list or a port page with tabbed place cards. */
+:root {
+  --bg: #eef3f1;          /* chart paper */
+  --surface: #ffffff;
+  --ink: #0f2a3a;         /* harbour navy */
+  --muted: #5b6f78;
+  --line: #d3dedb;
+  --band: #0f2a3a;
+  --band-ink: #eaf2f0;
+  --signal: #f2b705;      /* signal-flag yellow */
+  --signal-ink: #1d1600;
+  --sea: #1f7a8c;
+  --open: #1e8a52;
+  --closing: #b7791f;
+  --closed: #b23a3a;
+  --display: "Big Shoulders Display", "Arial Narrow", Impact, sans-serif;
+  --body: "Instrument Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0b1820; --surface: #12232d; --ink: #e3ecea; --muted: #94a8ae;
+    --line: #23394399; --band: #07121a; --band-ink: #e3ecea; --signal: #f5c22e; --signal-ink: #1d1600;
+    --sea: #5fb7c7; --open: #4cc584; --closing: #e0a84a; --closed: #ef7a7a; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0b1820; --surface: #12232d; --ink: #e3ecea; --muted: #94a8ae;
+  --line: #23394399; --band: #07121a; --band-ink: #e3ecea; --signal: #f5c22e; --signal-ink: #1d1600;
+  --sea: #5fb7c7; --open: #4cc584; --closing: #e0a84a; --closed: #ef7a7a; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body { background: var(--bg); color: var(--ink); font: 15px/1.45 var(--body); }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--band); }
+button, input { font: inherit; color: inherit; }
+button { cursor: pointer; }
+:focus-visible { outline: 2px solid var(--signal); outline-offset: 2px; }
+.wrap { max-width: 640px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+
+/* Header band */
+.band { background: var(--band); color: var(--band-ink); position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; }
+.band .wrap { padding-block: 12px 14px; display: grid; gap: 10px; }
+.toprow { display: flex; align-items: center; gap: 12px; }
+.brand { font: 800 30px/1 var(--display); letter-spacing: .04em; text-transform: uppercase; display: flex; align-items: center; gap: 10px; margin: 0; }
+.flag { width: 22px; height: 22px; background: linear-gradient(135deg, var(--signal) 50%, var(--sea) 50%); border-radius: 2px; flex: none; }
+.back { background: none; border: 1px solid #ffffff33; color: var(--band-ink); border-radius: 999px; padding: 6px 12px; font-size: 13px; }
+.refresh { margin-left: auto; display: flex; align-items: center; gap: 8px; background: var(--signal); color: var(--signal-ink); border: 0; border-radius: 999px; padding: 8px 14px; font-weight: 600; font-size: 14px; }
+.refresh svg { width: 16px; height: 16px; }
+.refresh.spin svg { animation: spin .8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.hint { font-size: 12.5px; color: #c9d8d5; display: flex; gap: 8px; flex-wrap: wrap; justify-content: space-between; }
+.hint b { color: var(--signal); font-weight: 600; }
+
+main .wrap { padding-block: 16px 40px; display: grid; gap: 16px; }
+
+/* Port list */
+.search { width: 100%; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); }
+.chips { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 2px; scrollbar-width: none; }
+.chip { flex: none; border: 1px solid var(--line); background: var(--surface); border-radius: 999px; padding: 6px 12px; font-size: 13px; white-space: nowrap; }
+.chip[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.region h2 { font: 600 13px/1 var(--body); text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin: 8px 0 8px; }
+.ports { list-style: none; margin: 0; padding: 0; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
+.ports li + li { border-top: 1px solid var(--line); }
+.ports button { width: 100%; text-align: left; background: none; border: 0; padding: 12px 14px; display: flex; align-items: center; gap: 12px; }
+.ports .nm { font-weight: 600; min-width: 0; }
+.ports .ct { color: var(--muted); font-size: 13px; }
+.ports .tag { margin-left: auto; font: 500 11px var(--mono); color: var(--muted); }
+.empty { color: var(--muted); text-align: center; padding: 24px 0; }
+
+/* Port page */
+.hero { display: grid; gap: 4px; }
+.hero h2 { font: 800 clamp(34px, 9vw, 52px)/.95 var(--display); text-transform: uppercase; letter-spacing: .02em; margin: 0; text-wrap: balance; }
+.hero .meta { color: var(--muted); display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 13.5px; }
+.coords { font: 500 12px var(--mono); }
+.badge { display: inline-block; font-size: 11.5px; font-weight: 600; padding: 2px 8px; border-radius: 4px; background: var(--signal); color: var(--signal-ink); }
+
+.aboard { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 14px; display: grid; gap: 10px; }
+.aboard .row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.aboard label { font-weight: 600; }
+.aboard input { border: 1px solid var(--line); border-radius: 8px; padding: 6px 10px; background: var(--bg); font-family: var(--mono); }
+.countdown { font: 800 34px/1 var(--display); letter-spacing: .03em; font-variant-numeric: tabular-nums; }
+.countdown.warn { color: var(--closing); } .countdown.late { color: var(--closed); }
+.aboard small { color: var(--muted); }
+
+.tabs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 4px; }
+.tab { border: 0; background: none; border-radius: 9px; padding: 9px 4px; font-weight: 600; font-size: 14px; color: var(--muted); }
+.tab[aria-selected="true"] { background: var(--ink); color: var(--bg); }
+.filters { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.count { margin-left: auto; color: var(--muted); font-size: 13px; }
+
+.cards { display: grid; gap: 10px; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; display: grid; gap: 8px; }
+.card .top { display: flex; gap: 10px; align-items: baseline; }
+.card h3 { font-size: 16px; margin: 0; min-width: 0; overflow-wrap: anywhere; }
+.walk { margin-left: auto; flex: none; font: 500 12px var(--mono); color: var(--muted); }
+.sub { color: var(--muted); font-size: 13px; text-transform: capitalize; }
+.status { font-size: 13px; display: flex; align-items: center; gap: 6px; }
+.dot { width: 8px; height: 8px; border-radius: 50%; background: var(--muted); flex: none; }
+.status.open .dot { background: var(--open); } .status.open b { color: var(--open); }
+.status.closing .dot { background: var(--closing); } .status.closing b { color: var(--closing); }
+.status.closed .dot { background: var(--closed); } .status.closed b { color: var(--closed); }
+.status.unknown { color: var(--muted); }
+.actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.btn { display: inline-flex; align-items: center; gap: 6px; text-decoration: none; border-radius: 8px; padding: 7px 12px; font-size: 13.5px; font-weight: 600; border: 1px solid var(--line); color: var(--ink); background: var(--bg); }
+.btn.go { background: var(--sea); border-color: var(--sea); color: #fff; }
+.btn svg { width: 15px; height: 15px; }
+.foot { color: var(--muted); font-size: 12px; text-align: center; }
+.toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(20px + env(safe-area-inset-bottom, 0px)); background: var(--ink); color: var(--bg); padding: 10px 16px; border-radius: 999px; font-size: 14px; z-index: 20; max-width: calc(100% - 32px); }
+@media (prefers-reduced-motion: reduce) { .refresh.spin svg { animation: none; } }
+</style>
+
+<header class="band">
+  <div class="wrap">
+    <div class="toprow">
+      <button class="back" id="back" hidden>← Ports</button>
+      <h1 class="brand" id="brand"><span class="flag" aria-hidden="true"></span>Gangway</h1>
+      <button class="refresh" id="refresh" aria-describedby="hint">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M20 11a8 8 0 1 0-2.3 5.7"/><path d="M20 4v7h-7"/></svg>
+        Refresh
+      </button>
+    </div>
+    <div class="hint" id="hint"><span><b>Tap refresh</b> to get today's updates</span><span id="updated">Not updated yet</span></div>
+  </div>
+</header>
+
+<main><div class="wrap" id="view"></div></main>
+<div class="toast" id="toast" hidden></div>
+
+<script>
+const DATA = "data/";
+const KINDS = {
+  restaurant: "Restaurant", cafe: "Café", fast_food: "Quick bite", bar: "Bar", pub: "Pub", ice_cream: "Ice cream",
+  attraction: "Attraction", museum: "Museum", viewpoint: "Viewpoint", gallery: "Gallery", zoo: "Zoo", aquarium: "Aquarium",
+  theme_park: "Theme park", castle: "Castle", fort: "Fort", ruins: "Ruins", monument: "Monument", archaeological_site: "Archaeological site",
+  beach: "Beach", pharmacy: "Pharmacy", atm: "ATM", bank: "Bank", bureau_de_change: "Currency exchange", internet_cafe: "Internet café",
+  post_office: "Post office", hospital: "Hospital", mobile_phone: "Phone & SIM shop", supermarket: "Supermarket", laundry: "Laundry",
+  dry_cleaning: "Laundry", wifi: "Free wifi"
+};
+const TABS = [["food", "Eat & drink"], ["sights", "See & do"], ["essentials", "Essentials"]];
+const DAYS = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
+const DAY_NAMES = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+
+const store = {
+  get(k, d) { try { const v = localStorage.getItem("gw:" + k); return v ? JSON.parse(v) : d; } catch { return d; } },
+  set(k, v) { try { localStorage.setItem("gw:" + k, JSON.stringify(v)); } catch {} }
+};
+const state = { index: store.get("index", null), port: null, tab: "food", openOnly: false, region: "All", q: "" };
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
+/* ---- Opening hours (common OpenStreetMap formats) ---- */
+function dayList(spec) {
+  const out = new Set();
+  for (const part of spec.split(",")) {
+    const [a, b] = part.trim().split("-");
+    const i = DAYS.indexOf(a), j = b ? DAYS.indexOf(b) : i;
+    if (i < 0 || j < 0) return null;
+    for (let d = i; ; d = (d + 1) % 7) { out.add(d); if (d === j) break; }
+  }
+  return out;
+}
+function hoursFor(oh, day) {
+  if (!oh) return undefined;
+  if (/^\s*24\/7\s*$/.test(oh)) return [[0, 1440]];
+  let result;
+  for (let rule of oh.split(";")) {
+    rule = rule.trim(); if (!rule) continue;
+    const m = rule.match(/^((?:Mo|Tu|We|Th|Fr|Sa|Su)(?:\s*[-,]\s*(?:Mo|Tu|We|Th|Fr|Sa|Su))*)\s+(.*)$/);
+    let days, times;
+    if (m) { days = dayList(m[1].replace(/\s/g, "")); times = m[2].trim(); }
+    else if (/^\d/.test(rule)) { days = new Set([0, 1, 2, 3, 4, 5, 6]); times = rule; }
+    else continue;                                   // PH, SH and other rules we can't read
+    if (!days) return undefined;
+    if (!days.has(day)) continue;
+    if (/^(off|closed)$/i.test(times)) { result = []; continue; }
+    const spans = [];
+    for (const t of times.split(",")) {
+      const x = t.trim().match(/^(\d{1,2}):(\d{2})\s*-\s*(\d{1,2}):(\d{2})\+?$/);
+      if (!x) return undefined;
+      let s = +x[1] * 60 + +x[2], e = +x[3] * 60 + +x[4];
+      if (e <= s) e += 1440;
+      spans.push([s, e]);
+    }
+    result = spans;                                  // later rules override earlier ones
+  }
+  return result;
+}
+const hhmm = m => { m = ((m % 1440) + 1440) % 1440; return String(Math.floor(m / 60)).padStart(2, "0") + ":" + String(m % 60).padStart(2, "0"); };
+function status(p, now = new Date()) {
+  const day = now.getDay(), mins = now.getHours() * 60 + now.getMinutes();
+  const spans = hoursFor(p.h, day);
+  if (spans === undefined) return { cls: "unknown", text: p.h ? "Hours: " + p.h : "Opening hours not listed" };
+  if (!spans.length) return { cls: "closed", text: `<b>Closed today</b> (${DAY_NAMES[day]})`, open: false };
+  const y = hoursFor(p.h, (day + 6) % 7) || [];
+  for (const [s, e] of y) if (e > 1440 && mins < e - 1440) return { cls: "open", text: `<b>Open</b> until ${hhmm(e)}`, open: true };
+  const today = spans.map(([s, e]) => `${hhmm(s)}–${hhmm(e)}`).join(", ");
+  if (spans[0][1] - spans[0][0] >= 1440) return { cls: "open", text: "<b>Open 24 hours</b>", open: true };
+  for (const [s, e] of spans) {
+    if (mins >= s && mins < e) return e - mins <= 45
+      ? { cls: "closing", text: `<b>Closes soon</b> at ${hhmm(e)}`, open: true }
+      : { cls: "open", text: `<b>Open now</b> · today ${today}`, open: true };
+  }
+  const next = spans.find(([s]) => s > mins);
+  return next ? { cls: "closed", text: `<b>Opens at ${hhmm(next[0])}</b> · today ${today}`, open: false }
+              : { cls: "closed", text: `<b>Closed for today</b> · was ${today}`, open: false };
+}
+
+/* ---- Data ---- */
+async function getJSON(path, fresh) {
+  const r = await fetch(DATA + path + (fresh ? "?t=" + Date.now() : ""), { cache: fresh ? "no-store" : "default" });
+  if (!r.ok) throw new Error(r.status);
+  return r.json();
+}
+async function loadPort(id, fresh) {
+  const cached = store.get("port:" + id, null);
+  if (cached && !fresh) return cached;
+  try { const p = await getJSON("ports/" + id + ".json", fresh); store.set("port:" + id, p); return p; }
+  catch { if (cached) return cached; throw new Error("offline"); }
+}
+function stampText() {
+  const t = store.get("checked", null);
+  if (!t) return "Not updated yet";
+  const d = new Date(t), same = d.toDateString() === new Date().toDateString();
+  return "Updated " + (same ? "today " : d.toLocaleDateString([], { day: "numeric", month: "short" }) + " ") + d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+}
+function toast(msg) { const t = $("#toast"); t.textContent = msg; t.hidden = false; clearTimeout(toast.t); toast.t = setTimeout(() => t.hidden = true, 2600); }
+
+async function refresh() {
+  const btn = $("#refresh"); btn.classList.add("spin"); btn.disabled = true;
+  try {
+    state.index = await getJSON("index.json", true); store.set("index", state.index);
+    if (state.port) state.port = await loadPort(state.port.id, true);
+    store.set("checked", Date.now());
+    toast(state.port ? `${state.port.name} is up to date for ${DAY_NAMES[new Date().getDay()]}` : "Ports are up to date");
+  } catch { toast("No connection. Showing the saved guide."); }
+  btn.classList.remove("spin"); btn.disabled = false; $("#updated").textContent = stampText(); render();
+}
+
+/* ---- Views ---- */
+function render() {
+  $("#back").hidden = !state.port; $("#brand").hidden = !!state.port;
+  $("#updated").textContent = stampText();
+  state.port ? renderPort() : renderList();
+}
+function renderList() {
+  const idx = state.index;
+  if (!idx) { $("#view").innerHTML = `<p class="empty">Loading ports…</p>`; return; }
+  const regions = ["All", ...new Set(idx.ports.map(p => p.region))];
+  const q = state.q.trim().toLowerCase();
+  const list = idx.ports.filter(p => (state.region === "All" || p.region === state.region) &&
+    (!q || (p.name + " " + p.country).toLowerCase().includes(q)));
+  const groups = {};
+  for (const p of list) (groups[p.region] ||= []).push(p);
+  $("#view").innerHTML = `
+    <input class="search" id="q" type="search" placeholder="Search ${idx.ports.length} ports, e.g. Cozumel" value="${esc(state.q)}" aria-label="Search ports">
+    <div class="chips" role="group" aria-label="Regions">${regions.map(r => `<button class="chip" data-region="${esc(r)}" aria-pressed="${r === state.region}">${esc(r)}</button>`).join("")}</div>
+    ${list.length ? Object.entries(groups).map(([r, ps]) => `
+      <section class="region"><h2>${esc(r)}</h2>
+        <ul class="ports">${ps.map(p => `<li><button data-port="${p.id}"><span><span class="nm">${esc(p.name)}</span><br><span class="ct">${esc(p.country)}</span></span>${p.tender ? '<span class="tag">TENDER</span>' : ""}</button></li>`).join("")}</ul>
+      </section>`).join("") : `<p class="empty">No port matches “${esc(state.q)}”.</p>`}
+    <p class="foot">Places from OpenStreetMap contributors. Check hours locally before you go.</p>`;
+  const qi = $("#q");
+  qi.oninput = e => { state.q = e.target.value; const pos = e.target.selectionStart; renderList(); const n = $("#q"); n.focus(); n.setSelectionRange(pos, pos); };
+  document.querySelectorAll("[data-region]").forEach(b => b.onclick = () => { state.region = b.dataset.region; renderList(); });
+  document.querySelectorAll("[data-port]").forEach(b => b.onclick = () => openPort(b.dataset.port));
+}
+function dms(v, pos, neg) { const a = Math.abs(v), d = Math.floor(a), m = ((a - d) * 60).toFixed(1); return `${d}°${m}′${v >= 0 ? pos : neg}`; }
+const walkMin = d => Math.max(1, Math.round(d * 1.3 / 80));          // streets aren't straight: +30%, 80 m a minute
+const walkText = d => d > 4000 ? `${(d / 1000).toFixed(1)} km · taxi` : `${walkMin(d)} min walk`;
+const icon = {
+  go: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l18-8-8 18-2-8-8-2z"/></svg>`,
+  web: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg>`
+};
+function directions(p) { return `https://www.google.com/maps/dir/?api=1&destination=${p.la},${p.lo}&travelmode=${p.d > 4000 ? "driving" : "walking"}`; }
+
+function renderPort() {
+  const P = state.port, now = new Date();
+  const all = P.places.filter(p => p.g === state.tab).map(p => ({ ...p, st: status(p, now) }));
+  const shown = state.openOnly ? all.filter(p => p.st.open) : all;
+  const aboard = store.get("aboard", "");
+  $("#view").innerHTML = `
+    <section class="hero">
+      <h2>${esc(P.name)}</h2>
+      <div class="meta"><span>${esc(P.country)}</span><span class="coords">${dms(P.lat, "N", "S")} ${dms(P.lon, "E", "W")}</span>${P.tender ? '<span class="badge">Tender port</span>' : ""}<span>Today is ${DAY_NAMES[now.getDay()]}</span></div>
+    </section>
+    <section class="aboard" aria-label="All aboard timer">
+      <div class="row"><label for="aboardTime">All aboard</label><input id="aboardTime" type="time" value="${esc(aboard)}"><small>${P.tender ? "Tender port: add time for the tender queue." : "Walking times are from the pier."}</small></div>
+      <div class="row"><span class="countdown" id="countdown">--:--</span><small id="cdText">Set the all-aboard time from your ship's daily planner.</small></div>
+    </section>
+    <div class="tabs" role="tablist">${TABS.map(([k, l]) => `<button class="tab" role="tab" data-tab="${k}" aria-selected="${k === state.tab}">${l}</button>`).join("")}</div>
+    <div class="filters"><button class="chip" id="openOnly" aria-pressed="${state.openOnly}">Open now</button><span class="count">${shown.length} of ${all.length} places</span></div>
+    <div class="cards">${shown.length ? shown.map(p => `
+      <article class="card">
+        <div class="top"><h3>${esc(p.n)}</h3><span class="walk">${walkText(p.d)}</span></div>
+        <div class="sub">${esc(KINDS[p.k] || p.k)}${p.cu ? " · " + esc(p.cu.replace(/_/g, " ").replace(/;/g, ", ")) : ""}${p.wifi && p.k !== "wifi" ? " · free wifi" : ""}</div>
+        <div class="status ${p.st.cls}"><span class="dot"></span><span>${p.st.text}</span></div>
+        <div class="actions"><a class="btn go" href="${directions(p)}" target="_blank" rel="noopener">${icon.go}Directions</a>${p.w ? `<a class="btn" href="${esc(/^https?:/.test(p.w) ? p.w : "https://" + p.w)}" target="_blank" rel="noopener">${icon.web}Website</a>` : ""}</div>
+      </article>`).join("") : `<p class="empty">${state.openOnly ? "Nothing here is open right now. Turn off “Open now” to see everything." : "No places listed here yet."}</p>`}</div>
+    <p class="foot">Places from OpenStreetMap contributors. Check hours locally before you go.</p>`;
+  document.querySelectorAll("[data-tab]").forEach(b => b.onclick = () => { state.tab = b.dataset.tab; renderPort(); });
+  $("#openOnly").onclick = () => { state.openOnly = !state.openOnly; renderPort(); };
+  $("#aboardTime").onchange = e => { store.set("aboard", e.target.value); tick(); };
+  tick();
+}
+function tick() {
+  const el = $("#countdown"); if (!el) return;
+  const v = $("#aboardTime").value, txt = $("#cdText");
+  if (!v) { el.textContent = "--:--"; el.className = "countdown"; return; }
+  const [h, m] = v.split(":").map(Number), now = new Date(), t = new Date(now);
+  t.setHours(h, m, 0, 0);
+  const left = Math.round((t - now) / 60000);
+  el.textContent = left >= 0 ? `${Math.floor(left / 60)}h ${String(left % 60).padStart(2, "0")}m` : "Past due";
+  el.className = "countdown" + (left < 0 ? " late" : left <= 45 ? " warn" : "");
+  txt.textContent = left < 0 ? "All-aboard time has passed. Head to the ship now." : left <= 45 ? "Start heading back to the ship." : `until all aboard at ${v}. Leave yourself the walk back plus 15 minutes.`;
+}
+setInterval(tick, 30000);
+
+async function openPort(id) {
+  try { state.port = await loadPort(id); state.tab = "food"; state.openOnly = false; render(); scrollTo(0, 0); location.hash = id; }
+  catch { toast("This port isn't saved yet. Connect to wifi and tap Refresh."); }
+}
+$("#back").onclick = () => { state.port = null; history.replaceState(null, "", location.pathname); render(); };
+$("#refresh").onclick = refresh;
+
+(async function start() {
+  render();
+  if (!state.index) { try { state.index = await getJSON("index.json"); store.set("index", state.index); } catch { $("#view").innerHTML = `<p class="empty">Connect to wifi and tap Refresh to download the ports.</p>`; return; } }
+  const id = location.hash.slice(1);
+  if (id && state.index.ports.some(p => p.id === id)) openPort(id); else render();
+})();
+</script>
