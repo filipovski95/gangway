@@ -1,15 +1,15 @@
 """Fetch places around every port from OpenStreetMap (Overpass API) and write
 compact JSON files the app downloads: data/index.json and data/ports/<id>.json."""
-import json, math, os, sys, time, urllib.parse, urllib.request
+import json, math, os, subprocess, sys, time, urllib.parse, urllib.request
 from datetime import datetime, timezone
 
 sys.path.insert(0, os.path.dirname(__file__))
 from ports_src import PORTS
 
 MIRRORS = [
+    "https://overpass.private.coffee/api/interpreter",
     "https://overpass-api.de/api/interpreter",
     "https://overpass.kumi.systems/api/interpreter",
-    "https://overpass.private.coffee/api/interpreter",
 ]
 OUT = os.path.join(os.path.dirname(__file__), "..", "data")
 LIMITS = {"food": 40, "sights": 25, "essentials": 30}
@@ -35,11 +35,12 @@ def fetch(q):
         url = MIRRORS[attempt % len(MIRRORS)]
         try:
             req = urllib.request.Request(url, data=body, headers={"User-Agent": UA})
-            with urllib.request.urlopen(req, timeout=180) as r:
+            with urllib.request.urlopen(req, timeout=150) as r:
                 return json.load(r)
-        except Exception as e:  # rate limits and timeouts: back off and rotate
+        except Exception as e:  # busy servers and timeouts: rotate mirrors, back off
             last = e
-            time.sleep(10 * (attempt + 1))
+            print(f"  {url.split('/')[2]}: {e}", flush=True)
+            time.sleep(5 * (attempt + 1))
     raise RuntimeError(f"Overpass failed: {last}")
 
 
@@ -84,14 +85,30 @@ def place(el, plat, plon):
     return p
 
 
+def write_index(index):
+    stamp = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%MZ")
+    with open(os.path.join(OUT, "index.json"), "w") as f:
+        json.dump({"version": stamp, "ports": index}, f, ensure_ascii=False, separators=(",", ":"))
+
+
+def save_progress(msg):
+    if not os.environ.get("GITHUB_ACTIONS"):
+        return
+    subprocess.run(["git", "add", "data"], check=True)
+    if subprocess.run(["git", "diff", "--cached", "--quiet"]).returncode:
+        subprocess.run(["git", "commit", "-qm", msg], check=True)
+        subprocess.run(["git", "push", "-q"], check=False)
+
+
 def main():
     only = set(sys.argv[1:])
     os.makedirs(os.path.join(OUT, "ports"), exist_ok=True)
-    index = []
+    index = [dict(id=p[0], name=p[1], country=p[2], region=p[3], lat=p[4], lon=p[5], tender=p[6]) for p in PORTS]
+    write_index(index)
+    done = 0
     for pid, name, country, region, lat, lon, tender in PORTS:
         entry = {"id": pid, "name": name, "country": country, "region": region,
                  "lat": lat, "lon": lon, "tender": tender}
-        index.append(entry)
         path = os.path.join(OUT, "ports", f"{pid}.json")
         if (only and pid not in only) or (not only and os.path.exists(path)):
             continue
@@ -117,10 +134,13 @@ def main():
         with open(path, "w") as f:
             json.dump({**entry, "places": places}, f, ensure_ascii=False, separators=(",", ":"))
         print(f"  {len(places)} places", flush=True)
-        time.sleep(4)
-    stamp = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%MZ")
-    with open(os.path.join(OUT, "index.json"), "w") as f:
-        json.dump({"version": stamp, "ports": index}, f, ensure_ascii=False, separators=(",", ":"))
+        done += 1
+        if done % 10 == 0:
+            write_index(index)
+            save_progress(f"Port places: {done} more ports")
+        time.sleep(2)
+    write_index(index)
+    save_progress("Port places: final batch")
 
 
 if __name__ == "__main__":
