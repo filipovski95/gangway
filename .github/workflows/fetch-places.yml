@@ -1,0 +1,28 @@
+name: Fetch port places
+on:
+  push:
+    paths: ["tools/**", ".github/workflows/fetch-places.yml"]
+  workflow_dispatch:
+  schedule:
+    - cron: "0 3 * * 1"   # weekly refresh of opening hours and new places
+permissions:
+  contents: write
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - name: Fetch places (only ports missing data; weekly run refreshes all)
+        run: |
+          if [ "${{ github.event_name }}" = "schedule" ]; then rm -rf data/ports; fi
+          python tools/fetch_places.py
+      - name: Commit data
+        run: |
+          git config user.name "gangway-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add data
+          git diff --cached --quiet || git commit -m "Update port places from OpenStreetMap"
+          git push
