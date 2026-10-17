@@ -38,7 +38,6 @@
 }
 * { box-sizing: border-box; }
 [hidden] { display: none !important; }
-html, body { height: 100%; }
 body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.45 var(--body); -webkit-tap-highlight-color: transparent; }
 body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--band); }
 button, input { font: inherit; color: inherit; }
@@ -98,7 +97,7 @@ main .wrap { padding-block: 16px 40px; display: grid; gap: 16px; }
 .count { margin-left: auto; color: var(--muted); font-size: 13px; }
 
 .cards { display: grid; gap: 10px; }
-.card { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; display: grid; gap: 8px; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 11px 14px; display: grid; gap: 6px; }
 .card .top { display: flex; gap: 10px; align-items: baseline; }
 .card h3 { font-size: 16px; margin: 0; min-width: 0; overflow-wrap: anywhere; }
 .walk { margin-left: auto; flex: none; font: 500 12px var(--mono); color: var(--muted); }
@@ -108,7 +107,7 @@ main .wrap { padding-block: 16px 40px; display: grid; gap: 16px; }
 .status.open .dot { background: var(--open); } .status.open b { color: var(--open); }
 .status.closing .dot { background: var(--closing); } .status.closing b { color: var(--closing); }
 .status.closed .dot { background: var(--closed); } .status.closed b { color: var(--closed); }
-.status.unknown { color: var(--muted); }
+.status.unknown { color: var(--muted); font-size: 12.5px; }
 .actions { display: flex; gap: 8px; flex-wrap: wrap; }
 .btn { display: inline-flex; align-items: center; gap: 6px; text-decoration: none; border-radius: 8px; padding: 7px 12px; font-size: 13.5px; font-weight: 600; border: 1px solid var(--line); color: var(--ink); background: var(--bg); }
 .btn.go { background: var(--sea); border-color: var(--sea); color: #fff; }
@@ -182,7 +181,13 @@ function hoursFor(oh, day) {
   if (!oh) return undefined;
   if (/^\s*24\/7\s*$/.test(oh)) return [[0, 1440]];
   let result;
-  for (let rule of oh.split(";")) {
+  // Rules are separated by ";" or by ", " before a new day range ("Mo-Th 09:00-16:00, Fr 09:00-16:30").
+  const parts = [];
+  for (const piece of oh.split(/;|,(?=\s*(?:Mo|Tu|We|Th|Fr|Sa|Su|PH)\b)/)) {
+    if (parts.length && /^\s*(?:Mo|Tu|We|Th|Fr|Sa|Su)(?:\s*-\s*(?:Mo|Tu|We|Th|Fr|Sa|Su))?\s*$/.test(parts[parts.length - 1])) parts[parts.length - 1] += "," + piece.trim();
+    else parts.push(piece);
+  }
+  for (let rule of parts) {
     rule = rule.trim(); if (!rule) continue;
     const m = rule.match(/^((?:Mo|Tu|We|Th|Fr|Sa|Su)(?:\s*[-,]\s*(?:Mo|Tu|We|Th|Fr|Sa|Su))*)\s+(.*)$/);
     let days, times;
@@ -208,7 +213,7 @@ const hhmm = m => { m = ((m % 1440) + 1440) % 1440; return String(Math.floor(m /
 function status(p, now = new Date()) {
   const day = now.getDay(), mins = now.getHours() * 60 + now.getMinutes();
   const spans = hoursFor(p.h, day);
-  if (spans === undefined) return { cls: "unknown", text: p.h ? "Hours: " + p.h : "Opening hours not listed" };
+  if (spans === undefined) return { cls: "unknown", text: p.h ? "Hours: " + esc(p.h) : "Hours not listed" };
   if (!spans.length) return { cls: "closed", text: `<b>Closed today</b> (${DAY_NAMES[day]})`, open: false };
   const y = hoursFor(p.h, (day + 6) % 7) || [];
   for (const [s, e] of y) if (e > 1440 && mins < e - 1440) return { cls: "open", text: `<b>Open</b> until ${hhmm(e)}`, open: true };
