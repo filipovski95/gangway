@@ -16,6 +16,8 @@ MIRRORS = [
 OUT = os.path.join(os.path.dirname(__file__), "..", "data")
 LIMITS = {"food": 40, "sights": 25, "essentials": 30}
 UA = "Gangway/0.1 (offline cruise port guide)"
+# SHARD="i/n" splits the missing ports across n parallel jobs; each starts on a different mirror.
+SHARD = tuple(map(int, os.environ["SHARD"].split("/"))) if os.environ.get("SHARD") else None
 
 
 # Three small queries per port: busy Overpass servers accept short, light
@@ -38,7 +40,7 @@ def fetch(q):
     body = urllib.parse.urlencode({"data": q}).encode()
     last = None
     for attempt in range(8):
-        url = MIRRORS[attempt % len(MIRRORS)]
+        url = MIRRORS[(attempt + (SHARD[0] if SHARD else 0)) % len(MIRRORS)]
         try:
             req = urllib.request.Request(url, data=body, headers={"User-Agent": UA})
             with urllib.request.urlopen(req, timeout=60) as r:
@@ -92,6 +94,8 @@ def place(el, plat, plon):
 
 
 def write_index(index):
+    if SHARD:  # parallel jobs leave the shared index alone so their pushes never conflict
+        return
     stamp = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%MZ")
     with open(os.path.join(OUT, "index.json"), "w") as f:
         json.dump({"version": stamp, "ports": index}, f, ensure_ascii=False, separators=(",", ":"))
@@ -119,6 +123,8 @@ def main():
     done = 0
     refresh_all = os.environ.get("REFRESH_ALL") == "1"  # weekly: refetch every port, keep old data on failure
     todo = [p for p in PORTS if (p[0] in only) or (not only and (refresh_all or not os.path.exists(os.path.join(OUT, "ports", f"{p[0]}.json"))))]
+    if SHARD:
+        todo = todo[SHARD[0]::SHARD[1]]
     for attempt in range(2):  # second pass retries ports the busy servers refused
         todo = fetch_ports(todo, index, done)
         if not todo:

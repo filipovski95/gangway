@@ -1,6 +1,11 @@
 name: Fetch port places
 on:
   workflow_dispatch:
+    inputs:
+      shard:
+        description: "Run part i of n in parallel, as i/n (empty = all)"
+        required: false
+        default: ""
   schedule:
     - cron: "0 3 * * 1"   # weekly refresh of opening hours and new places
 permissions:
@@ -8,6 +13,8 @@ permissions:
 jobs:
   fetch:
     runs-on: ubuntu-latest
+    env:
+      SHARD: ${{ github.event.inputs.shard }}
     timeout-minutes: 340
     steps:
       - uses: actions/checkout@v4
@@ -21,7 +28,7 @@ jobs:
         run: |
           if [ "${{ github.event_name }}" = "schedule" ]; then export REFRESH_ALL=1; fi
           python tools/fetch_places.py
-          python tools/countries.py
+          if [ -z "$SHARD" ]; then python tools/countries.py; fi
       - name: Commit data
         if: always()
         run: |
