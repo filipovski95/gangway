@@ -3,7 +3,7 @@ so the app can tell crew which port their ship is in today and who else is in po
 
 Source: crew-center.com ship itinerary pages (port, arrival, departure, local times).
 """
-import html, json, os, re, sys, time, urllib.request
+import html, http.cookiejar, json, os, re, sys, time, urllib.error, urllib.request
 from datetime import datetime, timezone
 
 sys.path.insert(0, os.path.dirname(__file__))
@@ -61,14 +61,21 @@ def text(cell):
     return html.unescape(re.sub(r"<[^>]+>", " ", cell)).strip()
 
 
+# The site sets a cookie and redirects to the same page, so keep cookies between requests.
+OPENER = urllib.request.build_opener(urllib.request.HTTPCookieProcessor(http.cookiejar.CookieJar()))
+
+
 def get(url):
-    for attempt in range(4):
+    for attempt in range(3):
         try:
-            with urllib.request.urlopen(urllib.request.Request(url, headers={"User-Agent": UA}), timeout=40) as r:
+            req = urllib.request.Request(url, headers={"User-Agent": UA, "Accept": "text/html", "Accept-Language": "en"})
+            with OPENER.open(req, timeout=40) as r:
                 return r.read().decode("utf-8", "replace")
+        except urllib.error.HTTPError as e:
+            print(f"  {e} -> {e.headers.get('Location')} {e.read()[:200]!r}", flush=True)
         except Exception as e:
             print(f"  {e}", flush=True)
-            time.sleep(5 + 10 * attempt)
+        time.sleep(5 + 10 * attempt)
     return None
 
 

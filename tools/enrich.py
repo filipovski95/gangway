@@ -5,7 +5,7 @@ Runs after fetch_places.py. Ports already enriched are skipped unless
 ENRICH_ALL=1, so a refetched port (which loses these fields) is picked up again.
 Text and photos come from English Wikipedia (CC BY-SA); the app links each one back.
 """
-import json, math, os, re, sys, time, urllib.parse, urllib.request
+import gzip, json, math, os, re, sys, time, urllib.parse, urllib.request
 from datetime import date
 
 OUT = os.path.join(os.path.dirname(__file__), "..", "data")
@@ -28,11 +28,18 @@ def api(**params):
     params.update(format="json", formatversion=2)
     url = API + "?" + urllib.parse.urlencode(params)
     for attempt in range(5):
+        body = b""
         try:
-            with urllib.request.urlopen(urllib.request.Request(url, headers={"User-Agent": UA}), timeout=40) as r:
-                return json.load(r)
+            req = urllib.request.Request(url, headers={"User-Agent": UA, "Accept": "application/json", "Api-User-Agent": UA})
+            with urllib.request.urlopen(req, timeout=40) as r:
+                body = r.read()
+                if r.headers.get("Content-Encoding") == "gzip":
+                    body = gzip.decompress(body)
+                data = json.loads(body)
+                api.ok = True
+                return data
         except Exception as e:
-            print(f"  wikipedia: {e}", flush=True)
+            print(f"  wikipedia: {e} {body[:160]!r}", flush=True)
             time.sleep(3 + 5 * attempt)
     return {}
 
@@ -184,10 +191,14 @@ def main():
         if (only and port["id"] not in only) or (not only and not every and port.get("wk")):
             continue
         print(f"{port['id']} {port['name']}", flush=True)
+        api.ok = False
         try:
             enrich(port)
         except Exception as e:
             print(f"  skipped: {e}", flush=True)
+            continue
+        if not api.ok:  # Wikipedia never answered: leave the port to be tried next run
+            print("  no answer from Wikipedia", flush=True)
             continue
         with open(path, "w") as f:
             json.dump(port, f, ensure_ascii=False, separators=(",", ":"))
