@@ -113,11 +113,42 @@ def place(el, plat, plon):
     return p
 
 
+def keep_wiki(path, out):
+    """Carry Wikipedia text, photos and added landmarks over from the previous file,
+    so a refresh of the map data doesn't wipe what enrich.py added."""
+    try:
+        with open(path) as f:
+            old = json.load(f)
+    except (FileNotFoundError, ValueError):
+        return
+    if "wk" not in old:
+        return
+    wiki = {(p["n"], p["k"]): p for p in old["places"] if p.get("ds") or p.get("img")}
+    for p in out["places"]:
+        w = wiki.get((p["n"], p["k"]))
+        if w:
+            p.update({k: w[k] for k in ("ds", "img", "wpu") if k in w})
+    names = {p["n"] for p in out["places"]}
+    out["places"] += [p for p in old["places"] if p["k"] == "landmark" and p["n"] not in names]
+    for k in ("about", "wk"):
+        if k in old:
+            out[k] = old[k]
+
+
 def write_index(index):
     if SHARD:  # parallel jobs leave the shared index alone so their pushes never conflict
         return
     stamp = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%MZ")
-    with open(os.path.join(OUT, "index.json"), "w") as f:
+    path = os.path.join(OUT, "index.json")
+    try:
+        with open(path) as f:
+            imgs = {p["id"]: p["img"] for p in json.load(f)["ports"] if p.get("img")}
+    except (FileNotFoundError, ValueError, KeyError):
+        imgs = {}
+    for p in index:
+        if p["id"] in imgs:
+            p["img"] = imgs[p["id"]]
+    with open(path, "w") as f:
         json.dump({"version": stamp, "ports": index}, f, ensure_ascii=False, separators=(",", ":"))
 
 
@@ -181,8 +212,10 @@ def fetch_ports(todo, index, done):
         places = []
         for g, lim in LIMITS.items():
             places += sorted(groups[g], key=lambda x: x["d"])[:lim]
+        out = {**entry, "places": places}
+        keep_wiki(path, out)
         with open(path, "w") as f:
-            json.dump({**entry, "places": places}, f, ensure_ascii=False, separators=(",", ":"))
+            json.dump(out, f, ensure_ascii=False, separators=(",", ":"))
         print(f"  {len(places)} places", flush=True)
         done += 1
         if done % 10 == 0:
