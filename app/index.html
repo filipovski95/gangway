@@ -47,7 +47,7 @@
 }
 * { box-sizing: border-box; }
 [hidden] { display: none !important; }
-html { -webkit-text-size-adjust: 100%; }
+html { -webkit-text-size-adjust: 100%; scroll-padding-top: calc(var(--bandH, 90px) + 20px); }
 body { margin: 0; background: var(--bg) var(--waves) repeat; color: var(--ink); font: 16px/1.45 var(--body); -webkit-tap-highlight-color: transparent; overflow-x: hidden; }
 button, input, select { font: inherit; color: inherit; }
 button { cursor: pointer; }
@@ -710,6 +710,10 @@ function renderList() {
     <footer class="foot">${icon.wave}<span>Places from OpenStreetMap contributors. Descriptions and photos from Wikipedia. Check times with your ship's daily planner.</span><span>Fair winds ⚓</span></footer>`;
   $("#near").onclick = findNearest;
   $("#q").oninput = e => { state.q = e.target.value; renderResults(); suggest(); };
+  // Keep the search box just under the header while typing, with room for suggestions below it.
+  const lift = () => { const box = $(".searchbox"); if (!box) return; const top = box.getBoundingClientRect().top + scrollY - $("#band").offsetHeight - 30; scrollTo({ top, behavior: "smooth" }); };
+  $("#q").onfocus = () => { lift(); setTimeout(lift, 350); };
+  if (window.visualViewport) visualViewport.onresize = () => { if (document.activeElement && document.activeElement.id === "q") lift(); };
   $("#q").onkeydown = e => { if (e.key === "Enter") { const f = $("#suggest button"); if (f) { e.preventDefault(); f.click(); } } };
   document.querySelectorAll("[data-region]").forEach(b => b.onclick = () => {
     state.region = b.dataset.region;
@@ -752,7 +756,7 @@ function bindPass() {
   document.querySelectorAll("#pass [data-port]").forEach(b => b.onclick = () => openPort(b.dataset.port));
   document.querySelectorAll("[data-pick]").forEach(b => b.onclick = pickShip);
   document.querySelectorAll("#pass [data-near]").forEach(b => b.onclick = findNearest);
-  document.querySelectorAll("#pass [data-search]").forEach(b => b.onclick = () => { const q = $("#q"); q.scrollIntoView({ block: "center", behavior: "smooth" }); q.focus(); toast("Type the name of today's port"); });
+  document.querySelectorAll("#pass [data-search]").forEach(b => b.onclick = () => { const q = $("#q"); q.focus(); toast("Type the name of today's port"); });
 }
 function renderResults() {
   const q = state.q.trim().toLowerCase();
