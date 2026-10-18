@@ -21,7 +21,7 @@ LANDMARK = re.compile(r"\b(church|cathedral|basilica|chapel|mosque|temple|shrine
 SKIP = re.compile(r"\b(school|university|college|station|airport|company|corporation|neighbou?rhood|district|borough|"
                   r"street|road|avenue|highway|electoral|constituency|ward|parish|municipality|census|"
                   r"railway|bus|ferry route|ship|shipwreck|hospital|stadium|arena|radio|television|newspaper|"
-                  r"football|club|band|album|film|person|politician|footballer|businessman)\b", re.I)
+                  r"football|club|band|album|film|person|politician|footballer|businessman|eruption|battle|siege|earthquake|massacre|tunnel|channel|strait)\b", re.I)
 
 
 def api(**params):

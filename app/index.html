@@ -504,6 +504,9 @@ function passCard() {
       <span class="today">Pick your ship and Gangway shows today's port and your all-aboard time.</span>
       <div class="row"><button class="btn y" data-pick>⚓ Choose my ship</button></div></div>
       <div class="stub">${SHIP_ART}</div></section>`;
+  if (!ship.calls.length) return `<section class="pass"><div class="main"><span class="lbl">My ship</span><span class="shipname">${esc(ship.name)}</span>
+      <span class="today">This ship's schedule isn't loaded yet. Use <b>Find the port I'm in</b> and set all aboard from the daily planner.</span>
+      <div class="row"><button class="btn" data-pick>Change ship</button></div></div><div class="stub">${SHIP_ART}</div></section>`;
   const c = todayCall(ship), next = nextCalls(ship);
   const here = c && c.p ? portName(c.p) : null;
   const aboard = autoAboard(c);
@@ -532,7 +535,7 @@ function renderList() {
     <div id="pass">${passCard()}</div>
     <div class="chips" role="group" aria-label="Regions">${regions.map(r => `<button class="chip" data-region="${esc(r)}" aria-pressed="${r === state.region}">${esc(r)}</button>`).join("")}</div>
     <div id="results"></div>
-    <footer class="foot">${icon.wave}<span>Places from OpenStreetMap contributors. Descriptions and photos from Wikipedia. Ship schedules from crew-center.com. Check times with your ship's daily planner.</span><span>Fair winds ⚓</span></footer>`;
+    <footer class="foot">${icon.wave}<span>Places from OpenStreetMap contributors. Descriptions and photos from Wikipedia. Check times with your ship's daily planner.</span><span>Fair winds ⚓</span></footer>`;
   $("#near").onclick = findNearest;
   $("#q").oninput = e => { state.q = e.target.value; renderResults(); };
   document.querySelectorAll("[data-region]").forEach(b => b.onclick = () => {
