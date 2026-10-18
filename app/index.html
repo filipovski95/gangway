@@ -283,6 +283,20 @@ main .wrap > * { min-width: 0; }
 /* Ship picker: a bottom sheet */
 .sheet { position: fixed; inset: 0; z-index: 30; background: #04101a99; display: flex; align-items: flex-end; justify-content: center; }
 .sheet .in { width: 100%; max-width: 640px; max-height: 86vh; overflow: auto; background: var(--surface); border-radius: 24px 24px 0 0; padding: 10px var(--gut) calc(20px + env(safe-area-inset-bottom, 0px)); display: grid; gap: 12px; }
+.sheethead { position: sticky; top: -10px; z-index: 3; display: flex; align-items: center; gap: 12px; margin: -10px calc(var(--gut) * -1) 0; padding: 22px var(--gut) 18px;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--lc) 82%, #fff), var(--lc)); color: #fff; border-radius: 24px 24px 0 0; box-shadow: 0 3px 0 #fff, 0 7px 0 var(--flag-red); margin-bottom: 8px; }
+.sheethead .grab { position: absolute; top: 7px; left: 50%; transform: translateX(-50%); background: #ffffff70; }
+.sheethead .sh-t { flex: 1; min-width: 0; display: grid; gap: 3px; }
+.sheethead .sh-h { font: 800 26px/1 var(--display); text-transform: uppercase; letter-spacing: .04em; overflow-wrap: anywhere; }
+.sheethead small { font-size: 13px; opacity: .85; }
+.sheethead .funnel { width: 40px; height: 44px; flex: none; filter: drop-shadow(0 2px 3px #0005); }
+.sheethead .funnel path:first-child { stroke: #fff; stroke-width: 1.5; }
+.sheethead .sh-wheel { width: 38px; height: 38px; color: var(--signal); flex: none; }
+.sheethead .sh-flag { font-size: 32px; line-height: 1; }
+.roundbtn { width: 44px; height: 44px; flex: none; border-radius: 50%; display: grid; place-items: center; padding: 0; background: #ffffff24; border: 2px solid #ffffff66; color: #fff; }
+.roundbtn svg { width: 22px; height: 22px; }
+.roundbtn:active { transform: scale(.94); background: #ffffff40; }
+.btn svg { pointer-events: none; }
 .sheet .grab { width: 44px; height: 5px; border-radius: 3px; background: var(--line); justify-self: center; }
 .sheet h3 { margin: 0; font: 800 26px/1 var(--display); text-transform: uppercase; letter-spacing: .04em; }
 .sheet p { margin: 0; color: var(--muted); font-size: 14px; }
@@ -507,6 +521,8 @@ const icon = {
   search: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>`,
   chev: `<svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>`,
   anchor: `<svg viewBox="0 0 24 24" aria-hidden="true"><use href="#anchor"/></svg>`,
+  left: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>`,
+  x: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>`,
   bell: `<svg viewBox="0 0 24 24" aria-hidden="true"><use href="#bell"/></svg>`,
   wave: `<svg viewBox="0 0 120 24" aria-hidden="true"><path d="M0 12c10 0 10-7 20-7s10 7 20 7 10-7 20-7 10 7 20 7 10-7 20-7 10 7 20 7" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>`
 };
@@ -758,6 +774,26 @@ function renderResults() {
   document.querySelectorAll("#results [data-port]").forEach(b => b.onclick = () => openPort(b.dataset.port));
 }
 
+/* Bottom sheets: a coloured header with round back and close buttons; the phone's back button steps back too. */
+let sheet = null;
+const sheetHead = (color, badge, title, sub, back) => `<div class="sheethead" style="--lc:${color}"><span class="grab"></span>
+  ${back ? `<button class="roundbtn" data-back aria-label="Back">${icon.left}</button>` : ""}${badge}
+  <span class="sh-t"><span class="sh-h">${title}</span>${sub ? `<small>${sub}</small>` : ""}</span>
+  <button class="roundbtn" data-close aria-label="Close">${icon.x}</button></div>`;
+function openSheet(el, onClose) {
+  document.body.append(el);
+  history.pushState({ sheet: 1 }, "", location.href);
+  sheet = { el, depth: 1, onClose, back: null };
+  el.onclick = e => { if (e.target === el) closeSheet(); };
+}
+function sheetPush(back) { sheet.depth++; sheet.back = back; history.pushState({ sheet: sheet.depth }, "", location.href); }
+function closeSheet(keepHistory) {
+  if (!sheet) return;
+  const s = sheet; sheet = null; s.el.remove();
+  if (!keepHistory) history.go(-s.depth);
+  if (s.onClose) s.onClose();
+}
+
 // Pick a cruise line, then a ship; ships with a published port call today come first.
 function pickShip(line) {
   const cur = store.get("ship", "");
@@ -770,33 +806,34 @@ function pickShip(line) {
   const lines = Object.keys(all).sort((a, b) => (a === "Other lines") - (b === "Other lines") || (b in FLEETS) - (a in FLEETS) || a.localeCompare(b));
   const el = document.createElement("div");
   el.className = "sheet";
-  const close = () => { el.remove(); render(); };
+  const close = () => closeSheet();
   const draw = l => {
     if (!l) {
-      el.innerHTML = `<div class="in" role="dialog" aria-label="Choose your cruise line"><span class="grab"></span>
-        <h3>Which cruise line?</h3><p>Then pick your ship and Gangway shows today's port and all aboard.</p>
+      el.innerHTML = `<div class="in" role="dialog" aria-label="Choose your cruise line">
+        ${sheetHead("#0d2536", `<svg class="sh-wheel" viewBox="0 0 48 48" aria-hidden="true"><use href="#wheel"/></svg>`, "Which cruise line?", "Then pick your ship")}
+        <p>Gangway then shows today's port and your all-aboard time.</p>
         <div class="fleet lines">${lines.map(x => { const n = all[x].filter(today).length; return `<button data-line="${esc(x)}">${funnel(lineColor(x), esc(initials(x)))}<span>${esc(x)}<small>${all[x].length} ships${n ? ` · ${n} in port today` : ""}</small></span></button>`; }).join("")}</div>
         <p>All aboard is how long before sailing?</p>
         <div class="seg">${[30, 45, 60, 90].map(m => `<button class="chip" data-off="${m}" aria-pressed="${m === offset()}">${m} min</button>`).join("")}</div>
         <div class="seg">${cur ? `<button class="btn" data-clear>Not on a ship</button>` : ""}<button class="btn go" data-done style="margin-left:auto">Done</button></div></div>`;
     } else {
       const ships = [...all[l]].sort((a, b) => !!today(b) - !!today(a) || a.localeCompare(b));
-      el.innerHTML = `<div class="in" role="dialog" aria-label="Choose your ship"><span class="grab"></span>
-        <button class="btn" data-back>‹ All cruise lines</button>
-        <div class="linehead">${funnel(lineColor(l), esc(initials(l)))}<h3>${esc(l)}</h3></div><p>Tap your ship. Ships with a port today come first.</p>
+      el.innerHTML = `<div class="in" role="dialog" aria-label="Choose your ship">
+        ${sheetHead(lineColor(l), funnel(lineColor(l), esc(initials(l))), esc(l), `${all[l].length} ships · tap yours`, true)}
+        <p>Ships with a port today come first. Wrong cruise line? Tap the back arrow.</p>
         <div class="fleet ships">${ships.map(n => { const c = today(n); const short = n.replace(new RegExp("^(" + l + "|Celebrity|Norwegian|Carnival|MSC|Costa|Disney|Oceania|Holland America|Cunard|Viking|Virgin) "), ""); return `<button data-ship="${esc(n)}" aria-pressed="${sameShip(n, cur)}"><span class="porthole sm" aria-hidden="true">${shipArt(lineColor(l))}${shipPhoto(n)}</span><span>${esc(short)}<small>${c ? "⛴ " + esc(c.p ? portName(c.p) : c.n) + " today" : sched(n) ? "At sea or no port today" : "No published schedule"}</small></span></button>`; }).join("")}</div></div>`;
     }
-    el.querySelectorAll("[data-line]").forEach(b => b.onclick = () => draw(b.dataset.line));
+    el.querySelectorAll("[data-line]").forEach(b => b.onclick = () => { sheetPush(() => draw(null)); draw(b.dataset.line); });
     el.querySelectorAll("[data-ship]").forEach(b => b.onclick = () => { store.set("ship", b.dataset.ship); store.set("line", l); close(); });
     el.querySelectorAll("[data-off]").forEach(b => b.onclick = () => { store.set("offset", +b.dataset.off); el.querySelectorAll("[data-off]").forEach(x => x.setAttribute("aria-pressed", x === b)); });
     const q = sel => el.querySelector(sel);
-    if (q("[data-back]")) q("[data-back]").onclick = () => draw(null);
+    if (q("[data-back]")) q("[data-back]").onclick = () => history.back();
+    q("[data-close]").onclick = close;
     if (q("[data-clear]")) q("[data-clear]").onclick = () => { store.set("ship", ""); close(); };
     if (q("[data-done]")) q("[data-done]").onclick = close;
     el.querySelector(".in").scrollTop = 0;
   };
-  el.onclick = e => { if (e.target === el) close(); };
-  document.body.append(el);
+  openSheet(el, render);
   draw(typeof line === "string" ? line : null);
 }
 
@@ -829,9 +866,8 @@ function checkIn(id) {
   const key = `aboard:${id}:${dayStr()}`;
   const el = document.createElement("div");
   el.className = "sheet";
-  el.innerHTML = `<div class="in" role="dialog" aria-label="Check in to ${esc(P.name)}"><span class="grab"></span>
-    <span class="lbl">${flag(P.country)} ${esc(P.country)} · ${DAY_NAMES[new Date().getDay()]}</span>
-    <h3>${esc(P.name)}</h3>
+  el.innerHTML = `<div class="in" role="dialog" aria-label="Check in to ${esc(P.name)}">
+    ${sheetHead("#0e6f82", `<span class="sh-flag">${flag(P.country)}</span>`, esc(P.name), `${esc(P.country)} · ${DAY_NAMES[new Date().getDay()]}`)}
     ${here.length ? `<p>Ships in port today. Tap yours to set the all-aboard time.</p>
       <div class="checkin">${here.map(x => `<button class="shipopt${x.s.name === mine ? " mine" : ""}" data-ship="${esc(x.s.name)}"><span class="porthole sm">${shipArt(lineColor(lineOf(x.s.name)))}${shipPhoto(x.s.name)}</span>
         <span><b>${esc(x.s.name)}</b><small>${x.c.a ? "in " + tm(x.c.a) : "overnight"} · ${x.c.d ? "sails " + (x.c.d.slice(0, 10) === dayStr() ? tm(x.c.d) : new Date(x.c.d).toLocaleDateString([], { weekday: "short" }) + " " + tm(x.c.d)) : "turnaround"}</small></span></button>`).join("")}</div>
@@ -840,10 +876,12 @@ function checkIn(id) {
     <div class="sailrow"><label for="sailTime"><b>Ship sails at</b></label><input id="sailTime" type="time"></div>
     <p>All aboard, before sailing:</p>
     <div class="seg">${[30, 45, 60, 90].map(m => `<button class="chip" data-off="${m}" aria-pressed="${m === offset()}">${m} min</button>`).join("")}</div>
-    <div class="seg"><button class="btn" data-skip>Just show the guide</button><button class="btn go" data-go style="margin-left:auto">${icon.go}Go ashore</button></div></div>`;
-  document.body.append(el);
-  const go = (d) => { setHere(id, d); el.remove(); state.q = ""; openPort(id); };
-  el.onclick = e => { if (e.target === el) el.remove(); };
+    <div class="seg"><button class="btn" data-wrong>${icon.left}Wrong port</button><button class="btn" data-skip>Just show the guide</button><button class="btn go" data-go style="margin-left:auto">${icon.go}Go ashore</button></div></div>`;
+  openSheet(el);
+  // The sheet's history entry becomes the port's, so the phone's back button returns home.
+  const go = (d) => { setHere(id, d); closeSheet(true); state.q = ""; history.replaceState({ port: id }, "", "#" + id); openPort(id); };
+  el.querySelector("[data-close]").onclick = () => closeSheet();
+  el.querySelector("[data-wrong]").onclick = () => { closeSheet(); const q = $("#q"); if (q) { q.focus(); q.select(); } };
   el.querySelectorAll("[data-off]").forEach(b => b.onclick = () => { store.set("offset", +b.dataset.off); el.querySelectorAll("[data-off]").forEach(x => x.setAttribute("aria-pressed", x === b)); });
   el.querySelectorAll("[data-ship]").forEach(b => b.onclick = () => {
     store.set("ship", b.dataset.ship);
@@ -979,7 +1017,13 @@ async function openPort(id) {
 }
 function closePort() { state.port = null; render(); }
 $("#back").onclick = () => { if (history.state && history.state.port) history.back(); else { history.replaceState(null, "", location.pathname); closePort(); } };
-addEventListener("popstate", () => { const id = location.hash.slice(1); if (id) openPort(id); else closePort(); });
+addEventListener("popstate", () => {
+  if (sheet) {
+    if (sheet.depth > 1 && sheet.back) { sheet.depth--; const b = sheet.back; sheet.back = null; b(); }
+    else closeSheet(true);
+    return;
+  }
+  const id = location.hash.slice(1); if (id) openPort(id); else closePort(); });
 $("#refresh").onclick = refresh;
 
 (async function start() {
