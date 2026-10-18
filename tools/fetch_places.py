@@ -14,7 +14,7 @@ MIRRORS = [
     "https://overpass.osm.jp/api/interpreter",
 ]
 OUT = os.path.join(os.path.dirname(__file__), "..", "data")
-LIMITS = {"food": 40, "sights": 25, "essentials": 30}
+LIMITS = {"food": 60, "sights": 40, "essentials": 30}
 UA = "Gangway/0.1 (offline cruise port guide)"
 # SHARD="i/n" splits the missing ports across n parallel jobs; each starts on a different mirror.
 SHARD = tuple(map(int, os.environ["SHARD"].split("/"))) if os.environ.get("SHARD") else None
@@ -26,7 +26,7 @@ def queries(lat, lon):
     a = lambda r: f"(around:{r},{lat},{lon})"
     head = "[out:json][timeout:30][maxsize:16000000];"
     return [
-        head + f"""nwr{a(2000)}[amenity~"^(restaurant|cafe|fast_food|bar|pub|ice_cream)$"][name];out center tags 150;""",
+        head + f"""nwr{a(2000)}[amenity~"^(restaurant|cafe|fast_food|bar|pub|ice_cream)$"][name];out center tags 200;""",
         head + f"""(nwr{a(7000)}[tourism~"^(attraction|museum|viewpoint|gallery|zoo|aquarium|theme_park)$"][name];
  nwr{a(7000)}[historic~"^(castle|fort|ruins|monument|archaeological_site)$"][name];
  nwr{a(9000)}[natural=beach][name];);out center tags 120;""",
@@ -89,9 +89,25 @@ def place(el, plat, plon):
     p = {"n": name, "g": group, "k": sub, "la": round(lat, 6), "lo": round(lon, 6),
          "d": dist_m(plat, plon, lat, lon)}
     for src, dst in (("opening_hours", "h"), ("cuisine", "cu"), ("website", "w"),
-                     ("contact:website", "w"), ("phone", "ph"), ("wikipedia", "wp")):
+                     ("contact:website", "w"), ("phone", "ph"), ("contact:phone", "ph"),
+                     ("wikipedia", "wp"), ("wikidata", "wd"), ("description:en", "ds"), ("description", "ds")):
         if t.get(src) and dst not in p:
-            p[dst] = t[src][:200]
+            p[dst] = t[src][:300]
+    street = " ".join(x for x in (t.get("addr:housenumber"), t.get("addr:street")) if x)
+    if street:
+        p["ad"] = street[:120]
+    # Small yes/no facts shown as pills on the place card.
+    facts = [code for code, ok in (
+        ("out", t.get("outdoor_seating") == "yes"),
+        ("veg", t.get("diet:vegetarian") in ("yes", "only") or t.get("diet:vegan") in ("yes", "only")),
+        ("wc", t.get("wheelchair") == "yes"),
+        ("take", t.get("takeaway") in ("yes", "only")),
+        ("card", t.get("payment:credit_cards") == "yes" or t.get("payment:cards") == "yes"),
+        ("ac", t.get("air_conditioning") == "yes"),
+        ("free", t.get("fee") == "no"),
+    ) if ok]
+    if facts:
+        p["f"] = facts
     if t.get("internet_access") in ("wlan", "yes"):
         p["wifi"] = 1
     return p

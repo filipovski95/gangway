@@ -6,6 +6,10 @@ on:
         description: "Run part i of n in parallel, as i/n (empty = all)"
         required: false
         default: ""
+      all:
+        description: "Refetch every port (keeps old data when a port fails)"
+        type: boolean
+        default: false
       ports:
         description: "Port ids to refetch, space separated (empty = only ports missing data)"
         required: false
@@ -31,9 +35,9 @@ jobs:
           git config user.email "actions@users.noreply.github.com"
       - name: Fetch places (only ports missing data; weekly run refreshes all)
         run: |
-          if [ "${{ github.event_name }}" = "schedule" ]; then export REFRESH_ALL=1; fi
+          if [ "${{ github.event_name }}" = "schedule" ] || [ "${{ github.event.inputs.all }}" = "true" ]; then export REFRESH_ALL=1; fi
           python tools/fetch_places.py $PORTS
-          if [ -z "$SHARD" ]; then python tools/countries.py; fi
+          if [ -z "$SHARD" ]; then python tools/countries.py; python tools/enrich.py $PORTS; fi
       - name: Commit data
         if: always()
         run: |
