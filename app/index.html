@@ -426,14 +426,16 @@ const aboardKey = () => `aboard:${state.port.id}:${new Date().toLocaleDateString
 
 /* ---- Views ---- */
 const FLAGS = { "Antigua & Barbuda": "AG", Argentina: "AR", Aruba: "AW", Australia: "AU", Bahamas: "BS", Barbados: "BB", Belgium: "BE", Belize: "BZ",
-  Bermuda: "BM", Bonaire: "BQ", Brazil: "BR", "British Virgin Islands": "VG", Canada: "CA", "Cayman Islands": "KY", Chile: "CL", China: "CN",
+  Bermuda: "BM", Bonaire: "BQ", Brazil: "BR", "British Virgin Islands": "VG", Canada: "CA", "Cayman Islands": "KY", Chile: "CL", China: "HK",
   Colombia: "CO", "Costa Rica": "CR", Croatia: "HR", "Curaçao": "CW", Denmark: "DK", Dominica: "DM", "Dominican Republic": "DO", Ecuador: "EC",
   Egypt: "EG", Estonia: "EE", Fiji: "FJ", Finland: "FI", France: "FR", Germany: "DE", Gibraltar: "GI", Greece: "GR", Grenada: "GD",
   Guadeloupe: "GP", Honduras: "HN", Iceland: "IS", Indonesia: "ID", Ireland: "IE", Italy: "IT", Jamaica: "JM", Japan: "JP", Malaysia: "MY",
   Malta: "MT", Martinique: "MQ", Mexico: "MX", Monaco: "MC", Montenegro: "ME", Morocco: "MA", Netherlands: "NL", "New Caledonia": "NC",
   "New Zealand": "NZ", Norway: "NO", Panama: "PA", Peru: "PE", Portugal: "PT", "Puerto Rico": "PR", Singapore: "SG", "Sint Maarten": "SX",
   "South Korea": "KR", Spain: "ES", "St. Barthélemy": "BL", "St. Kitts & Nevis": "KN", "St. Lucia": "LC", "St. Vincent": "VC", Sweden: "SE",
-  Taiwan: "TW", Thailand: "TH", Turkey: "TR", "Turks & Caicos": "TC", "US Virgin Islands": "VI", USA: "US", "United Kingdom": "GB", Uruguay: "UY", Vietnam: "VN" };
+  Taiwan: "TW", Thailand: "TH", Turkey: "TR", "Turks & Caicos": "TC", "US Virgin Islands": "VI", USA: "US", "United Kingdom": "GB", Uruguay: "UY", Vietnam: "VN",
+  Haiti: "HT", Guatemala: "GT", Vanuatu: "VU", "French Polynesia": "PF", Tonga: "TO", Samoa: "WS", "American Samoa": "AS", "Mainland China": "CN",
+  Philippines: "PH", Cambodia: "KH", Slovenia: "SI", Latvia: "LV", Lithuania: "LT", Poland: "PL", Guernsey: "GG", "Faroe Islands": "FO" };
 const flag = c => FLAGS[c] ? String.fromCodePoint(...[...FLAGS[c]].map(ch => 0x1f1a5 + ch.charCodeAt(0))) : "⚓";
 const FEATS = { out: "☀️ Outdoor seating", veg: "🥗 Vegetarian", wc: "♿ Wheelchair access", take: "🥡 Takeaway", card: "💳 Cards", ac: "❄️ Air-con", free: "🎟️ Free entry" };
 const TAB_ICON = { food: "🍽️", sights: "🧭", essentials: "🧰" };

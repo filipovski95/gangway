@@ -516,5 +516,117 @@
 "language": "Spanish",
 "emergency": "911",
 "plugs": "A, B"
+},
+"Haiti": {
+"currency": "Haitian gourde (HTG)",
+"usd": "Widely accepted",
+"language": "Haitian Creole, French",
+"emergency": "114 police, 116 ambulance",
+"plugs": "A, B"
+},
+"Guatemala": {
+"currency": "Guatemalan quetzal (GTQ)",
+"usd": "Widely accepted",
+"language": "Spanish",
+"emergency": "110 police, 122 or 123 ambulance",
+"plugs": "A, B"
+},
+"Vanuatu": {
+"currency": "Vanuatu vatu (VUV)",
+"usd": "Often, near the pier",
+"language": "Bislama, English, French",
+"emergency": "112",
+"plugs": "I"
+},
+"French Polynesia": {
+"currency": "CFP franc (XPF)",
+"usd": "Sometimes",
+"language": "French, Tahitian",
+"emergency": "17 police, 15 ambulance",
+"plugs": "C, E"
+},
+"Tonga": {
+"currency": "Tongan paʻanga (TOP)",
+"usd": "Rarely",
+"language": "Tongan, English",
+"emergency": "922 police, 933 ambulance",
+"plugs": "I"
+},
+"Samoa": {
+"currency": "Samoan tālā (WST)",
+"usd": "Rarely",
+"language": "Samoan, English",
+"emergency": "994 police, 996 ambulance",
+"plugs": "I"
+},
+"American Samoa": {
+"currency": "US dollar (USD)",
+"usd": null,
+"language": "Samoan, English",
+"emergency": "911",
+"plugs": "A, B, I"
+},
+"Mainland China": {
+"currency": "Chinese yuan renminbi (CNY)",
+"usd": "No; mobile payment and cash yuan",
+"language": "Mandarin",
+"emergency": "110 police, 120 ambulance",
+"plugs": "A, C, I"
+},
+"Philippines": {
+"currency": "Philippine peso (PHP)",
+"usd": "Sometimes",
+"language": "Filipino, English",
+"emergency": "911",
+"plugs": "A, B, C"
+},
+"Cambodia": {
+"currency": "Cambodian riel (KHR)",
+"usd": "Widely accepted",
+"language": "Khmer",
+"emergency": "117 police, 119 ambulance",
+"plugs": "A, C, G"
+},
+"Slovenia": {
+"currency": "Euro (EUR)",
+"usd": "No",
+"language": "Slovene",
+"emergency": "112",
+"plugs": "C, F"
+},
+"Latvia": {
+"currency": "Euro (EUR)",
+"usd": "No",
+"language": "Latvian",
+"emergency": "112",
+"plugs": "C, F"
+},
+"Lithuania": {
+"currency": "Euro (EUR)",
+"usd": "No",
+"language": "Lithuanian",
+"emergency": "112",
+"plugs": "C, F"
+},
+"Poland": {
+"currency": "Polish złoty (PLN)",
+"usd": "No",
+"language": "Polish",
+"emergency": "112",
+"plugs": "C, E"
+},
+"Guernsey": {
+"currency": "Guernsey pound (GBP), UK pound accepted",
+"usd": "No",
+"language": "English",
+"emergency": "999 or 112",
+"plugs": "G"
+},
+"Faroe Islands": {
+"currency": "Faroese króna (DKK)",
+"usd": "No",
+"language": "Faroese, Danish",
+"emergency": "112",
+"plugs": "C, E, F, K"
 }
 }

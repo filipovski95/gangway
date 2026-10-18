@@ -79,6 +79,22 @@ C = {
  "Chile": ("Chilean peso (CLP)", "Rarely", "Spanish", "133 police, 131 ambulance", "C, L"),
  "Peru": ("Peruvian sol (PEN)", "Often", "Spanish", "105 police, 106 ambulance", "A, C"),
  "Ecuador": ("US dollar (USD)", None, "Spanish", "911", "A, B"),
+ "Haiti": ("Haitian gourde (HTG)", US, "Haitian Creole, French", "114 police, 116 ambulance", "A, B"),
+ "Guatemala": ("Guatemalan quetzal (GTQ)", US, "Spanish", "110 police, 122 or 123 ambulance", "A, B"),
+ "Vanuatu": ("Vanuatu vatu (VUV)", "Often, near the pier", "Bislama, English, French", "112", "I"),
+ "French Polynesia": ("CFP franc (XPF)", "Sometimes", "French, Tahitian", "17 police, 15 ambulance", "C, E"),
+ "Tonga": ("Tongan paʻanga (TOP)", "Rarely", "Tongan, English", "922 police, 933 ambulance", "I"),
+ "Samoa": ("Samoan tālā (WST)", "Rarely", "Samoan, English", "994 police, 996 ambulance", "I"),
+ "American Samoa": ("US dollar (USD)", None, "Samoan, English", "911", "A, B, I"),
+ "Mainland China": ("Chinese yuan renminbi (CNY)", "No; mobile payment and cash yuan", "Mandarin", "110 police, 120 ambulance", "A, C, I"),
+ "Philippines": ("Philippine peso (PHP)", "Sometimes", "Filipino, English", "911", "A, B, C"),
+ "Cambodia": ("Cambodian riel (KHR)", US, "Khmer", "117 police, 119 ambulance", "A, C, G"),
+ "Slovenia": ("Euro (EUR)", "No", "Slovene", "112", "C, F"),
+ "Latvia": ("Euro (EUR)", "No", "Latvian", "112", "C, F"),
+ "Lithuania": ("Euro (EUR)", "No", "Lithuanian", "112", "C, F"),
+ "Poland": ("Polish złoty (PLN)", "No", "Polish", "112", "C, E"),
+ "Guernsey": ("Guernsey pound (GBP), UK pound accepted", "No", "English", "999 or 112", "G"),
+ "Faroe Islands": ("Faroese króna (DKK)", "No", "Faroese, Danish", "112", "C, E, F, K"),
 }
 
 if __name__ == "__main__":
