@@ -25,7 +25,7 @@ SKIP = re.compile(r"\b(school|university|college|station|airport|company|corpora
 
 
 def api(**params):
-    params.update(format="json", formatversion=2)
+    params.update(action="query", format="json", formatversion=2)
     url = API + "?" + urllib.parse.urlencode(params)
     for attempt in range(5):
         body = b""
@@ -39,7 +39,8 @@ def api(**params):
                 api.ok = True
                 return data
         except Exception as e:
-            print(f"  wikipedia: {e} {body[:160]!r}", flush=True)
+            t = re.search(rb"<title>(.*?)</title>", body or b"")
+            print(f"  wikipedia: {e} {getattr(e, 'code', '')} {t[1][:160] if t else body[:160]!r} {url[:200]}", flush=True)
             time.sleep(3 + 5 * attempt)
     return {}
 
