@@ -98,6 +98,21 @@ main .wrap > * { min-width: 0; }
 .near b { display: block; font-size: 19px; line-height: 1.15; }
 .near small { display: block; color: #557080; font-size: 13px; }
 .searchbox { display: flex; align-items: center; gap: 10px; background: #ffffffee; color: #0d2536; border-radius: 16px; padding: 0 14px; border: 2px solid #ffffff; }
+.suggest { list-style: none; margin: -6px 0 0; padding: 6px; background: #fff; color: #0d2536; border-radius: 16px; box-shadow: 0 10px 28px #0005; display: grid; gap: 2px; }
+.suggest button { width: 100%; display: flex; align-items: center; gap: 12px; background: none; border: 0; border-radius: 12px; padding: 8px; text-align: left; color: inherit; }
+.suggest button:active, .suggest button:focus-visible { background: #e9f2f3; }
+.suggest .porthole { width: 40px; height: 40px; font-size: 18px; box-shadow: 0 0 0 3px #d8b46a, 0 0 0 4px #8a6a2e; }
+.suggest .porthole::after { display: none; }
+.suggest b { display: block; font-size: 16.5px; } .suggest small { color: #557080; font-size: 13px; }
+.suggest mark { background: #ffc21a66; color: inherit; border-radius: 3px; }
+.suggest .inport { margin-left: auto; }
+.checkin { display: grid; gap: 8px; }
+.checkin button.shipopt { display: flex; align-items: center; gap: 12px; width: 100%; text-align: left; border: 2px solid var(--line); background: var(--surface-2); border-radius: 16px; padding: 10px 12px; }
+.checkin .shipopt .dotship { width: 38px; height: 38px; border-radius: 50%; background: var(--ink); color: var(--bg); display: grid; place-items: center; font-size: 18px; flex: none; }
+.checkin .shipopt b { display: block; font-size: 16.5px; } .checkin .shipopt small { color: var(--muted); font: 500 12.5px var(--mono); }
+.checkin .shipopt.mine { border-color: var(--signal); }
+.sailrow { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.sailrow input { border: 2px solid var(--line); border-radius: 12px; padding: 8px 10px; background: var(--surface-2); font-family: var(--mono); font-size: 16px; }
 .searchbox svg { width: 22px; height: 22px; flex: none; color: var(--sea-2); }
 .search { flex: 1; min-width: 0; border: 0; background: none; padding: 14px 0; font-size: 17px; color: #0d2536; outline: none; }
 .search::placeholder { color: #6a8290; }
@@ -530,14 +545,16 @@ function renderList() {
       <p class="kicker">Ahoy · ${DAY_NAMES[new Date().getDay()]}</p>
       <h2>Where are we docked today?</h2>
       <button class="near" id="near"><span class="lifering" aria-hidden="true"></span><span><b>Find the port I'm in</b><small>Uses your phone's GPS, works offline</small></span></button>
-      <label class="searchbox">${icon.search}<input class="search" id="q" type="search" placeholder="Search ${idx.ports.length} ports, e.g. Quebec" value="${esc(state.q)}" aria-label="Search ports" autocomplete="off" enterkeyhint="search"></label>
+      <label class="searchbox">${icon.search}<input class="search" id="q" type="search" placeholder="Search ${idx.ports.length} ports, e.g. Quebec" value="${esc(state.q)}" aria-label="Search ports" autocomplete="off" enterkeyhint="search" role="combobox" aria-controls="suggest" aria-expanded="false"></label>
+      <ul class="suggest" id="suggest" role="listbox" hidden></ul>
     </section>
     <div id="pass">${passCard()}</div>
     <div class="chips" role="group" aria-label="Regions">${regions.map(r => `<button class="chip" data-region="${esc(r)}" aria-pressed="${r === state.region}">${esc(r)}</button>`).join("")}</div>
     <div id="results"></div>
     <footer class="foot">${icon.wave}<span>Places from OpenStreetMap contributors. Descriptions and photos from Wikipedia. Check times with your ship's daily planner.</span><span>Fair winds ⚓</span></footer>`;
   $("#near").onclick = findNearest;
-  $("#q").oninput = e => { state.q = e.target.value; renderResults(); };
+  $("#q").oninput = e => { state.q = e.target.value; renderResults(); suggest(); };
+  $("#q").onkeydown = e => { if (e.key === "Enter") { const f = $("#suggest button"); if (f) { e.preventDefault(); f.click(); } } };
   document.querySelectorAll("[data-region]").forEach(b => b.onclick = () => {
     state.region = b.dataset.region;
     document.querySelectorAll("[data-region]").forEach(c => c.setAttribute("aria-pressed", c === b));
@@ -587,6 +604,68 @@ function pickShip() {
   el.querySelectorAll("[data-off]").forEach(b => b.onclick = () => { store.set("offset", +b.dataset.off); el.querySelectorAll("[data-off]").forEach(x => x.setAttribute("aria-pressed", x === b)); });
   const clr = el.querySelector("[data-clear]"); if (clr) clr.onclick = () => { store.set("ship", ""); close(); };
   el.querySelector("[data-done]").onclick = close;
+}
+
+
+/* ---- Search suggestions and port check-in ---- */
+// Ports whose name (or a word in it) starts with what was typed come first, then any other match.
+function matches(q) {
+  q = q.trim().toLowerCase();
+  if (!q) return [];
+  const score = p => {
+    const n = p.name.toLowerCase(), c = p.country.toLowerCase();
+    if (n.startsWith(q)) return 0;
+    if (n.split(/[\s(),.-]+/).some(w => w.startsWith(q))) return 1;
+    if (q.length > 2 && n.includes(q)) return 2;
+    if (c.startsWith(q)) return 3;
+    return 9;
+  };
+  return state.index.ports.map(p => [score(p), p]).filter(([s]) => s < 9).sort((a, b) => a[0] - b[0] || a[1].name.localeCompare(b[1].name)).slice(0, 6).map(x => x[1]);
+}
+function suggest() {
+  const list = matches(state.q), box = $("#suggest");
+  box.hidden = !list.length; $("#q").setAttribute("aria-expanded", !!list.length);
+  const q = state.q.trim(), hl = n => { const i = n.toLowerCase().indexOf(q.toLowerCase()); return i < 0 ? esc(n) : esc(n.slice(0, i)) + "<mark>" + esc(n.slice(i, i + q.length)) + "</mark>" + esc(n.slice(i + q.length)); };
+  box.innerHTML = list.map(p => { const n = shipsInPort(p.id).length; return `<li role="option"><button data-checkin="${p.id}">
+    <span class="porthole" aria-hidden="true">${flag(p.country)}${img(p.img, "")}</span>
+    <span><b>${hl(p.name)}</b><small>${esc(p.country)}${p.tender ? " · tender" : ""}</small></span>
+    ${n ? `<span class="inport">⛴ ${n} today</span>` : ""}</button></li>`; }).join("");
+  box.querySelectorAll("[data-checkin]").forEach(b => b.onclick = () => { $("#q").blur(); checkIn(b.dataset.checkin); });
+}
+// After picking a port: who's in port today, and which one is mine?
+function checkIn(id) {
+  const P = state.index.ports.find(p => p.id === id), here = shipsInPort(id), mine = store.get("ship", "");
+  const key = `aboard:${id}:${dayStr()}`;
+  const el = document.createElement("div");
+  el.className = "sheet";
+  el.innerHTML = `<div class="in" role="dialog" aria-label="Check in to ${esc(P.name)}"><span class="grab"></span>
+    <span class="lbl">${flag(P.country)} ${esc(P.country)} · ${DAY_NAMES[new Date().getDay()]}</span>
+    <h3>${esc(P.name)}</h3>
+    ${here.length ? `<p>Ships in port today. Tap yours to set the all-aboard time.</p>
+      <div class="checkin">${here.map(x => `<button class="shipopt${x.s.name === mine ? " mine" : ""}" data-ship="${esc(x.s.name)}"><span class="dotship">⛴</span>
+        <span><b>${esc(x.s.name)}</b><small>${x.c.a ? "in " + tm(x.c.a) : "overnight"} · ${x.c.d ? "sails " + (x.c.d.slice(0, 10) === dayStr() ? tm(x.c.d) : new Date(x.c.d).toLocaleDateString([], { weekday: "short" }) + " " + tm(x.c.d)) : "turnaround"}</small></span></button>`).join("")}</div>
+      <p>Not listed? Enter your sailing time below.</p>`
+    : `<p>No ship schedule for this port today. Enter your ship's sailing time and Gangway works out all aboard.</p>`}
+    <div class="sailrow"><label for="sailTime"><b>Ship sails at</b></label><input id="sailTime" type="time"></div>
+    <p>All aboard, before sailing:</p>
+    <div class="seg">${[30, 45, 60, 90].map(m => `<button class="chip" data-off="${m}" aria-pressed="${m === offset()}">${m} min</button>`).join("")}</div>
+    <div class="seg"><button class="btn" data-skip>Just show the guide</button><button class="btn go" data-go style="margin-left:auto">${icon.go}Go ashore</button></div></div>`;
+  document.body.append(el);
+  const go = () => { el.remove(); state.q = ""; openPort(id); };
+  el.onclick = e => { if (e.target === el) el.remove(); };
+  el.querySelectorAll("[data-off]").forEach(b => b.onclick = () => { store.set("offset", +b.dataset.off); el.querySelectorAll("[data-off]").forEach(x => x.setAttribute("aria-pressed", x === b)); });
+  el.querySelectorAll("[data-ship]").forEach(b => b.onclick = () => {
+    store.set("ship", b.dataset.ship);
+    const c = here.find(x => x.s.name === b.dataset.ship).c, t = autoAboard(c);
+    if (t) store.set(key, t);
+    go();
+  });
+  el.querySelector("[data-skip]").onclick = go;
+  el.querySelector("[data-go]").onclick = () => {
+    const v = $("#sailTime").value;
+    if (v) { const [h, m] = v.split(":").map(Number), t = h * 60 + m - offset(); if (t >= 0) store.set(key, hhmm(t)); }
+    go();
+  };
 }
 
 function dms(v, pos, neg) { const a = Math.abs(v), d = Math.floor(a), m = ((a - d) * 60).toFixed(1); return `${d}°${m}′${v >= 0 ? pos : neg}`; }
