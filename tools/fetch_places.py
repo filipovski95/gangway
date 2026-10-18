@@ -44,7 +44,11 @@ def fetch(q):
         try:
             req = urllib.request.Request(url, data=body, headers={"User-Agent": UA})
             with urllib.request.urlopen(req, timeout=60) as r:
-                return json.load(r)
+                data = json.load(r)
+            # A busy server can time out mid-query and still answer 200 with a partial result.
+            if "remark" in data and ("error" in data["remark"] or "timed out" in data["remark"]):
+                raise RuntimeError(data["remark"][:120])
+            return data
         except Exception as e:  # busy servers and timeouts: rotate mirrors, back off
             last = e
             print(f"  {url.split('/')[2]}: {e}", flush=True)

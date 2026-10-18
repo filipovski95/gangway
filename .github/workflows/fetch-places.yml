@@ -6,6 +6,10 @@ on:
         description: "Run part i of n in parallel, as i/n (empty = all)"
         required: false
         default: ""
+      ports:
+        description: "Port ids to refetch, space separated (empty = only ports missing data)"
+        required: false
+        default: ""
   schedule:
     - cron: "0 3 * * 1"   # weekly refresh of opening hours and new places
 permissions:
@@ -15,6 +19,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       SHARD: ${{ github.event.inputs.shard }}
+      PORTS: ${{ github.event.inputs.ports }}
     timeout-minutes: 340
     steps:
       - uses: actions/checkout@v4
@@ -27,7 +32,7 @@ jobs:
       - name: Fetch places (only ports missing data; weekly run refreshes all)
         run: |
           if [ "${{ github.event_name }}" = "schedule" ]; then export REFRESH_ALL=1; fi
-          python tools/fetch_places.py
+          python tools/fetch_places.py $PORTS
           if [ -z "$SHARD" ]; then python tools/countries.py; fi
       - name: Commit data
         if: always()

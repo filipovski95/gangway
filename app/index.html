@@ -272,6 +272,9 @@ async function refresh() {
   btn.classList.remove("spin"); btn.disabled = false; $("#updated").textContent = stampText(); render();
 }
 
+// All-aboard time is kept per port and per day, so yesterday's time never shows up in today's port.
+const aboardKey = () => `aboard:${state.port.id}:${new Date().toLocaleDateString("en-CA")}`;
+
 /* ---- Views ---- */
 function render() {
   $("#back").hidden = !state.port; $("#brand").hidden = !!state.port;
@@ -282,25 +285,33 @@ function renderList() {
   const idx = state.index;
   if (!idx) { $("#view").innerHTML = `<p class="empty">Loading ports…</p>`; return; }
   const regions = ["All", ...new Set(idx.ports.map(p => p.region))];
+  // The search box is built once and never replaced, so typing keeps the phone keyboard steady.
+  $("#view").innerHTML = `
+    <button class="near" id="near"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/><circle cx="12" cy="12" r="8"/></svg>Find the port I'm in</button>
+    <input class="search" id="q" type="search" placeholder="Search ${idx.ports.length} ports, e.g. Cozumel" value="${esc(state.q)}" aria-label="Search ports" autocomplete="off">
+    <div class="chips" role="group" aria-label="Regions">${regions.map(r => `<button class="chip" data-region="${esc(r)}" aria-pressed="${r === state.region}">${esc(r)}</button>`).join("")}</div>
+    <div id="results"></div>
+    <p class="foot">Places from OpenStreetMap contributors. Check hours locally before you go.</p>`;
+  $("#near").onclick = findNearest;
+  $("#q").oninput = e => { state.q = e.target.value; renderResults(); };
+  document.querySelectorAll("[data-region]").forEach(b => b.onclick = () => {
+    state.region = b.dataset.region;
+    document.querySelectorAll("[data-region]").forEach(c => c.setAttribute("aria-pressed", c === b));
+    renderResults();
+  });
+  renderResults();
+}
+function renderResults() {
   const q = state.q.trim().toLowerCase();
-  const list = idx.ports.filter(p => (state.region === "All" || p.region === state.region) &&
+  const list = state.index.ports.filter(p => (state.region === "All" || p.region === state.region) &&
     (!q || (p.name + " " + p.country).toLowerCase().includes(q)));
   const groups = {};
   for (const p of list) (groups[p.region] ||= []).push(p);
-  $("#view").innerHTML = `
-    <button class="near" id="near"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/><circle cx="12" cy="12" r="8"/></svg>Find the port I'm in</button>
-    <input class="search" id="q" type="search" placeholder="Search ${idx.ports.length} ports, e.g. Cozumel" value="${esc(state.q)}" aria-label="Search ports">
-    <div class="chips" role="group" aria-label="Regions">${regions.map(r => `<button class="chip" data-region="${esc(r)}" aria-pressed="${r === state.region}">${esc(r)}</button>`).join("")}</div>
-    ${list.length ? Object.entries(groups).map(([r, ps]) => `
+  $("#results").innerHTML = list.length ? Object.entries(groups).map(([r, ps]) => `
       <section class="region"><h2>${esc(r)}</h2>
         <ul class="ports">${ps.map(p => `<li><button data-port="${p.id}"><span><span class="nm">${esc(p.name)}</span><br><span class="ct">${esc(p.country)}</span></span>${p.tender ? '<span class="tag">TENDER</span>' : ""}</button></li>`).join("")}</ul>
-      </section>`).join("") : `<p class="empty">No port matches “${esc(state.q)}”.</p>`}
-    <p class="foot">Places from OpenStreetMap contributors. Check hours locally before you go.</p>`;
-  $("#near").onclick = findNearest;
-  const qi = $("#q");
-  qi.oninput = e => { state.q = e.target.value; const pos = e.target.selectionStart; renderList(); const n = $("#q"); n.focus(); n.setSelectionRange(pos, pos); };
-  document.querySelectorAll("[data-region]").forEach(b => b.onclick = () => { state.region = b.dataset.region; renderList(); });
-  document.querySelectorAll("[data-port]").forEach(b => b.onclick = () => openPort(b.dataset.port));
+      </section>`).join("") : `<p class="empty">No port matches “${esc(state.q)}”.</p>`;
+  document.querySelectorAll("#results [data-port]").forEach(b => b.onclick = () => openPort(b.dataset.port));
 }
 function dms(v, pos, neg) { const a = Math.abs(v), d = Math.floor(a), m = ((a - d) * 60).toFixed(1); return `${d}°${m}′${v >= 0 ? pos : neg}`; }
 const walkMin = d => Math.max(1, Math.round(d * 1.3 / 80));          // streets aren't straight: +30%, 80 m a minute
@@ -324,7 +335,7 @@ function renderPort() {
   const P = state.port, now = new Date();
   const all = P.places.filter(p => p.g === state.tab).map(p => ({ ...p, st: status(p, now) }));
   const shown = state.openOnly ? all.filter(p => p.st.open) : all;
-  const aboard = store.get("aboard", "");
+  const aboard = store.get(aboardKey(), "");
   $("#view").innerHTML = `
     <section class="hero">
       <h2>${esc(P.name)}</h2>
@@ -347,7 +358,7 @@ function renderPort() {
     <p class="foot">Places from OpenStreetMap contributors. Check hours locally before you go.</p>`;
   document.querySelectorAll("[data-tab]").forEach(b => b.onclick = () => { state.tab = b.dataset.tab; renderPort(); });
   $("#openOnly").onclick = () => { state.openOnly = !state.openOnly; renderPort(); };
-  $("#aboardTime").onchange = e => { store.set("aboard", e.target.value); tick(); };
+  $("#aboardTime").onchange = e => { store.set(aboardKey(), e.target.value); tick(); };
   tick();
 }
 function tick() {
@@ -372,7 +383,7 @@ function findNearest() {
     for (const p of state.index.ports) { const d = distKm(la, lo, p.lat, p.lon); if (d < bd) { bd = d; best = p; } }
     if (bd > 40) toast(`No Gangway port nearby. The closest is ${best.name}, ${Math.round(bd)} km away.`);
     else openPort(best.id);
-  }, () => toast("Couldn't get your location. Pick your port from the list."), { enableHighAccuracy: false, timeout: 15000, maximumAge: 600000 });
+  }, () => toast("Couldn't get your location. Pick your port from the list."), { enableHighAccuracy: false, timeout: 15000, maximumAge: 60000 });
 }
 function distKm(a, b, c, d) {
   const r = Math.PI / 180, x = Math.sin((c - a) * r / 2) ** 2 + Math.cos(a * r) * Math.cos(c * r) * Math.sin((d - b) * r / 2) ** 2;
@@ -380,7 +391,10 @@ function distKm(a, b, c, d) {
 }
 async function openPort(id) {
   try {
-    state.port = await loadPort(id); state.tab = "food"; state.openOnly = false; render(); scrollTo(0, 0);
+    state.port = await loadPort(id); state.openOnly = false;
+    // Start on the first tab that has places; some small ports have no food or sights mapped.
+    state.tab = (TABS.find(([k]) => state.port.places.some(p => p.g === k)) || TABS[0])[0];
+    render(); scrollTo(0, 0);
     if (location.hash.slice(1) !== id) history.pushState({ port: id }, "", "#" + id);
   }
   catch { toast("This port isn't saved yet. Connect to wifi and tap Refresh."); }
