@@ -613,7 +613,7 @@ function card(p) {
     ${p.ds ? `<p class="desc">${esc(p.ds)}</p>${p.ds.length > 150 ? `<button class="more" data-more>Read more</button>` : ""}` : ""}
     ${feats.length ? `<div class="feats">${feats.map(f => `<span class="feat">${f}</span>`).join("")}</div>` : ""}
     ${p.ad ? `<div class="addr">📍 ${esc(p.ad)}</div>` : ""}
-    <div class="status ${p.st.cls}"><span class="dot"></span><span>${p.st.text}</span></div>
+    ${p.h || p.g === "food" ? `<div class="status ${p.st.cls}"><span class="dot"></span><span>${p.st.text}</span></div>` : ""}
     <div class="actions">
       <a class="btn go" href="${directions(p)}" target="_blank" rel="noopener">${icon.go}Directions</a>
       ${p.g !== "essentials" ? `<a class="btn" href="${reviews(p)}" target="_blank" rel="noopener">${icon.star}Reviews &amp; photos</a>` : ""}
