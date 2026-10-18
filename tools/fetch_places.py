@@ -148,6 +148,8 @@ def write_index(index):
     for p in index:
         if p["id"] in imgs:
             p["img"] = imgs[p["id"]]
+    # A port shows in the app only once its places are saved.
+    index = [p for p in index if os.path.exists(os.path.join(OUT, "ports", p["id"] + ".json"))]
     with open(path, "w") as f:
         json.dump({"version": stamp, "ports": index}, f, ensure_ascii=False, separators=(",", ":"))
 

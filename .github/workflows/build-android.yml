@@ -19,6 +19,8 @@ jobs:
       - name: Assemble web app with the port data inside
         run: |
           mkdir -p www && cp -r app/. www/ && cp -r data www/data
+          # Only list ports whose places are saved.
+          python3 -c "import json,os;p='www/data/index.json';d=json.load(open(p));d['ports']=[x for x in d['ports'] if os.path.exists('www/data/ports/'+x['id']+'.json')];json.dump(d,open(p,'w'),separators=(',',':'))"
           cp brand/play-icon-512.png www/icon.png
       - run: npm install
       - name: Create Android project
