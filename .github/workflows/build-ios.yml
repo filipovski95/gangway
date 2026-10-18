@@ -1,0 +1,72 @@
+name: Build Gangway iPhone app
+# Always checks that the iPhone app builds. With the four App Store Connect secrets set
+# (ASC_KEY_ID, ASC_ISSUER_ID, ASC_KEY_P8_BASE64, APPLE_TEAM_ID) it also signs the app
+# and uploads it to TestFlight, ready for testers and App Store review.
+on:
+  push:
+    paths: ["app/**", "brand/**", "capacitor.config.json", "package.json", ".github/workflows/build-ios.yml"]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  ios:
+    runs-on: macos-latest
+    env:
+      ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+      ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+      ASC_KEY_P8_BASE64: ${{ secrets.ASC_KEY_P8_BASE64 }}
+      APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: "22" }
+      - name: Assemble web app with the port data inside
+        run: |
+          mkdir -p www && cp -r app/. www/ && cp -r data www/data
+          cp brand/play-icon-512.png www/icon.png
+      - run: npm install
+      - name: Create iPhone project
+        run: |
+          npx cap add ios
+          PLIST=ios/App/App/Info.plist
+          # Location lets "Find the port I'm in" work; the app sends no data anywhere.
+          /usr/libexec/PlistBuddy -c "Add :NSLocationWhenInUseUsageDescription string 'Gangway uses your location to find the port you are in. It stays on your phone.'" $PLIST
+          /usr/libexec/PlistBuddy -c "Set :CFBundleShortVersionString 1.0.${{ github.run_number }}" $PLIST || true
+          /usr/libexec/PlistBuddy -c "Set :CFBundleVersion ${{ github.run_number }}" $PLIST || true
+          /usr/libexec/PlistBuddy -c "Add :ITSAppUsesNonExemptEncryption bool false" $PLIST
+          # One 1024 px icon; Xcode makes the other sizes. App Store icons must have no transparency.
+          ICONS=ios/App/App/Assets.xcassets/AppIcon.appiconset
+          rm -f $ICONS/*.png
+          sips -z 1024 1024 brand/play-icon-512.png --out icon-big.png
+          sips -s format jpeg icon-big.png --out icon.jpg && sips -s format png icon.jpg --out $ICONS/AppIcon-1024.png
+          cat > $ICONS/Contents.json <<'JSON'
+          {"images":[{"filename":"AppIcon-1024.png","idiom":"universal","platform":"ios","size":"1024x1024"}],"info":{"author":"xcode","version":1}}
+          JSON
+          npx cap sync ios
+      - name: Check the app builds
+        if: env.ASC_KEY_ID == ''
+        working-directory: ios/App
+        run: |
+          xcodebuild -project App.xcodeproj -scheme App -configuration Release -sdk iphonesimulator \
+            -destination "generic/platform=iOS Simulator" CODE_SIGNING_ALLOWED=NO build | tail -20
+      - name: Sign and upload to TestFlight
+        if: env.ASC_KEY_ID != ''
+        working-directory: ios/App
+        run: |
+          KEY="$RUNNER_TEMP/AuthKey_$ASC_KEY_ID.p8"
+          echo "$ASC_KEY_P8_BASE64" | base64 -d > "$KEY"
+          AUTH="-allowProvisioningUpdates -authenticationKeyPath $KEY -authenticationKeyID $ASC_KEY_ID -authenticationKeyIssuerID $ASC_ISSUER_ID"
+          xcodebuild -project App.xcodeproj -scheme App -configuration Release -destination "generic/platform=iOS" \
+            -archivePath "$RUNNER_TEMP/Gangway.xcarchive" DEVELOPMENT_TEAM=$APPLE_TEAM_ID CODE_SIGN_STYLE=Automatic $AUTH archive | tail -20
+          cat > "$RUNNER_TEMP/export.plist" <<PLIST
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0"><dict>
+            <key>method</key><string>app-store-connect</string>
+            <key>destination</key><string>upload</string>
+            <key>teamID</key><string>$APPLE_TEAM_ID</string>
+            <key>signingStyle</key><string>automatic</string>
+          </dict></plist>
+          PLIST
+          xcodebuild -exportArchive -archivePath "$RUNNER_TEMP/Gangway.xcarchive" -exportOptionsPlist "$RUNNER_TEMP/export.plist" \
+            -exportPath "$RUNNER_TEMP/export" $AUTH
