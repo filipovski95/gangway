@@ -593,7 +593,8 @@ function pickShip() {
   el.className = "sheet";
   el.innerHTML = `<div class="in" role="dialog" aria-label="Choose your ship"><span class="grab"></span>
     <h3>Which ship are you on?</h3><p>Gangway uses its schedule to show today's port and the all-aboard time.</p>
-    <div class="fleet">${SHIPS.ships.map(s => { const c = todayCall(s); return `<button data-ship="${esc(s.name)}" aria-pressed="${s.name === cur}">${esc(short(s.name))}<small>${c ? esc(c.p ? portName(c.p) : c.n.split(",")[0]) : "At sea today"}</small></button>`; }).join("")}</div>
+    <div class="fleet">${SHIPS.ships.filter(s => s.name === cur || /^Celebrity /.test(s.name) || todayCall(s))
+      .sort((a, b) => !!todayCall(b) - !!todayCall(a) || a.name.localeCompare(b.name)).map(s => { const c = todayCall(s); return `<button data-ship="${esc(s.name)}" aria-pressed="${s.name === cur}">${esc(short(s.name))}<small>${c ? esc(c.p ? portName(c.p) : c.n.split(",")[0]) : "At sea today"}</small></button>`; }).join("")}</div>
     <p>All aboard is how long before sailing?</p>
     <div class="seg">${[30, 45, 60, 90].map(m => `<button class="chip" data-off="${m}" aria-pressed="${m === offset()}">${m} min</button>`).join("")}</div>
     <div class="seg">${cur ? `<button class="btn" data-clear>Not on a ship</button>` : ""}<button class="btn go" data-done style="margin-left:auto">Done</button></div></div>`;

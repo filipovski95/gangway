@@ -11,7 +11,7 @@ on:
         type: boolean
         default: false
       ships_only:
-        description: "Only update ship itineraries"
+        description: "Only update ship schedules from port websites"
         type: boolean
         default: false
       wiki_only:
@@ -24,6 +24,7 @@ on:
         default: ""
   schedule:
     - cron: "0 3 * * 1"   # weekly refresh of opening hours and new places
+    - cron: "30 4 * * *"  # daily ship schedules from port authorities
 permissions:
   contents: write
 jobs:
@@ -44,7 +45,7 @@ jobs:
       - name: Fetch places (only ports missing data; weekly run refreshes all)
         run: |
           if [ "${{ github.event.schedule }}" = "0 3 * * 1" ] || [ "${{ github.event.inputs.all }}" = "true" ]; then export REFRESH_ALL=1; fi
-          if [ "${{ github.event.inputs.ships_only }}" = "true" ]; then python tools/fetch_ships.py; exit 0; fi
+          if [ "${{ github.event.inputs.ships_only }}" = "true" ] || [ "${{ github.event.schedule }}" = "30 4 * * *" ]; then python tools/port_schedules.py; exit 0; fi
           if [ "${{ github.event.inputs.wiki_only }}" = "true" ]; then python tools/enrich.py $PORTS; exit 0; fi
           python tools/fetch_places.py $PORTS
           if [ -z "$SHARD" ]; then python tools/countries.py; python tools/enrich.py $PORTS; fi
