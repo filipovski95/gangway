@@ -80,12 +80,14 @@ main .wrap > * { min-width: 0; }
 
 /* Home: sunset, sea and a little ship */
 .welcome { position: relative; overflow: hidden; border-radius: 24px; padding: 20px 18px 18px; color: #fff; display: grid; gap: 14px;
-  background: linear-gradient(180deg, #ffb25b 0%, #f47c48 22%, #c85a6a 38%, #6a4c8c 50%, #1d5f86 51%, #0c3f60 100%); box-shadow: var(--shadow); }
-.welcome .sun { position: absolute; width: 110px; height: 110px; border-radius: 50%; right: 28px; top: 40px; background: radial-gradient(circle, #fff3c4 0 40%, #ffd36b 41% 60%, #ffd36b00 61%); opacity: .9; }
-.welcome .ship { position: absolute; right: 10px; top: 112px; width: 128px; animation: bob 4s ease-in-out infinite; filter: drop-shadow(0 4px 6px #0005); }
+  background: radial-gradient(1.5px 1.5px at 12% 18%, #fff 50%, #0000), radial-gradient(1px 1px at 30% 8%, #fff 50%, #0000), radial-gradient(1.5px 1.5px at 48% 22%, #fffc 50%, #0000),
+    radial-gradient(1px 1px at 62% 10%, #fff 50%, #0000), radial-gradient(1px 1px at 20% 34%, #fffa 50%, #0000), radial-gradient(1.5px 1px at 40% 40%, #fff9 50%, #0000),
+    linear-gradient(180deg, #13294d 0%, #27497e 34%, #4b6aa0 50%, #164e74 51%, #0a2f4a 100%); box-shadow: var(--shadow); }
+.welcome .sun { position: absolute; width: 44px; height: 44px; border-radius: 50%; right: 128px; top: 26px; background: #fdf5d8; box-shadow: 0 0 24px 6px #fdf5d855; }
+.welcome .sun::after { content: ""; position: absolute; inset: -2px -10px 6px 12px; border-radius: 50%; background: #1d3866; }
 @keyframes bob { 50% { transform: translateY(3px) rotate(-.6deg); } }
 .welcome .sea { position: absolute; inset: 51% 0 0; background: var(--waves), repeating-linear-gradient(172deg, transparent 0 12px, #ffffff10 12px 14px); background-size: 90px 18px, auto; }
-.welcome > :not(.sun):not(.ship):not(.sea) { position: relative; z-index: 1; }
+.welcome > :not(.sun):not(.lighthouse):not(.sea) { position: relative; z-index: 1; }
 .kicker { margin: 0; font-size: 13px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; }
 .welcome h2 { margin: -6px 0 26px; max-width: 62%; font: 800 clamp(28px, 7.6vw, 40px)/.98 var(--display); text-transform: uppercase; letter-spacing: .02em; text-shadow: 0 2px 12px #0005; }
 .near { display: flex; align-items: center; gap: 14px; width: 100%; border: 0; border-radius: 18px; padding: 12px 16px 12px 12px; background: #fff; color: #0d2536; text-align: left; box-shadow: 0 5px 0 #0b2f47, 0 10px 22px #0004; }
@@ -117,20 +119,41 @@ main .wrap > * { min-width: 0; }
 .search { flex: 1; min-width: 0; border: 0; background: none; padding: 14px 0; font-size: 17px; color: #0d2536; outline: none; }
 .search::placeholder { color: #6a8290; }
 
-/* My ship: a boarding pass */
-.pass { position: relative; display: grid; grid-template-columns: 1fr auto; background: var(--surface); border-radius: 20px; box-shadow: var(--shadow); overflow: hidden; border: 1px solid var(--line); }
-.pass::before, .pass::after { content: ""; position: absolute; width: 22px; height: 22px; border-radius: 50%; background: var(--bg); right: 104px; border: 1px solid var(--line); }
-.pass::before { top: -12px; } .pass::after { bottom: -12px; }
-.pass .main { padding: 14px 16px; display: grid; gap: 6px; min-width: 0; }
-.pass .stub { width: 115px; border-left: 2px dashed var(--line); padding: 14px 12px; display: grid; align-content: center; justify-items: center; gap: 4px; text-align: center; background: linear-gradient(180deg, var(--surface), var(--surface-2)); }
+/* My ship: the ship itself (photo, or a drawing in the line's colours), above a boarding pass */
+.pass { position: relative; background: var(--surface); border-radius: 24px; box-shadow: var(--shadow); overflow: hidden; border: 1px solid var(--line); }
+.hero { position: relative; aspect-ratio: 4 / 3; max-height: 340px; width: 100%; overflow: hidden; color: #fff;
+  background: linear-gradient(180deg, #ffb25b 0%, #f47c48 22%, #c85a6a 40%, #6a4c8c 52%, #1d5f86 53%, #0c3f60 100%); }
+.hero .scene { position: absolute; inset: 0; }
+.hero .scene .bunting { position: absolute; top: 0; left: 0; margin: 0; width: 100%; }
+.hero .scene .sun { position: absolute; width: 22%; aspect-ratio: 1; border-radius: 50%; left: 7%; top: 18%; background: radial-gradient(circle, #fff3c4 0 40%, #ffd36b 41% 60%, #ffd36b00 61%); }
+.hero .scene .sea { position: absolute; inset: 53% 0 0; background: var(--waves), repeating-linear-gradient(172deg, transparent 0 12px, #ffffff10 12px 14px); background-size: 90px 18px, auto; }
+.hero .scene .shipsvg { position: absolute; right: 3%; bottom: 36%; width: 64%; animation: bob 4s ease-in-out infinite; filter: drop-shadow(0 6px 8px #0006); }
+.hero > img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 1; }
+.hero.photo .scene { display: none; }
+.hero::after { content: ""; position: absolute; inset: 0; z-index: 2; background: linear-gradient(180deg, #0000 62%, #04101ab0); pointer-events: none; }
+.hero .ovl { position: absolute; left: 0; right: 0; bottom: 0; z-index: 3; display: flex; align-items: flex-end; gap: 12px; padding: 14px 16px; }
+.hero .ovl > span { display: grid; gap: 4px; min-width: 0; }
+.hero .ovl .lbl { color: #ffe08a; }
+.hero .shipname { font: 800 clamp(28px, 8vw, 40px)/.95 var(--display); text-transform: uppercase; letter-spacing: .03em; text-shadow: 0 2px 10px #0008; overflow-wrap: anywhere; }
+.hero .funnel { width: 40px; height: 44px; flex: none; filter: drop-shadow(0 2px 4px #0006); }
+.hero .ovl .wheel { width: 40px; height: 40px; color: var(--signal); flex: none; animation: spin 14s linear infinite; }
+.ticket { position: relative; display: grid; grid-template-columns: 1fr auto; }
+.ticket::before, .ticket::after { content: ""; position: absolute; width: 22px; height: 22px; border-radius: 50%; background: var(--bg); right: 104px; border: 1px solid var(--line); z-index: 1; }
+.ticket::before { top: -12px; } .ticket::after { bottom: -12px; }
+.pass .main { padding: 14px 16px; display: grid; gap: 8px; min-width: 0; }
+.pass .stub { position: relative; width: 115px; border-left: 2px dashed var(--line); padding: 14px 12px; display: grid; align-content: center; justify-items: center; gap: 4px; text-align: center; background: linear-gradient(180deg, var(--surface), var(--surface-2)); overflow: hidden; }
+.pass .stub::before { content: ""; position: absolute; width: 110px; height: 110px; right: -34px; bottom: -34px; opacity: .08; background: currentColor;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Cg fill='none' stroke='black' stroke-linecap='round'%3E%3Ccircle cx='24' cy='24' r='13' stroke-width='4'/%3E%3Ccircle cx='24' cy='24' r='4' stroke-width='3.5'/%3E%3Cpath stroke-width='3.5' d='M24 4v40M4 24h40M9.9 9.9l28.2 28.2M38.1 9.9 9.9 38.1'/%3E%3C/g%3E%3C/svg%3E") center / contain no-repeat;
+          mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Cg fill='none' stroke='black' stroke-linecap='round'%3E%3Ccircle cx='24' cy='24' r='13' stroke-width='4'/%3E%3Ccircle cx='24' cy='24' r='4' stroke-width='3.5'/%3E%3Cpath stroke-width='3.5' d='M24 4v40M4 24h40M9.9 9.9l28.2 28.2M38.1 9.9 9.9 38.1'/%3E%3C/g%3E%3C/svg%3E") center / contain no-repeat; }
 .lbl { font: 700 11px/1 var(--body); letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
-.pass .shipname { font: 800 26px/1 var(--display); text-transform: uppercase; letter-spacing: .03em; }
 .pass .today { font-size: 15px; }
 .pass .today b { color: var(--sea-2); }
 .pass .big { font: 800 30px/1 var(--display); font-variant-numeric: tabular-nums; }
 .pass .stub small { color: var(--muted); font-size: 12px; line-height: 1.2; }
 .pass .row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 4px; }
-.pass .shipart { width: 100%; max-width: 220px; height: auto; margin: 2px 0 -4px; }
+.welcome .lighthouse { position: absolute; right: 4px; top: 12px; width: 124px; filter: drop-shadow(0 4px 6px #0005); }
+.welcome .lighthouse path:first-child, .welcome .lighthouse path:nth-child(2) { transform-origin: 60px 30px; animation: beam 5s ease-in-out infinite; }
+@keyframes beam { 50% { opacity: .1; } }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .pass .today b { color: var(--sea); } }
 .calls { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; padding: 4px 0 2px; }
 .calls::-webkit-scrollbar { display: none; }
@@ -266,9 +289,39 @@ main .wrap > * { min-width: 0; }
 .fleet button { border: 2px solid var(--line); background: var(--surface-2); border-radius: 14px; padding: 10px 12px; text-align: left; font-weight: 700; display: grid; gap: 2px; }
 .fleet button small { font-weight: 500; color: var(--muted); font-size: 12.5px; }
 .fleet button[aria-pressed="true"] { border-color: var(--signal); background: color-mix(in srgb, var(--signal) 20%, var(--surface)); }
+.fleet.lines button { display: flex; align-items: center; gap: 10px; }
+.lineb { width: 36px; height: 36px; border-radius: 10px; background: var(--lc); color: #fff; display: grid; place-items: center; font: 800 15px/1 var(--display); letter-spacing: .04em; flex: none; box-shadow: inset 0 -3px 0 #0003; }
+.fleet.lines button > span:last-child { display: grid; gap: 2px; }
+.todayport { display: grid; gap: 12px; }
+.porthole .shipsvg { width: 120%; max-width: none; position: relative; top: 8%; }
+.porthole.sm { width: 46px; height: 46px; box-shadow: 0 0 0 3px #d8b46a, 0 0 0 4.5px #8a6a2e; }
+.porthole.xs { width: 30px; height: 30px; box-shadow: 0 0 0 2px #d8b46a, 0 0 0 3px #8a6a2e; }
+.porthole.sm::after, .porthole.xs::after { display: none; }
+.fleet .funnel { width: 42px; height: 46px; flex: none; }
+.fleet.ships button { display: flex; align-items: center; gap: 12px; }
+.fleet.ships button > span:last-child { display: grid; gap: 2px; min-width: 0; }
+.linehead { display: flex; align-items: center; gap: 10px; } .linehead .funnel { width: 34px; height: 38px; }
+.shipchip .porthole { margin-right: 2px; }
+.cover-ship { position: absolute !important; right: 4%; bottom: 8px; width: 120px; z-index: 2 !important; animation: bob 4s ease-in-out infinite; filter: drop-shadow(0 3px 4px #0006); }
+.tp-head::before { content: ""; position: absolute; inset: 0; z-index: 2; border-radius: 20px; pointer-events: none; box-shadow: inset 0 0 0 5px #d8b46a, inset 0 0 0 7px #8a6a2e;
+  background: radial-gradient(circle at 14px 14px, #5b4316 0 2.2px, transparent 2.8px), radial-gradient(circle at calc(100% - 14px) 14px, #5b4316 0 2.2px, transparent 2.8px),
+              radial-gradient(circle at 14px calc(100% - 14px), #5b4316 0 2.2px, transparent 2.8px), radial-gradient(circle at calc(100% - 14px) calc(100% - 14px), #5b4316 0 2.2px, transparent 2.8px); }
+.tp-sub { font-size: 14px; opacity: .9; font-weight: 600; }
+.tp-h { display: flex; align-items: center; gap: 10px; }
+.tp-h::after { content: ""; flex: 1; height: 6px; border-radius: 3px; opacity: .55; background: repeating-linear-gradient(120deg, var(--brass) 0 4px, #8a6a2e 4px 6px); }
+.tp-h .badge { width: 38px; height: 38px; border-radius: 50%; display: grid; place-items: center; font-size: 19px; background: var(--surface); box-shadow: 0 0 0 3px var(--brass), 0 0 0 5px var(--surface), 0 0 0 6px var(--line); flex: none; }
+.tp-head { position: relative; border-radius: 20px; overflow: hidden; min-height: 150px; display: flex; align-items: flex-end; padding: 16px; color: #fff;
+  background: linear-gradient(180deg, #ffb25b, #c85a6a 50%, #0c3f60); box-shadow: var(--shadow); }
+.tp-head img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.tp-head::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, #0000 30%, #04101acc); }
+.tp-head > div { position: relative; z-index: 1; }
+.tp-head .lbl { color: #ffe08a; }
+.tp-head h2 { margin: 4px 0 0; font: 800 clamp(32px, 9vw, 46px)/.95 var(--display); text-transform: uppercase; text-shadow: 0 2px 10px #0007; }
+.tp-h { margin: 10px 2px 2px; font: 800 22px/1 var(--display); text-transform: uppercase; letter-spacing: .05em; }
+a.feat { text-decoration: none; color: inherit; }
 .seg { display: flex; gap: 8px; flex-wrap: wrap; }
 .toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(20px + env(safe-area-inset-bottom, 0px)); background: var(--ink); color: var(--bg); padding: 12px 18px; border-radius: 999px; font-size: 14.5px; font-weight: 600; z-index: 40; max-width: calc(100% - 32px); box-shadow: 0 8px 24px #0005; border: 2px solid var(--signal); }
-@media (prefers-reduced-motion: reduce) { .refresh.spin .wheel, .lifering, .welcome .ship { animation: none; } }
+@media (prefers-reduced-motion: reduce) { .refresh.spin .wheel, .lifering, .hero .shipsvg, .hero .wheel, .lighthouse path { animation: none !important; } }
 </style>
 
 <header class="band" id="band">
@@ -415,6 +468,7 @@ async function refresh() {
     state.index = await fetchJSON(REMOTE + "index.json", true); store.set("index", state.index);
     if (state.port) state.port = await loadPort(state.port.id, true);
     try { SHIPS = await fetchJSON(REMOTE + "ships.json", true); store.set("ships", SHIPS); } catch {}
+    try { const f = await fetchJSON(REMOTE + "fleets.json", true); setFleets(f); store.set("fleets", f); PHOTOS = await fetchJSON(REMOTE + "ship_photos.json", true); store.set("photos", PHOTOS); } catch {}
     store.set("checked", Date.now());
     toast(state.port ? `${state.port.name} is up to date for ${DAY_NAMES[new Date().getDay()]}` : "Ports are up to date");
   } catch { toast("No connection. Showing the saved guide."); }
@@ -455,15 +509,45 @@ const icon = {
   bell: `<svg viewBox="0 0 24 24" aria-hidden="true"><use href="#bell"/></svg>`,
   wave: `<svg viewBox="0 0 120 24" aria-hidden="true"><path d="M0 12c10 0 10-7 20-7s10 7 20 7 10-7 20-7 10 7 20 7 10-7 20-7 10 7 20 7" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>`
 };
-// A cruise ship side view: navy hull with red boot-top, white decks with balconies, and a funnel.
-const SHIP_ART = `<svg viewBox="0 0 220 70" aria-hidden="true">
-  <path d="M6 44h208l-14 20H24z" fill="#0d2536"/><path d="M14 56h194l-4 8H24z" fill="#e2412f"/><path d="M8 47h205" stroke="#fff" stroke-width="2"/>
-  <path d="M30 44V30l8-6h130l14 8 10 12z" fill="#fff"/><path d="M48 24V16l6-4h86l10 8v4z" fill="#f4f7f8"/>
-  <path d="M150 12h16l-2-10h-12z" fill="#0d2536"/><path d="M151 6h14" stroke="#ffc21a" stroke-width="3"/>
-  <g fill="#1f6f8a">${Array.from({ length: 15 }, (_, i) => `<rect x="${36 + i * 9.4}" y="34" width="6" height="4" rx="1"/>`).join("")}
-  ${Array.from({ length: 11 }, (_, i) => `<rect x="${56 + i * 9}" y="17" width="5.5" height="3.5" rx="1"/>`).join("")}</g>
-  <g fill="#cfe3e8">${Array.from({ length: 16 }, (_, i) => `<rect x="${33 + i * 9.4}" y="27" width="7" height="3" rx="1"/>`).join("")}</g>
-  <path d="M182 32l10 12" stroke="#d8e4e7" stroke-width="2"/></svg>`;
+// A cruise ship side view, shaded for depth: navy hull with a red boot-top, tiers of white decks with
+// balconies and lifeboats, and a funnel painted in the cruise line's colour.
+let artN = 0;
+function shipArt(color = "#0d2536", sea = false) {
+  const id = "sa" + (++artN), win = (x0, y, n, step, w, h, fill) => Array.from({ length: n }, (_, i) => `<rect x="${(x0 + i * step).toFixed(1)}" y="${y}" width="${w}" height="${h}" rx="1" fill="${fill}"/>`).join("");
+  return `<svg class="shipsvg" viewBox="0 0 240 96" aria-hidden="true">
+  <defs><linearGradient id="${id}h" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1c3c55"/><stop offset=".55" stop-color="#0d2536"/><stop offset="1" stop-color="#06131d"/></linearGradient>
+  <linearGradient id="${id}d" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#d9e4e8"/></linearGradient>
+  <linearGradient id="${id}f" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="${color}"/><stop offset=".6" stop-color="${color}"/><stop offset="1" stop-color="#000" stop-opacity=".35"/></linearGradient></defs>
+  ${sea ? `<ellipse cx="120" cy="84" rx="112" ry="5" fill="#000" opacity=".18"/>` : ""}
+  <path d="M8 58h218l-6 6-14 18H30z" fill="url(#${id}h)"/>
+  <path d="M15 72h200l-9 10H30z" fill="#e2412f"/><path d="M11 61h211" stroke="#fff" stroke-width="2.2"/>
+  ${win(28, 66, 18, 10.5, 3, 3, "#ffd77a")}
+  <path d="M26 58V44l6-4h160l14 8 14 10z" fill="url(#${id}d)"/>
+  <path d="M38 40V30l6-4h134l12 8 4 6z" fill="url(#${id}d)"/>
+  <path d="M54 26v-8l5-4h100l10 7 2 5z" fill="url(#${id}d)"/>
+  ${win(32, 49, 17, 9.6, 6.5, 4.2, "#2d7f9c")}${win(44, 32, 14, 9.6, 6.5, 3.8, "#2d7f9c")}
+  ${win(60, 18, 10, 9.6, 6, 3.4, "#3b8fae")}
+  <path d="M30 44h168M42 30h144" stroke="#9fb7c0" stroke-width=".8"/>
+  ${Array.from({ length: 8 }, (_, i) => `<rect x="${40 + i * 18}" y="40.5" width="12" height="4.6" rx="2.3" fill="#ff8a1e" stroke="#c35d06" stroke-width=".6"/>`).join("")}
+  <path d="M192 40h12l8 8h-18z" fill="#173c56"/><path d="M178 26h10l6 8h-14z" fill="#173c56"/>
+  <path d="M118 14l4-13h22l-3 13z" fill="url(#${id}f)"/><path d="M120.6 6h22" stroke="#fff" stroke-opacity=".75" stroke-width="2"/>
+  <path d="M123 1h20" stroke="#0d2536" stroke-width="2"/>
+  <path d="M226 58l-4-13M222 45l-6 2" stroke="#cfdfe2" stroke-width="1.3"/>
+  ${sea ? `<path d="M0 86c12 0 12-5 24-5s12 5 24 5 12-5 24-5 12 5 24 5 12-5 24-5 12 5 24 5 12-5 24-5 12 5 24 5 12-5 24-5 12 5 24 5" fill="none" stroke="#fff" stroke-opacity=".7" stroke-width="2.4" stroke-linecap="round"/>` : ""}
+</svg>`;
+}
+const SHIP_ART = shipArt();
+// A red-and-white lighthouse with its beam, for the welcome card.
+const LIGHTHOUSE = `<svg class="lighthouse" viewBox="0 0 120 150" aria-hidden="true">
+  <path d="M60 30 0 6v34z" fill="#fff6c8" opacity=".45"/><path d="M60 30l60-24v34z" fill="#fff6c8" opacity=".3"/>
+  <path d="M46 22h28l-2-8H48z" fill="#e2412f"/><path d="M58 6h4l8 8H50z" fill="#0d2536"/>
+  <rect x="48" y="22" width="24" height="14" rx="2" fill="#fff3b0"/><path d="M48 29h24" stroke="#c9a35a" stroke-width="1.4"/>
+  <path d="M42 36h36v4H42z" fill="#0d2536"/>
+  <path d="M46 40h28l6 92H40z" fill="#fff"/><path d="M45.2 52h29.6l1.4 18H43.8zM43 88h34l1.4 18H41.6z" fill="#e2412f"/>
+  <path d="M60 40h14l6 92H60z" fill="#000" opacity=".1"/><rect x="56" y="112" width="8" height="20" rx="4" fill="#0d2536"/>
+  <path d="M20 134c20-8 60-8 80 0v16H20z" fill="#3c4f5c"/></svg>`;
+// A funnel in the cruise line's colours, used as its badge.
+const funnel = (color, txt) => `<svg class="funnel" viewBox="0 0 44 48" aria-hidden="true"><path d="M8 46 13 4h26l-5 42z" fill="${color}"/><path d="M12.4 9h26" stroke="#fff" stroke-opacity=".85" stroke-width="3"/><path d="M13 4h26" stroke="#0d2536" stroke-width="3"/><path d="M34 6l-5 40h5l5-42z" fill="#000" opacity=".22"/><text x="23" y="34" text-anchor="middle" font-family="Big Shoulders Display, Arial Narrow, sans-serif" font-weight="800" font-size="${txt.length > 1 ? 14 : 17}" fill="#fff">${txt}</text></svg>`;
 // Nautical signal flags on a line.
 function bunting() {
   const flags = [["#e2412f", "#fff"], ["#ffc21a", "#0d2536"], ["#1f5fbf", "#fff"], ["#fff", "#e2412f"], ["#0d2536", "#ffc21a"], ["#18915a", "#fff"],
@@ -480,6 +564,36 @@ function bunting() {
 const img = (src, cls, alt = "") => src ? `<img class="${cls}" src="${esc(src)}" alt="${esc(alt)}" loading="lazy" decoding="async" referrerpolicy="no-referrer" onerror="this.remove()">` : "";
 const wikiUrl = t => "https://en.wikipedia.org/wiki/" + encodeURIComponent(t.replace(/ /g, "_"));
 
+/* ---- Cruise lines and their ships (data/fleets.json), with photos (data/ship_photos.json) ---- */
+let FLEETS = {}, LINE_COLOR = {}, PHOTOS = {};
+function setFleets(f) { FLEETS = {}; LINE_COLOR = {}; for (const [l, x] of Object.entries(f)) { FLEETS[l] = x.ships; LINE_COLOR[l] = x.color; } }
+const lineColor = l => LINE_COLOR[l] || "#557080";
+const initials = l => l.split(/\s|&/).filter(Boolean).map(w => w[0]).join("").slice(0, 2);
+// The ship's photo ships inside the app; one added after this build comes from the online copy.
+function shipPhoto(name, cls = "") {
+  const p = PHOTOS[shipKey(name)];
+  return p ? `<img class="${cls}" src="${BUNDLED + p.f}" alt="" decoding="async" onerror="if(!this.dataset.r){this.dataset.r=1;this.src='${REMOTE + p.f}'}else this.remove()">` : "";
+}
+// Which line a ship name belongs to, for ships seen in port schedules that aren't in the lists above.
+function lineOf(name) {
+  for (const [l, ships] of Object.entries(FLEETS)) if (ships.some(x => sameShip(x, name))) return l;
+  const pre = [["Celebrity "], ["Carnival "], ["Norwegian "], ["MSC "], ["Costa "], ["Disney "], ["Oceania "], ["Holland America "], ["Cunard "], ["Viking "], ["Virgin "]];
+  const map = { "Virgin ": "Virgin Voyages" };
+  for (const [p] of pre) if (name.startsWith(p)) return map[p] || p.trim();
+  if (/ of the Seas$/.test(name)) return "Royal Caribbean";
+  if (/ Princess$/.test(name)) return "Princess";
+  if (/^AIDA/.test(name)) return "AIDA";
+  if (/^Mein Schiff/.test(name)) return "TUI Cruises";
+  if (/^Marella/.test(name)) return "Marella";
+  if (/^Silver /.test(name)) return "Silversea";
+  if (/^Seven Seas /.test(name)) return "Regent Seven Seas";
+  if (/^Azamara /.test(name)) return "Azamara";
+  if (/^(Seabourn|Ponant|Windstar|Explora|Crystal|Emerald) /.test(name)) return name.split(" ")[0] === "Explora" ? "Explora Journeys" : name.split(" ")[0];
+  return "Other lines";
+}
+const shipKey = n => n.toLowerCase().replace(/[^a-z0-9]/g, "");
+function sameShip(a, b) { return shipKey(a) === shipKey(b); }
+
 /* ---- Ships: itineraries give today's port and the all-aboard time ---- */
 const dayStr = (d = new Date()) => d.toLocaleDateString("en-CA");
 const tm = s => s ? s.slice(11, 16) : "";
@@ -491,7 +605,12 @@ function nextCalls(ship, n = 6) {
   const day = dayStr();
   return ship ? ship.calls.filter(c => callDays(c)[1] >= day).slice(0, n) : [];
 }
-const myShip = () => SHIPS && SHIPS.ships.find(s => s.name === store.get("ship", ""));
+// The chosen ship's schedule, or an empty one when no port has published it.
+function myShip() {
+  const n = store.get("ship", "");
+  if (!n) return null;
+  return (SHIPS && SHIPS.ships.find(s => sameShip(s.name, n))) || { name: n, calls: [] };
+}
 const offset = () => store.get("offset", 30);
 function shipsInPort(pid, day = dayStr()) {
   return SHIPS ? SHIPS.ships.map(s => ({ s, c: todayCall(s, day) })).filter(x => x.c && x.c.p === pid) : [];
@@ -514,28 +633,36 @@ function render() {
 function setBandHeight() { document.documentElement.style.setProperty("--bandH", $("#band").offsetHeight + "px"); }
 addEventListener("resize", setBandHeight);
 
+// The front-page ship: a photo (or a drawing in the line's colours) above a boarding pass.
+function shipHero(name, line, sub) {
+  const ph = name ? shipPhoto(name, "shipphoto") : "";
+  return `<div class="hero${ph ? " photo" : ""}">${ph}<div class="scene">${bunting()}<div class="sun"></div><div class="sea"></div>${shipArt(lineColor(line), true)}</div>
+    <div class="ovl">${line ? funnel(lineColor(line), esc(initials(line))) : `<svg class="wheel" viewBox="0 0 48 48" aria-hidden="true"><use href="#wheel"/></svg>`}
+    <span><span class="lbl">${sub}</span><span class="shipname">${esc(name || "Which ship are you on?")}</span></span></div></div>`;
+}
 function passCard() {
-  if (!SHIPS) return "";
   const ship = myShip();
-  if (!ship) return `<section class="pass"><div class="main"><span class="lbl">My ship</span><span class="shipname">Which ship are you on?</span>
-      <span class="today">Pick your ship and Gangway shows today's port and your all-aboard time.</span>
+  if (!ship) return `<section class="pass">${shipHero("", "", "My ship")}<div class="ticket"><div class="main">
+      <span class="today">Pick your cruise line and ship. Gangway then shows today's port, what to do ashore and your all-aboard time.</span>
       <div class="row"><button class="btn y" data-pick>⚓ Choose my ship</button></div></div>
-      <div class="stub">${SHIP_ART}</div></section>`;
-  if (!ship.calls.length) return `<section class="pass"><div class="main"><span class="lbl">My ship</span><span class="shipname">${esc(ship.name)}</span>
-      <span class="today">This ship's schedule isn't loaded yet. Use <b>Find the port I'm in</b> and set all aboard from the daily planner.</span>
-      <div class="row"><button class="btn" data-pick>Change ship</button></div></div><div class="stub">${SHIP_ART}</div></section>`;
+      <div class="stub"><span class="lbl">All aboard</span><span class="big">--:--</span><small>Pick your ship</small></div></div></section>`;
+  const line = store.get("line", "") || lineOf(ship.name), sub = `My ship · ${line}`;
+  if (!ship.calls.length) return `<section class="pass">${shipHero(ship.name, line, sub)}<div class="ticket"><div class="main">
+      <span class="today">No port has published ${esc(ship.name)}'s schedule for today. Use <b>Find the port I'm in</b> or search your port and type the sailing time.</span>
+      <div class="row"><button class="btn" data-pick>Change ship</button></div></div>
+      <div class="stub"><span class="lbl">All aboard</span><span class="big">--:--</span><small>Set it in port</small></div></div></section>`;
   const c = todayCall(ship), next = nextCalls(ship);
   const here = c && c.p ? portName(c.p) : null;
   const aboard = autoAboard(c);
   const nextUp = next.find(x => x !== c);
-  let line;
-  if (c) line = `Today: <b>${esc(here || c.n.split(",")[0])}</b>${c.a && c.a.slice(0, 10) === dayStr() ? ` · in ${tm(c.a)}` : ""}${c.d ? ` · out ${c.d.slice(0, 10) === dayStr() ? tm(c.d) : new Date(c.d).toLocaleDateString([], { weekday: "short" }) + " " + tm(c.d)}` : ""}`;
-  else line = nextUp ? `At sea today · next <b>${esc(nextUp.p ? portName(nextUp.p) : nextUp.n.split(",")[0])}</b> ${new Date(nextUp.a || nextUp.d).toLocaleDateString([], { weekday: "short", day: "numeric", month: "short" })}` : "At sea today";
-  return `<section class="pass"><div class="main"><span class="lbl">My ship</span><span class="shipname">${esc(ship.name)}</span>
-      <span class="today">${line}</span>
+  let line2;
+  if (c) line2 = `Today: <b>${esc(here || c.n.split(",")[0])}</b>${c.a && c.a.slice(0, 10) === dayStr() ? ` · in ${tm(c.a)}` : ""}${c.d ? ` · out ${c.d.slice(0, 10) === dayStr() ? tm(c.d) : new Date(c.d).toLocaleDateString([], { weekday: "short" }) + " " + tm(c.d)}` : ""}`;
+  else line2 = nextUp ? `At sea today · next <b>${esc(nextUp.p ? portName(nextUp.p) : nextUp.n.split(",")[0])}</b> ${new Date(nextUp.a || nextUp.d).toLocaleDateString([], { weekday: "short", day: "numeric", month: "short" })}` : "At sea today";
+  return `<section class="pass">${shipHero(ship.name, line, sub)}<div class="ticket"><div class="main">
+      <span class="today">${line2}</span>
       <div class="calls">${next.map(x => `<button class="call${x === c ? " now" : ""}" ${x.p ? `data-port="${x.p}"` : "disabled"}><span class="ph">${x.p ? flag((state.index.ports.find(p => p.id === x.p) || {}).country) : "⚓"}</span><b>${esc(x.p ? portName(x.p) : x.n.split(",")[0])}</b><span>${new Date(x.a || x.d).toLocaleDateString([], { weekday: "short", day: "numeric" })}</span></button>`).join("")}</div>
       <div class="row">${here ? `<button class="btn go" data-port="${c.p}">${icon.go}Go ashore</button>` : ""}<button class="btn" data-pick>Change ship</button></div></div>
-      <div class="stub"><span class="lbl">All aboard</span><span class="big">${aboard || "--:--"}</span><small>${aboard ? `${offset()} min before sailing` : c ? "Not sailing today" : "No port today"}</small></div></section>`;
+      <div class="stub"><span class="lbl">All aboard</span><span class="big">${aboard || "--:--"}</span><small>${aboard ? `${offset()} min before sailing` : c ? "Not sailing today" : "No port today"}</small></div></div></section>`;
 }
 function renderList() {
   const idx = state.index;
@@ -543,14 +670,15 @@ function renderList() {
   const regions = ["All", ...new Set(idx.ports.map(p => p.region))];
   // The search box is built once and never replaced, so typing keeps the phone keyboard steady.
   $("#view").innerHTML = `
-    <section class="welcome">${bunting()}<div class="sun"></div><div class="sea"></div><div class="ship">${SHIP_ART}</div>
+    <div id="pass">${passCard()}</div>
+    <section class="welcome"><div class="sun"></div><div class="sea"></div>${LIGHTHOUSE}
       <p class="kicker">Ahoy · ${DAY_NAMES[new Date().getDay()]}</p>
       <h2>Where are we docked today?</h2>
       <button class="near" id="near"><span class="lifering" aria-hidden="true"></span><span><b>Find the port I'm in</b><small>Uses your phone's GPS, works offline</small></span></button>
       <label class="searchbox">${icon.search}<input class="search" id="q" type="search" placeholder="Search ${idx.ports.length} ports, e.g. Quebec" value="${esc(state.q)}" aria-label="Search ports" autocomplete="off" enterkeyhint="search" role="combobox" aria-controls="suggest" aria-expanded="false"></label>
       <ul class="suggest" id="suggest" role="listbox" hidden></ul>
     </section>
-    <div id="pass">${passCard()}</div>
+    <div id="todayport"></div>
     <div class="chips" role="group" aria-label="Regions">${regions.map(r => `<button class="chip" data-region="${esc(r)}" aria-pressed="${r === state.region}">${esc(r)}</button>`).join("")}</div>
     <div id="results"></div>
     <footer class="foot">${icon.wave}<span>Places from OpenStreetMap contributors. Descriptions and photos from Wikipedia. Check times with your ship's daily planner.</span><span>Fair winds ⚓</span></footer>`;
@@ -564,6 +692,35 @@ function renderList() {
   });
   bindPass();
   renderResults();
+  fillToday();
+}
+// When my ship is in port today, the front page shows that port's highlights straight away.
+async function fillToday() {
+  const ship = myShip(), c = ship && todayCall(ship), box = $("#todayport");
+  if (!box || !c || !c.p) return;
+  let P;
+  try { P = await loadPort(c.p); } catch { return; }
+  if (!$("#todayport") || state.port) return;
+  const now = new Date(), withSt = p => ({ ...p, st: status(p, now) });
+  const rank = p => p.d * (p.img ? 0.6 : 1) * (p.ds ? 0.8 : 1);
+  const pick = (g, n, f = () => true) => P.places.filter(p => p.g === g && f(p)).sort((a, b) => rank(a) - rank(b)).slice(0, n).map(withSt);
+  const bars = pick("food", 2, p => /bar|pub/.test(p.k)), food = pick("food", 3, p => !/bar|pub/.test(p.k));
+  const near = k => P.places.filter(p => p.k === k).sort((a, b) => a.d - b.d)[0];
+  const ess = ["atm", "pharmacy", "supermarket", "wifi"].map(near).filter(Boolean);
+  const prev = state.port; state.port = P;          // card() links need the port name
+  const html = `<section class="todayport">
+      <div class="tp-head">${img(P.about && P.about.img && P.about.img.replace(/\/\d+px-/, "/960px-"), "", P.name)}<div><span class="lbl">${flag(P.country)} Today you're in</span><h2>${esc(P.name)}</h2><span class="tp-sub">${esc(P.country)}${P.tender ? " · ⛵ tender port" : ""}</span></div></div>
+      ${P.about && P.about.ds ? `<p class="desc">${esc(P.about.ds)}</p>` : ""}
+      <h3 class="tp-h"><span class="badge">🧭</span>See &amp; do</h3><div class="cards">${pick("sights", 3).map(card).join("")}</div>
+      <h3 class="tp-h"><span class="badge">🍽️</span>Eat</h3><div class="cards">${food.map(card).join("")}</div>
+      ${bars.length ? `<h3 class="tp-h"><span class="badge">🍸</span>Drinks</h3><div class="cards">${bars.map(card).join("")}</div>` : ""}
+      ${ess.length ? `<h3 class="tp-h"><span class="badge">🧰</span>Nearest essentials</h3><div class="feats">${ess.map(p => `<a class="feat" href="${directions(p)}" target="_blank" rel="noopener">${KIND_ICON[p.k] || "📍"} ${esc(KINDS[p.k] || p.k)} · ${walkText(p.d)}</a>`).join("")}</div>` : ""}
+      <button class="btn go" data-port="${P.id}">${icon.go}Open the full ${esc(P.name)} guide</button>
+    </section>`;
+  state.port = prev;
+  box.innerHTML = html;
+  box.querySelector("[data-port]").onclick = () => openPort(P.id);
+  box.querySelectorAll("[data-more]").forEach(b => b.onclick = () => { const d = b.previousElementSibling; b.textContent = d.classList.toggle("full") ? "Show less" : "Read more"; });
 }
 function bindPass() {
   document.querySelectorAll("#pass [data-port]").forEach(b => b.onclick = () => openPort(b.dataset.port));
@@ -589,29 +746,48 @@ function renderResults() {
   document.querySelectorAll("#results [data-port]").forEach(b => b.onclick = () => openPort(b.dataset.port));
 }
 
-function pickShip() {
+// Pick a cruise line, then a ship; ships with a published port call today come first.
+function pickShip(line) {
   const cur = store.get("ship", "");
+  const known = SHIPS ? SHIPS.ships : [];
+  const all = {};
+  for (const [l, ships] of Object.entries(FLEETS)) all[l] = [...ships];
+  for (const s of known) { const l = lineOf(s.name); if (!(all[l] ||= []).some(x => sameShip(x, s.name))) all[l].push(s.name); }
+  const sched = n => known.find(s => sameShip(s.name, n));
+  const today = n => todayCall(sched(n));
+  const lines = Object.keys(all).sort((a, b) => (a === "Other lines") - (b === "Other lines") || (b in FLEETS) - (a in FLEETS) || a.localeCompare(b));
   const el = document.createElement("div");
   el.className = "sheet";
-  el.innerHTML = `<div class="in" role="dialog" aria-label="Choose your ship"><span class="grab"></span>
-    <h3>Which ship are you on?</h3><p>Gangway uses its schedule to show today's port and the all-aboard time.</p>
-    <div class="fleet">${SHIPS.ships.filter(s => s.name === cur || /^Celebrity /.test(s.name) || todayCall(s))
-      .sort((a, b) => !!todayCall(b) - !!todayCall(a) || a.name.localeCompare(b.name)).map(s => { const c = todayCall(s); return `<button data-ship="${esc(s.name)}" aria-pressed="${s.name === cur}">${esc(short(s.name))}<small>${c ? esc(c.p ? portName(c.p) : c.n.split(",")[0]) : "At sea today"}</small></button>`; }).join("")}</div>
-    <p>All aboard is how long before sailing?</p>
-    <div class="seg">${[30, 45, 60, 90].map(m => `<button class="chip" data-off="${m}" aria-pressed="${m === offset()}">${m} min</button>`).join("")}</div>
-    <div class="seg">${cur ? `<button class="btn" data-clear>Not on a ship</button>` : ""}<button class="btn go" data-done style="margin-left:auto">Done</button></div></div>`;
-  document.body.append(el);
   const close = () => { el.remove(); render(); };
+  const draw = l => {
+    if (!l) {
+      el.innerHTML = `<div class="in" role="dialog" aria-label="Choose your cruise line"><span class="grab"></span>
+        <h3>Which cruise line?</h3><p>Then pick your ship and Gangway shows today's port and all aboard.</p>
+        <div class="fleet lines">${lines.map(x => { const n = all[x].filter(today).length; return `<button data-line="${esc(x)}">${funnel(lineColor(x), esc(initials(x)))}<span>${esc(x)}<small>${all[x].length} ships${n ? ` · ${n} in port today` : ""}</small></span></button>`; }).join("")}</div>
+        <p>All aboard is how long before sailing?</p>
+        <div class="seg">${[30, 45, 60, 90].map(m => `<button class="chip" data-off="${m}" aria-pressed="${m === offset()}">${m} min</button>`).join("")}</div>
+        <div class="seg">${cur ? `<button class="btn" data-clear>Not on a ship</button>` : ""}<button class="btn go" data-done style="margin-left:auto">Done</button></div></div>`;
+    } else {
+      const ships = [...all[l]].sort((a, b) => !!today(b) - !!today(a) || a.localeCompare(b));
+      el.innerHTML = `<div class="in" role="dialog" aria-label="Choose your ship"><span class="grab"></span>
+        <button class="btn" data-back>‹ All cruise lines</button>
+        <div class="linehead">${funnel(lineColor(l), esc(initials(l)))}<h3>${esc(l)}</h3></div><p>Tap your ship. Ships with a port today come first.</p>
+        <div class="fleet ships">${ships.map(n => { const c = today(n); const short = n.replace(new RegExp("^(" + l + "|Celebrity|Norwegian|Carnival|MSC|Costa|Disney|Oceania|Holland America|Cunard|Viking|Virgin) "), ""); return `<button data-ship="${esc(n)}" aria-pressed="${sameShip(n, cur)}"><span class="porthole sm" aria-hidden="true">${shipArt(lineColor(l))}${shipPhoto(n)}</span><span>${esc(short)}<small>${c ? "⛴ " + esc(c.p ? portName(c.p) : c.n) + " today" : sched(n) ? "At sea or no port today" : "No published schedule"}</small></span></button>`; }).join("")}</div></div>`;
+    }
+    el.querySelectorAll("[data-line]").forEach(b => b.onclick = () => draw(b.dataset.line));
+    el.querySelectorAll("[data-ship]").forEach(b => b.onclick = () => { store.set("ship", b.dataset.ship); store.set("line", l); close(); });
+    el.querySelectorAll("[data-off]").forEach(b => b.onclick = () => { store.set("offset", +b.dataset.off); el.querySelectorAll("[data-off]").forEach(x => x.setAttribute("aria-pressed", x === b)); });
+    const q = sel => el.querySelector(sel);
+    if (q("[data-back]")) q("[data-back]").onclick = () => draw(null);
+    if (q("[data-clear]")) q("[data-clear]").onclick = () => { store.set("ship", ""); close(); };
+    if (q("[data-done]")) q("[data-done]").onclick = close;
+    el.querySelector(".in").scrollTop = 0;
+  };
   el.onclick = e => { if (e.target === el) close(); };
-  el.querySelectorAll("[data-ship]").forEach(b => b.onclick = () => { store.set("ship", b.dataset.ship); el.querySelectorAll("[data-ship]").forEach(x => x.setAttribute("aria-pressed", x === b)); });
-  el.querySelectorAll("[data-off]").forEach(b => b.onclick = () => { store.set("offset", +b.dataset.off); el.querySelectorAll("[data-off]").forEach(x => x.setAttribute("aria-pressed", x === b)); });
-  const clr = el.querySelector("[data-clear]"); if (clr) clr.onclick = () => { store.set("ship", ""); close(); };
-  el.querySelector("[data-done]").onclick = close;
+  document.body.append(el);
+  draw(typeof line === "string" ? line : null);
 }
 
-
-/* ---- Search suggestions and port check-in ---- */
-// Ports whose name (or a word in it) starts with what was typed come first, then any other match.
 function matches(q) {
   q = q.trim().toLowerCase();
   if (!q) return [];
@@ -645,7 +821,7 @@ function checkIn(id) {
     <span class="lbl">${flag(P.country)} ${esc(P.country)} · ${DAY_NAMES[new Date().getDay()]}</span>
     <h3>${esc(P.name)}</h3>
     ${here.length ? `<p>Ships in port today. Tap yours to set the all-aboard time.</p>
-      <div class="checkin">${here.map(x => `<button class="shipopt${x.s.name === mine ? " mine" : ""}" data-ship="${esc(x.s.name)}"><span class="dotship">⛴</span>
+      <div class="checkin">${here.map(x => `<button class="shipopt${x.s.name === mine ? " mine" : ""}" data-ship="${esc(x.s.name)}"><span class="porthole sm">${shipArt(lineColor(lineOf(x.s.name)))}${shipPhoto(x.s.name)}</span>
         <span><b>${esc(x.s.name)}</b><small>${x.c.a ? "in " + tm(x.c.a) : "overnight"} · ${x.c.d ? "sails " + (x.c.d.slice(0, 10) === dayStr() ? tm(x.c.d) : new Date(x.c.d).toLocaleDateString([], { weekday: "short" }) + " " + tm(x.c.d)) : "turnaround"}</small></span></button>`).join("")}</div>
       <p>Not listed? Enter your sailing time below.</p>`
     : `<p>No ship schedule for this port today. Enter your ship's sailing time and Gangway works out all aboard.</p>`}
@@ -721,9 +897,10 @@ function renderPort() {
     <section class="cover">
       ${img(A.img && A.img.replace(/\/\d+px-/, "/960px-"), "", P.name)}
       <h2>${esc(P.name)}</h2>
+      <div class="cover-ship">${shipArt(mine ? lineColor(store.get("line", "") || lineOf(mine.name)) : "#0d2536")}</div>
       <div class="meta"><span class="pill">${flag(P.country)} ${esc(P.country)}</span>${P.tender ? '<span class="pill y">⛵ Tender port</span>' : ""}<span class="pill coords">${dms(P.lat, "N", "S")} ${dms(P.lon, "E", "W")}</span></div>
     </section>
-    ${here.length ? `<div class="ships-here"><span class="lbl">In port today</span>${here.map(x => `<span class="shipchip${x.s === mine ? " mine" : ""}"><span class="dotship">⛴</span>${esc(short(x.s.name))}<small>${x.c.a && x.c.a.slice(0, 10) === dayStr() ? tm(x.c.a) : "··"}–${x.c.d && x.c.d.slice(0, 10) === dayStr() ? tm(x.c.d) : "··"}</small></span>`).join("")}</div>` : ""}
+    ${here.length ? `<div class="ships-here"><span class="lbl">In port today</span>${here.map(x => `<span class="shipchip${x.s === mine ? " mine" : ""}"><span class="porthole xs">${shipArt(lineColor(lineOf(x.s.name)))}${shipPhoto(x.s.name)}</span>${esc(short(x.s.name))}<small>${x.c.a && x.c.a.slice(0, 10) === dayStr() ? tm(x.c.a) : "··"}–${x.c.d && x.c.d.slice(0, 10) === dayStr() ? tm(x.c.d) : "··"}</small></span>`).join("")}</div>` : ""}
     <section class="aboard" aria-label="All aboard timer">
       <div class="head">${icon.bell}<h3>All aboard</h3><input id="aboardTime" type="time" value="${esc(aboard)}" aria-label="All-aboard time"></div>
       <div class="bodyp"><span class="countdown" id="countdown">--:--</span><small id="cdText">Set the all-aboard time from your ship's daily planner.</small>
@@ -796,6 +973,9 @@ $("#refresh").onclick = refresh;
 (async function start() {
   render();
   SHIPS = store.get("ships", null);
+  setFleets(store.get("fleets", {})); PHOTOS = store.get("photos", {});
+  getJSON("fleets.json").then(f => { if (!store.get("fleets", null)) { setFleets(f); store.set("fleets", f); } render(); }).catch(() => {});
+  getJSON("ship_photos.json").then(p => { PHOTOS = { ...p, ...store.get("photos", {}) }; render(); }).catch(() => {});
   getJSON("ships.json").then(d => { if (!SHIPS || d.updated > SHIPS.updated) { SHIPS = d; store.set("ships", d); render(); } }).catch(() => {});
   getJSON("countries.json").then(c => { COUNTRIES = c; store.set("countries", c); if (state.port) renderPort(); })
     .catch(() => { COUNTRIES = store.get("countries", {}); });

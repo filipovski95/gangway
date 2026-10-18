@@ -1,0 +1,276 @@
+{
+ "Royal Caribbean": {
+  "color": "#1b3f8f",
+  "ships": [
+   "Icon of the Seas",
+   "Star of the Seas",
+   "Legend of the Seas",
+   "Utopia of the Seas",
+   "Wonder of the Seas",
+   "Symphony of the Seas",
+   "Harmony of the Seas",
+   "Allure of the Seas",
+   "Oasis of the Seas",
+   "Odyssey of the Seas",
+   "Spectrum of the Seas",
+   "Quantum of the Seas",
+   "Anthem of the Seas",
+   "Ovation of the Seas",
+   "Freedom of the Seas",
+   "Liberty of the Seas",
+   "Independence of the Seas",
+   "Navigator of the Seas",
+   "Mariner of the Seas",
+   "Explorer of the Seas",
+   "Adventure of the Seas",
+   "Voyager of the Seas",
+   "Radiance of the Seas",
+   "Brilliance of the Seas",
+   "Serenade of the Seas",
+   "Jewel of the Seas",
+   "Vision of the Seas",
+   "Enchantment of the Seas",
+   "Grandeur of the Seas",
+   "Rhapsody of the Seas"
+  ]
+ },
+ "Celebrity": {
+  "color": "#111",
+  "ships": [
+   "Celebrity Xcel",
+   "Celebrity Ascent",
+   "Celebrity Beyond",
+   "Celebrity Apex",
+   "Celebrity Edge",
+   "Celebrity Reflection",
+   "Celebrity Silhouette",
+   "Celebrity Eclipse",
+   "Celebrity Equinox",
+   "Celebrity Solstice",
+   "Celebrity Constellation",
+   "Celebrity Infinity",
+   "Celebrity Summit",
+   "Celebrity Millennium",
+   "Celebrity Flora",
+   "Celebrity Xpedition"
+  ]
+ },
+ "Princess": {
+  "color": "#1f5fa8",
+  "ships": [
+   "Sun Princess",
+   "Star Princess",
+   "Discovery Princess",
+   "Enchanted Princess",
+   "Sky Princess",
+   "Majestic Princess",
+   "Regal Princess",
+   "Royal Princess",
+   "Caribbean Princess",
+   "Crown Princess",
+   "Emerald Princess",
+   "Ruby Princess",
+   "Grand Princess",
+   "Diamond Princess",
+   "Sapphire Princess",
+   "Coral Princess",
+   "Island Princess"
+  ]
+ },
+ "Norwegian": {
+  "color": "#00427a",
+  "ships": [
+   "Norwegian Aqua",
+   "Norwegian Viva",
+   "Norwegian Prima",
+   "Norwegian Luna",
+   "Norwegian Encore",
+   "Norwegian Bliss",
+   "Norwegian Joy",
+   "Norwegian Escape",
+   "Norwegian Getaway",
+   "Norwegian Breakaway",
+   "Norwegian Epic",
+   "Norwegian Gem",
+   "Norwegian Jade",
+   "Norwegian Pearl",
+   "Norwegian Jewel",
+   "Norwegian Dawn",
+   "Norwegian Star",
+   "Norwegian Sun",
+   "Norwegian Sky",
+   "Norwegian Spirit",
+   "Pride of America"
+  ]
+ },
+ "Carnival": {
+  "color": "#d6202c",
+  "ships": [
+   "Carnival Jubilee",
+   "Carnival Celebration",
+   "Carnival Firenze",
+   "Carnival Venezia",
+   "Carnival Panorama",
+   "Carnival Horizon",
+   "Carnival Vista",
+   "Carnival Breeze",
+   "Carnival Magic",
+   "Carnival Dream",
+   "Carnival Sunrise",
+   "Carnival Radiance",
+   "Carnival Sunshine",
+   "Carnival Splendor",
+   "Carnival Freedom",
+   "Carnival Liberty",
+   "Carnival Valor",
+   "Carnival Glory",
+   "Carnival Conquest",
+   "Carnival Legend",
+   "Carnival Miracle",
+   "Carnival Pride",
+   "Carnival Spirit",
+   "Carnival Luminosa",
+   "Carnival Elation",
+   "Carnival Paradise",
+   "Carnival Adventure",
+   "Carnival Encounter",
+   "Mardi Gras"
+  ]
+ },
+ "MSC": {
+  "color": "#0b2a4a",
+  "ships": [
+   "MSC World America",
+   "MSC World Europa",
+   "MSC Euribia",
+   "MSC Seascape",
+   "MSC Seashore",
+   "MSC Virtuosa",
+   "MSC Grandiosa",
+   "MSC Bellissima",
+   "MSC Meraviglia",
+   "MSC Seaview",
+   "MSC Seaside",
+   "MSC Divina",
+   "MSC Preziosa",
+   "MSC Splendida",
+   "MSC Fantasia",
+   "MSC Magnifica",
+   "MSC Poesia",
+   "MSC Orchestra",
+   "MSC Musica",
+   "MSC Lirica",
+   "MSC Opera",
+   "MSC Armonia",
+   "MSC Sinfonia"
+  ]
+ },
+ "Holland America": {
+  "color": "#0d3b66",
+  "ships": [
+   "Holland America Rotterdam",
+   "Holland America Nieuw Statendam",
+   "Holland America Koningsdam",
+   "Holland America Nieuw Amsterdam",
+   "Holland America Eurodam",
+   "Holland America Noordam",
+   "Holland America Westerdam",
+   "Holland America Oosterdam",
+   "Holland America Zuiderdam",
+   "Holland America Volendam",
+   "Holland America Zaandam"
+  ]
+ },
+ "Disney": {
+  "color": "#a3121f",
+  "ships": [
+   "Disney Treasure",
+   "Disney Wish",
+   "Disney Destiny",
+   "Disney Fantasy",
+   "Disney Dream",
+   "Disney Magic",
+   "Disney Wonder",
+   "Disney Adventure"
+  ]
+ },
+ "Cunard": {
+  "color": "#7d1d2c",
+  "ships": [
+   "Cunard Queen Anne",
+   "Cunard Queen Mary 2",
+   "Cunard Queen Victoria",
+   "Cunard Queen Elizabeth"
+  ]
+ },
+ "Virgin Voyages": {
+  "color": "#c8102e",
+  "ships": [
+   "Virgin Scarlet Lady",
+   "Virgin Valiant Lady",
+   "Virgin Resilient Lady",
+   "Virgin Brilliant Lady"
+  ]
+ },
+ "Oceania": {
+  "color": "#00586e",
+  "ships": [
+   "Oceania Allura",
+   "Oceania Vista",
+   "Oceania Marina",
+   "Oceania Riviera",
+   "Oceania Insignia",
+   "Oceania Nautica",
+   "Oceania Regatta",
+   "Oceania Sirena"
+  ]
+ },
+ "Viking": {
+  "color": "#2f4f6f",
+  "ships": [
+   "Viking Mira",
+   "Viking Vela",
+   "Viking Vesta",
+   "Viking Polaris",
+   "Viking Octantis",
+   "Viking Saturn",
+   "Viking Neptune",
+   "Viking Mars",
+   "Viking Venus",
+   "Viking Jupiter",
+   "Viking Orion",
+   "Viking Star",
+   "Viking Sky",
+   "Viking Sea",
+   "Viking Sun"
+  ]
+ },
+ "Costa": {
+  "color": "#f6b21a",
+  "ships": [
+   "Costa Smeralda",
+   "Costa Toscana",
+   "Costa Firenze",
+   "Costa Venezia",
+   "Costa Diadema",
+   "Costa Fascinosa",
+   "Costa Favolosa",
+   "Costa Pacifica",
+   "Costa Deliziosa",
+   "Costa Serena",
+   "Costa Fortuna"
+  ]
+ },
+ "P&O Cruises": {
+  "color": "#00205b",
+  "ships": [
+   "Arvia",
+   "Iona",
+   "Britannia",
+   "Azura",
+   "Ventura",
+   "Arcadia",
+   "Aurora"
+  ]
+ }
+}
