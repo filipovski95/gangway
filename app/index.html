@@ -207,6 +207,20 @@ main .wrap > * { min-width: 0; }
 .coords { font: 500 12px var(--mono); }
 @media (min-width: 672px) { .cover { margin-inline: 0; border-radius: 0 0 24px 24px; } }
 
+.harbour { background: var(--surface); border: 1px solid var(--line); border-radius: 20px; padding: 14px 16px; box-shadow: var(--shadow); display: grid; gap: 10px; }
+.harbour .hh { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+.datepick { position: relative; display: inline-flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 700; color: var(--sea-2); border: 2px solid var(--line); border-radius: 999px; padding: 6px 12px; }
+.datepick input { position: absolute; inset: 0; opacity: 0; width: 100%; }
+.harbour .chips { margin-inline: -16px; padding-inline: 16px; }
+.chip.day { display: grid; justify-items: center; gap: 1px; padding: 6px 12px; min-width: 64px; }
+.chip.day small { font: 600 11px var(--mono); opacity: .8; }
+.shiplist { display: grid; gap: 8px; }
+.shiprow { display: flex; align-items: center; gap: 12px; padding: 8px 10px; border-radius: 14px; background: var(--surface-2); border: 2px solid transparent; }
+.shiprow.mine { border-color: var(--signal); }
+.sr-t { flex: 1; min-width: 0; display: grid; } .sr-t small { color: var(--muted); font-size: 12.5px; }
+.sr-time { font: 700 14px/1.35 var(--mono); text-align: right; } .sr-time small { font-weight: 500; color: var(--muted); }
+.harbour-none { margin: 0; color: var(--muted); font-size: 14px; }
+.harbour-note { color: var(--muted); font-size: 12px; }
 .ships-here { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
 .shipchip { display: inline-flex; align-items: center; gap: 8px; border-radius: 999px; padding: 6px 12px 6px 6px; background: var(--surface); border: 2px solid var(--line); font-size: 14px; font-weight: 600; }
 .shipchip .dotship { width: 26px; height: 26px; border-radius: 50%; background: var(--ink); color: var(--bg); display: grid; place-items: center; font-size: 14px; }
@@ -954,7 +968,7 @@ function renderPort() {
       <div class="cover-ship">${shipArt(mine ? lineColor(store.get("line", "") || lineOf(mine.name)) : "#0d2536")}</div>
       <div class="meta"><span class="pill">${flag(P.country)} ${esc(P.country)}</span>${P.tender ? '<span class="pill y">⛵ Tender port</span>' : ""}<span class="pill coords">${dms(P.lat, "N", "S")} ${dms(P.lon, "E", "W")}</span></div>
     </section>
-    ${here.length ? `<div class="ships-here"><span class="lbl">In port today</span>${here.map(x => `<span class="shipchip${x.s === mine ? " mine" : ""}"><span class="porthole xs">${shipArt(lineColor(lineOf(x.s.name)))}${shipPhoto(x.s.name)}</span>${esc(short(x.s.name))}<small>${x.c.a && x.c.a.slice(0, 10) === dayStr() ? tm(x.c.a) : "··"}–${x.c.d && x.c.d.slice(0, 10) === dayStr() ? tm(x.c.d) : "··"}</small></span>`).join("")}</div>` : ""}
+    <section class="harbour" id="harbour"></section>
     <section class="aboard" aria-label="All aboard timer">
       <div class="head">${icon.bell}<h3>All aboard</h3><input id="aboardTime" type="time" value="${esc(aboard)}" aria-label="All-aboard time"></div>
       <div class="bodyp"><span class="countdown" id="countdown">--:--</span><small id="cdText">Set the all-aboard time from your ship's daily planner.</small>
@@ -980,6 +994,29 @@ function renderPort() {
   $("#openOnly").onclick = () => { state.openOnly = !state.openOnly; renderPort(); };
   $("#aboardTime").onchange = e => { store.set(aboardKey(), e.target.value); tick(); };
   tick();
+  drawHarbour();
+}
+// Ships in this port on any day the port has published, so crew can plan ahead.
+function drawHarbour() {
+  const box = $("#harbour"), P = state.port;
+  if (!box || !P) return;
+  const covered = SHIPS && SHIPS.ships.some(s => s.calls.some(c => c.p === P.id));
+  if (!covered) { box.innerHTML = `<p class="harbour-none">⚓ ${esc(P.name)} doesn't publish its ship schedule, so Gangway can't show which ships are coming.</p>`; return; }
+  const day = state.shipDay || dayStr(), mine = myShip();
+  const days = Array.from({ length: 14 }, (_, i) => { const d = new Date(); d.setDate(d.getDate() + i); return d; });
+  const label = d => { const k = dayStr(d); return k === dayStr() ? "Today" : d.toLocaleDateString([], { weekday: "short", day: "numeric" }); };
+  const list = shipsInPort(P.id, day).sort((a, b) => (a.c.a || "").localeCompare(b.c.a || ""));
+  const t = (v, k) => v && v.slice(0, 10) === k ? tm(v) : "··";
+  const nice = new Date(day + "T12:00").toLocaleDateString([], { weekday: "long", day: "numeric", month: "long" });
+  box.innerHTML = `<div class="hh"><span class="lbl">⚓ Ships in port</span><label class="datepick">📅 Pick a date<input type="date" id="shipDay" min="${dayStr()}" value="${day}" aria-label="Pick a date"></label></div>
+    <div class="chips days">${days.map(d => { const k = dayStr(d), n = shipsInPort(P.id, k).length; return `<button class="chip day" data-day="${k}" aria-pressed="${k === day}">${label(d)}<small>${n ? `⛴ ${n}` : "–"}</small></button>`; }).join("")}</div>
+    <div class="shiplist">${list.length ? list.map(x => `<div class="shiprow${mine && x.s === mine ? " mine" : ""}"><span class="porthole sm">${shipArt(lineColor(lineOf(x.s.name)))}${shipPhoto(x.s.name)}</span>
+      <span class="sr-t"><b>${esc(x.s.name)}</b><small>${esc(lineOf(x.s.name))}</small></span><span class="sr-time"><small>in</small> ${t(x.c.a, day)}<br><small>out</small> ${t(x.c.d, day)}</span></div>`).join("")
+      : `<p class="harbour-none">No ships listed for ${nice}.</p>`}</div>
+    <small class="harbour-note">Times are local, from the port's published schedule. Schedules change, so check nearer the day.</small>`;
+  box.querySelectorAll("[data-day]").forEach(b => b.onclick = () => { state.shipDay = b.dataset.day; drawHarbour(); });
+  $("#shipDay").onchange = e => { if (e.target.value) { state.shipDay = e.target.value; drawHarbour(); } };
+  const sel = box.querySelector('.day[aria-pressed="true"]'); if (sel) sel.scrollIntoView({ inline: "nearest", block: "nearest" });
 }
 function tick() {
   const el = $("#countdown"); if (!el) return;
@@ -1011,7 +1048,7 @@ function distKm(a, b, c, d) {
 }
 async function openPort(id) {
   try {
-    state.port = await loadPort(id); state.openOnly = false;
+    state.port = await loadPort(id); state.openOnly = false; state.shipDay = dayStr();
     // Start on the first tab that has places; some small ports have no food or sights mapped.
     state.tab = (TABS.find(([k]) => state.port.places.some(p => p.g === k)) || TABS[0])[0];
     render(); scrollTo(0, 0);
