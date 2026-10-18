@@ -720,7 +720,9 @@ def fetch_all(sources=None, today=None, _covered=None):
     """Fetch every official schedule; returns [{"name": ..., "calls": [...]}] (see module docstring)."""
     today = today or datetime.now(timezone.utc).date()
     raw = []
-    for i, s in enumerate(sources or SOURCES):
+    # These sites refuse requests from GitHub's servers (403 or a Cloudflare challenge), so the daily run skips them.
+    blocked = {"ymq", "hfx", "fll"} if sources is None else set()
+    for i, s in enumerate([x for x in (sources or SOURCES) if x["key"] not in blocked]):
         if i:
             time.sleep(DELAY)
         try:
