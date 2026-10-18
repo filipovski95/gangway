@@ -1,0 +1,782 @@
+{
+"adventureoftheseas": {
+"f": "ships/adventureoftheseas.jpg",
+"wpu": "Adventure of the Seas"
+},
+"aidabella": {
+"f": "ships/aidabella.jpg",
+"wpu": "AIDAbella"
+},
+"aidablu": {
+"f": "ships/aidablu.jpg",
+"wpu": "AIDAblu"
+},
+"aidacosma": {
+"f": "ships/aidacosma.jpg",
+"wpu": "AIDAcosma"
+},
+"aidadiva": {
+"f": "ships/aidadiva.jpg",
+"wpu": "AIDAdiva"
+},
+"aidaluna": {
+"f": "ships/aidaluna.jpg",
+"wpu": "AIDAluna"
+},
+"aidamar": {
+"f": "ships/aidamar.jpg",
+"wpu": "AIDAmar"
+},
+"aidanova": {
+"f": "ships/aidanova.jpg",
+"wpu": "AIDAnova"
+},
+"aidaperla": {
+"f": "ships/aidaperla.jpg",
+"wpu": "AIDAperla"
+},
+"aidaprima": {
+"f": "ships/aidaprima.jpg",
+"wpu": "AIDAprima"
+},
+"aidastella": {
+"f": "ships/aidastella.jpg",
+"wpu": "AIDAstella"
+},
+"allureoftheseas": {
+"f": "ships/allureoftheseas.jpg",
+"wpu": "Allure of the Seas"
+},
+"anthemoftheseas": {
+"f": "ships/anthemoftheseas.jpg",
+"wpu": "Anthem of the Seas"
+},
+"arcadia": {
+"f": "ships/arcadia.jpg",
+"wpu": "Arcadia (2004 ship)"
+},
+"astoriagrande": {
+"f": "ships/astoriagrande.jpg",
+"wpu": "Astoria Grande"
+},
+"azamarajourney": {
+"f": "ships/azamarajourney.jpg",
+"wpu": "Azamara Journey"
+},
+"azamaraonward": {
+"f": "ships/azamaraonward.jpg",
+"wpu": "Azamara Onward"
+},
+"azamarapursuit": {
+"f": "ships/azamarapursuit.jpg",
+"wpu": "Azamara Pursuit"
+},
+"azamaraquest": {
+"f": "ships/azamaraquest.jpg",
+"wpu": "Azamara Quest"
+},
+"brillianceoftheseas": {
+"f": "ships/brillianceoftheseas.jpg",
+"wpu": "Brilliance of the Seas"
+},
+"britannia": {
+"f": "ships/britannia.jpg",
+"wpu": "Britannia (2014 ship)"
+},
+"caribbeanprincess": {
+"f": "ships/caribbeanprincess.jpg",
+"wpu": "Caribbean Princess"
+},
+"carnivaladventure": {
+"f": "ships/carnivaladventure.jpg",
+"wpu": "Carnival Adventure"
+},
+"carnivalbreeze": {
+"f": "ships/carnivalbreeze.jpg",
+"wpu": "Carnival Breeze"
+},
+"carnivalcelebration": {
+"f": "ships/carnivalcelebration.jpg",
+"wpu": "Carnival Celebration"
+},
+"carnivalconquest": {
+"f": "ships/carnivalconquest.jpg",
+"wpu": "Carnival Conquest"
+},
+"carnivaldream": {
+"f": "ships/carnivaldream.jpg",
+"wpu": "Carnival Dream"
+},
+"carnivalelation": {
+"f": "ships/carnivalelation.jpg",
+"wpu": "Carnival Elation"
+},
+"carnivalencounter": {
+"f": "ships/carnivalencounter.jpg",
+"wpu": "Carnival Encounter"
+},
+"carnivalfirenze": {
+"f": "ships/carnivalfirenze.jpg",
+"wpu": "Carnival Firenze"
+},
+"carnivalfreedom": {
+"f": "ships/carnivalfreedom.jpg",
+"wpu": "Carnival Freedom"
+},
+"carnivalglory": {
+"f": "ships/carnivalglory.jpg",
+"wpu": "Carnival Glory"
+},
+"carnivalhorizon": {
+"f": "ships/carnivalhorizon.jpg",
+"wpu": "Carnival Horizon"
+},
+"carnivaljubilee": {
+"f": "ships/carnivaljubilee.jpg",
+"wpu": "Carnival Jubilee"
+},
+"carnivallegend": {
+"f": "ships/carnivallegend.jpg",
+"wpu": "Carnival Legend"
+},
+"carnivalliberty": {
+"f": "ships/carnivalliberty.jpg",
+"wpu": "Carnival Liberty"
+},
+"carnivalluminosa": {
+"f": "ships/carnivalluminosa.jpg",
+"wpu": "Carnival Luminosa"
+},
+"carnivalmagic": {
+"f": "ships/carnivalmagic.jpg",
+"wpu": "Carnival Magic"
+},
+"carnivalmiracle": {
+"f": "ships/carnivalmiracle.jpg",
+"wpu": "Carnival Miracle"
+},
+"carnivalpanorama": {
+"f": "ships/carnivalpanorama.jpg",
+"wpu": "Carnival Panorama"
+},
+"carnivalparadise": {
+"f": "ships/carnivalparadise.jpg",
+"wpu": "Carnival Paradise"
+},
+"carnivalpride": {
+"f": "ships/carnivalpride.jpg",
+"wpu": "Carnival Pride"
+},
+"carnivalradiance": {
+"f": "ships/carnivalradiance.jpg",
+"wpu": "Carnival Radiance"
+},
+"carnivalspirit": {
+"f": "ships/carnivalspirit.jpg",
+"wpu": "Carnival Spirit"
+},
+"carnivalsplendor": {
+"f": "ships/carnivalsplendor.jpg",
+"wpu": "Carnival Splendor"
+},
+"carnivalsunrise": {
+"f": "ships/carnivalsunrise.jpg",
+"wpu": "Carnival Sunrise"
+},
+"carnivalsunshine": {
+"f": "ships/carnivalsunshine.jpg",
+"wpu": "Carnival Sunshine"
+},
+"carnivalvalor": {
+"f": "ships/carnivalvalor.jpg",
+"wpu": "Carnival Valor"
+},
+"carnivalvenezia": {
+"f": "ships/carnivalvenezia.jpg",
+"wpu": "Carnival Venezia"
+},
+"carnivalvista": {
+"f": "ships/carnivalvista.jpg",
+"wpu": "Carnival Vista"
+},
+"celebrityapex": {
+"f": "ships/celebrityapex.jpg",
+"wpu": "Celebrity Apex"
+},
+"celebrityascent": {
+"f": "ships/celebrityascent.jpg",
+"wpu": "Celebrity Ascent"
+},
+"celebritybeyond": {
+"f": "ships/celebritybeyond.jpg",
+"wpu": "Celebrity Beyond"
+},
+"celebrityconstellation": {
+"f": "ships/celebrityconstellation.jpg",
+"wpu": "Celebrity Constellation"
+},
+"celebrityeclipse": {
+"f": "ships/celebrityeclipse.jpg",
+"wpu": "Celebrity Eclipse"
+},
+"celebrityedge": {
+"f": "ships/celebrityedge.jpg",
+"wpu": "Celebrity Edge"
+},
+"celebrityequinox": {
+"f": "ships/celebrityequinox.jpg",
+"wpu": "Celebrity Equinox"
+},
+"celebrityflora": {
+"f": "ships/celebrityflora.jpg",
+"wpu": "Celebrity Flora"
+},
+"celebrityinfinity": {
+"f": "ships/celebrityinfinity.jpg",
+"wpu": "Celebrity Infinity"
+},
+"celebritymillennium": {
+"f": "ships/celebritymillennium.jpg",
+"wpu": "Celebrity Millennium"
+},
+"celebrityreflection": {
+"f": "ships/celebrityreflection.jpg",
+"wpu": "Celebrity Reflection"
+},
+"celebritysilhouette": {
+"f": "ships/celebritysilhouette.jpg",
+"wpu": "Celebrity Silhouette"
+},
+"celebritysolstice": {
+"f": "ships/celebritysolstice.jpg",
+"wpu": "Celebrity Solstice"
+},
+"celebritysummit": {
+"f": "ships/celebritysummit.jpg",
+"wpu": "Celebrity Summit"
+},
+"celebrityxcel": {
+"f": "ships/celebrityxcel.jpg",
+"wpu": "Celebrity Xcel"
+},
+"coralprincess": {
+"f": "ships/coralprincess.jpg",
+"wpu": "Coral Princess"
+},
+"costadeliziosa": {
+"f": "ships/costadeliziosa.jpg",
+"wpu": "Costa Deliziosa"
+},
+"costadiadema": {
+"f": "ships/costadiadema.jpg",
+"wpu": "Costa Diadema"
+},
+"costafascinosa": {
+"f": "ships/costafascinosa.jpg",
+"wpu": "Costa Fascinosa"
+},
+"costafavolosa": {
+"f": "ships/costafavolosa.jpg",
+"wpu": "Costa Favolosa"
+},
+"costafortuna": {
+"f": "ships/costafortuna.jpg",
+"wpu": "Costa Fortuna"
+},
+"costapacifica": {
+"f": "ships/costapacifica.jpg",
+"wpu": "Costa Pacifica"
+},
+"costaserena": {
+"f": "ships/costaserena.jpg",
+"wpu": "Costa Serena"
+},
+"costatoscana": {
+"f": "ships/costatoscana.jpg",
+"wpu": "Costa Toscana"
+},
+"crownprincess": {
+"f": "ships/crownprincess.jpg",
+"wpu": "Crown Princess (2005)"
+},
+"crystalserenity": {
+"f": "ships/crystalserenity.jpg",
+"wpu": "Crystal Serenity"
+},
+"crystalsymphony": {
+"f": "ships/crystalsymphony.jpg",
+"wpu": "Crystal Symphony"
+},
+"discoveryprincess": {
+"f": "ships/discoveryprincess.jpg",
+"wpu": "Discovery Princess"
+},
+"disneyadventure": {
+"f": "ships/disneyadventure.jpg",
+"wpu": "Disney Adventure"
+},
+"disneydestiny": {
+"f": "ships/disneydestiny.jpg",
+"wpu": "Disney Destiny"
+},
+"disneydream": {
+"f": "ships/disneydream.jpg",
+"wpu": "Disney Dream"
+},
+"disneyfantasy": {
+"f": "ships/disneyfantasy.jpg",
+"wpu": "Disney Fantasy"
+},
+"disneymagic": {
+"f": "ships/disneymagic.jpg",
+"wpu": "Disney Magic"
+},
+"disneytreasure": {
+"f": "ships/disneytreasure.jpg",
+"wpu": "Disney Treasure"
+},
+"disneywish": {
+"f": "ships/disneywish.jpg",
+"wpu": "Disney Wish"
+},
+"disneywonder": {
+"f": "ships/disneywonder.jpg",
+"wpu": "Disney Wonder"
+},
+"emeraldprincess": {
+"f": "ships/emeraldprincess.jpg",
+"wpu": "Emerald Princess"
+},
+"enchantedprincess": {
+"f": "ships/enchantedprincess.jpg",
+"wpu": "Enchanted Princess"
+},
+"enchantmentoftheseas": {
+"f": "ships/enchantmentoftheseas.jpg",
+"wpu": "Enchantment of the Seas"
+},
+"exploreroftheseas": {
+"f": "ships/exploreroftheseas.jpg",
+"wpu": "Explorer of the Seas"
+},
+"explorisone": {
+"f": "ships/explorisone.jpg",
+"wpu": "Exploris One"
+},
+"grandeuroftheseas": {
+"f": "ships/grandeuroftheseas.jpg",
+"wpu": "Grandeur of the Seas"
+},
+"grandprincess": {
+"f": "ships/grandprincess.jpg",
+"wpu": "Grand Princess"
+},
+"harmonyoftheseas": {
+"f": "ships/harmonyoftheseas.jpg",
+"wpu": "Harmony of the Seas"
+},
+"hebrideansky": {
+"f": "ships/hebrideansky.jpg",
+"wpu": "Hebridean Sky"
+},
+"iconoftheseas": {
+"f": "ships/iconoftheseas.jpg",
+"wpu": "Icon of the Seas"
+},
+"independenceoftheseas": {
+"f": "ships/independenceoftheseas.jpg",
+"wpu": "Independence of the Seas"
+},
+"jeweloftheseas": {
+"f": "ships/jeweloftheseas.jpg",
+"wpu": "Jewel of the Seas"
+},
+"labelledesoceans": {
+"f": "ships/labelledesoceans.jpg",
+"wpu": "La Belle Des Oceans"
+},
+"legendoftheseas": {
+"f": "ships/legendoftheseas.jpg",
+"wpu": "Legend of the Seas"
+},
+"libertyoftheseas": {
+"f": "ships/libertyoftheseas.jpg",
+"wpu": "Liberty of the Seas"
+},
+"majesticprincess": {
+"f": "ships/majesticprincess.jpg",
+"wpu": "Majestic Princess"
+},
+"mardigras": {
+"f": "ships/mardigras.jpg",
+"wpu": "Mardi Gras (2020 ship)"
+},
+"marelladiscovery": {
+"f": "ships/marelladiscovery.jpg",
+"wpu": "Marella Discovery"
+},
+"marelladiscovery2": {
+"f": "ships/marelladiscovery2.jpg",
+"wpu": "Marella Discovery 2"
+},
+"marellaexplorer": {
+"f": "ships/marellaexplorer.jpg",
+"wpu": "Marella Explorer"
+},
+"marellaexplorer2": {
+"f": "ships/marellaexplorer2.jpg",
+"wpu": "Marella Explorer 2"
+},
+"marellavoyager": {
+"f": "ships/marellavoyager.jpg",
+"wpu": "Marella Voyager"
+},
+"margaritavilleatseaparadise": {
+"f": "ships/margaritavilleatseaparadise.jpg",
+"wpu": "Margaritaville at Sea Paradise"
+},
+"marineroftheseas": {
+"f": "ships/marineroftheseas.jpg",
+"wpu": "Mariner of the Seas"
+},
+"meinschiff3": {
+"f": "ships/meinschiff3.jpg",
+"wpu": "Mein Schiff 3"
+},
+"meinschiff4": {
+"f": "ships/meinschiff4.jpg",
+"wpu": "Mein Schiff 4"
+},
+"meinschiff5": {
+"f": "ships/meinschiff5.jpg",
+"wpu": "Mein Schiff 5"
+},
+"meinschiff6": {
+"f": "ships/meinschiff6.jpg",
+"wpu": "Mein Schiff 6"
+},
+"meinschiffrelax": {
+"f": "ships/meinschiffrelax.jpg",
+"wpu": "Mein Schiff Relax"
+},
+"mscarmonia": {
+"f": "ships/mscarmonia.jpg",
+"wpu": "MSC Armonia"
+},
+"mscbellissima": {
+"f": "ships/mscbellissima.jpg",
+"wpu": "MSC Bellissima"
+},
+"mscdivina": {
+"f": "ships/mscdivina.jpg",
+"wpu": "MSC Divina"
+},
+"msceuribia": {
+"f": "ships/msceuribia.jpg",
+"wpu": "MSC Euribia"
+},
+"mscfantasia": {
+"f": "ships/mscfantasia.jpg",
+"wpu": "MSC Fantasia"
+},
+"mscgrandiosa": {
+"f": "ships/mscgrandiosa.jpg",
+"wpu": "MSC Grandiosa"
+},
+"msclirica": {
+"f": "ships/msclirica.jpg",
+"wpu": "MSC Lirica"
+},
+"mscmagnifica": {
+"f": "ships/mscmagnifica.jpg",
+"wpu": "MSC Magnifica"
+},
+"mscmeraviglia": {
+"f": "ships/mscmeraviglia.jpg",
+"wpu": "MSC Meraviglia"
+},
+"mscmusica": {
+"f": "ships/mscmusica.jpg",
+"wpu": "MSC Musica"
+},
+"mscopera": {
+"f": "ships/mscopera.jpg",
+"wpu": "MSC Opera"
+},
+"mscorchestra": {
+"f": "ships/mscorchestra.jpg",
+"wpu": "MSC Orchestra"
+},
+"mscpoesia": {
+"f": "ships/mscpoesia.jpg",
+"wpu": "MSC Poesia"
+},
+"mscpreziosa": {
+"f": "ships/mscpreziosa.jpg",
+"wpu": "MSC Preziosa"
+},
+"mscseascape": {
+"f": "ships/mscseascape.jpg",
+"wpu": "MSC Seascape"
+},
+"mscseashore": {
+"f": "ships/mscseashore.jpg",
+"wpu": "MSC Seashore"
+},
+"mscseaside": {
+"f": "ships/mscseaside.jpg",
+"wpu": "MSC Seaside"
+},
+"mscseaview": {
+"f": "ships/mscseaview.jpg",
+"wpu": "MSC Seaview"
+},
+"mscsinfonia": {
+"f": "ships/mscsinfonia.jpg",
+"wpu": "MSC Sinfonia"
+},
+"mscsplendida": {
+"f": "ships/mscsplendida.jpg",
+"wpu": "MSC Splendida"
+},
+"mscvirtuosa": {
+"f": "ships/mscvirtuosa.jpg",
+"wpu": "MSC Virtuosa"
+},
+"mscworldeuropa": {
+"f": "ships/mscworldeuropa.jpg",
+"wpu": "MSC World Europa"
+},
+"navigatoroftheseas": {
+"f": "ships/navigatoroftheseas.jpg",
+"wpu": "Navigator of the Seas"
+},
+"norwegianaqua": {
+"f": "ships/norwegianaqua.jpg",
+"wpu": "Norwegian Aqua"
+},
+"norwegianbliss": {
+"f": "ships/norwegianbliss.jpg",
+"wpu": "Norwegian Bliss"
+},
+"norwegianbreakaway": {
+"f": "ships/norwegianbreakaway.jpg",
+"wpu": "Norwegian Breakaway"
+},
+"norwegiandawn": {
+"f": "ships/norwegiandawn.jpg",
+"wpu": "Norwegian Dawn"
+},
+"norwegianencore": {
+"f": "ships/norwegianencore.jpg",
+"wpu": "Norwegian Encore"
+},
+"norwegianepic": {
+"f": "ships/norwegianepic.jpg",
+"wpu": "Norwegian Epic"
+},
+"norwegianescape": {
+"f": "ships/norwegianescape.jpg",
+"wpu": "Norwegian Escape"
+},
+"norwegiangem": {
+"f": "ships/norwegiangem.jpg",
+"wpu": "Norwegian Gem"
+},
+"norwegiangetaway": {
+"f": "ships/norwegiangetaway.jpg",
+"wpu": "Norwegian Getaway"
+},
+"norwegianjade": {
+"f": "ships/norwegianjade.jpg",
+"wpu": "Norwegian Jade"
+},
+"norwegianjewel": {
+"f": "ships/norwegianjewel.jpg",
+"wpu": "Norwegian Jewel"
+},
+"norwegianjoy": {
+"f": "ships/norwegianjoy.jpg",
+"wpu": "Norwegian Joy"
+},
+"norwegianluna": {
+"f": "ships/norwegianluna.jpg",
+"wpu": "Norwegian Luna"
+},
+"norwegianpearl": {
+"f": "ships/norwegianpearl.jpg",
+"wpu": "Norwegian Pearl"
+},
+"norwegianprima": {
+"f": "ships/norwegianprima.jpg",
+"wpu": "Norwegian Prima"
+},
+"norwegiansky": {
+"f": "ships/norwegiansky.jpg",
+"wpu": "Norwegian Sky"
+},
+"norwegianspirit": {
+"f": "ships/norwegianspirit.jpg",
+"wpu": "Norwegian Spirit"
+},
+"norwegianstar": {
+"f": "ships/norwegianstar.jpg",
+"wpu": "Norwegian Star"
+},
+"norwegiansun": {
+"f": "ships/norwegiansun.jpg",
+"wpu": "Norwegian Sun"
+},
+"norwegianviva": {
+"f": "ships/norwegianviva.jpg",
+"wpu": "Norwegian Viva"
+},
+"oasisoftheseas": {
+"f": "ships/oasisoftheseas.jpg",
+"wpu": "Oasis of the Seas"
+},
+"odysseyoftheseas": {
+"f": "ships/odysseyoftheseas.jpg",
+"wpu": "Odyssey of the Seas"
+},
+"ovationoftheseas": {
+"f": "ships/ovationoftheseas.jpg",
+"wpu": "Ovation of the Seas"
+},
+"pearlmist": {
+"f": "ships/pearlmist.jpg",
+"wpu": "Pearl Mist"
+},
+"prideofamerica": {
+"f": "ships/prideofamerica.jpg",
+"wpu": "Pride of America"
+},
+"quantumoftheseas": {
+"f": "ships/quantumoftheseas.jpg",
+"wpu": "Quantum of the Seas"
+},
+"radianceoftheseas": {
+"f": "ships/radianceoftheseas.jpg",
+"wpu": "Radiance of the Seas"
+},
+"regalprincess": {
+"f": "ships/regalprincess.jpg",
+"wpu": "Regal Princess (2013)"
+},
+"rhapsodyoftheseas": {
+"f": "ships/rhapsodyoftheseas.jpg",
+"wpu": "Rhapsody of the Seas"
+},
+"royalclipper": {
+"f": "ships/royalclipper.jpg",
+"wpu": "Royal Clipper"
+},
+"royalprincess": {
+"f": "ships/royalprincess.jpg",
+"wpu": "Royal Princess (2012)"
+},
+"rubyprincess": {
+"f": "ships/rubyprincess.jpg",
+"wpu": "Ruby Princess"
+},
+"sapphireprincess": {
+"f": "ships/sapphireprincess.jpg",
+"wpu": "Sapphire Princess"
+},
+"seadreami": {
+"f": "ships/seadreami.jpg",
+"wpu": "SeaDream I"
+},
+"seadreamii": {
+"f": "ships/seadreamii.jpg",
+"wpu": "SeaDream II"
+},
+"serenadeoftheseas": {
+"f": "ships/serenadeoftheseas.jpg",
+"wpu": "Serenade of the Seas"
+},
+"sevenseasmariner": {
+"f": "ships/sevenseasmariner.jpg",
+"wpu": "Seven Seas Mariner"
+},
+"sevenseasnavigator": {
+"f": "ships/sevenseasnavigator.jpg",
+"wpu": "Seven Seas Navigator"
+},
+"silvermuse": {
+"f": "ships/silvermuse.jpg",
+"wpu": "Silver Muse"
+},
+"silvernova": {
+"f": "ships/silvernova.jpg",
+"wpu": "Silver Nova"
+},
+"skyprincess": {
+"f": "ships/skyprincess.jpg",
+"wpu": "Sky Princess (2019)"
+},
+"spectrumoftheseas": {
+"f": "ships/spectrumoftheseas.jpg",
+"wpu": "Spectrum of the Seas"
+},
+"spiritofadventure": {
+"f": "ships/spiritofadventure.jpg",
+"wpu": "Spirit of Adventure (2020 ship)"
+},
+"spiritofdiscovery": {
+"f": "ships/spiritofdiscovery.jpg",
+"wpu": "Spirit of Discovery (2019)"
+},
+"starclipper": {
+"f": "ships/starclipper.jpg",
+"wpu": "Star Clipper"
+},
+"staroftheseas": {
+"f": "ships/staroftheseas.jpg",
+"wpu": "Star of the Seas"
+},
+"starprincess": {
+"f": "ships/starprincess.jpg",
+"wpu": "Star Princess (2024)"
+},
+"sunprincess": {
+"f": "ships/sunprincess.jpg",
+"wpu": "Sun Princess (2024)"
+},
+"symphonyoftheseas": {
+"f": "ships/symphonyoftheseas.jpg",
+"wpu": "Symphony of the Seas"
+},
+"utopiaoftheseas": {
+"f": "ships/utopiaoftheseas.jpg",
+"wpu": "Utopia of the Seas"
+},
+"victoryi": {
+"f": "ships/victoryi.jpg",
+"wpu": "Victory I"
+},
+"vikingoctantis": {
+"f": "ships/vikingoctantis.jpg",
+"wpu": "Viking Octantis"
+},
+"vikingorion": {
+"f": "ships/vikingorion.jpg",
+"wpu": "Viking Orion"
+},
+"vikingvesta": {
+"f": "ships/vikingvesta.jpg",
+"wpu": "Viking Vesta"
+},
+"visionoftheseas": {
+"f": "ships/visionoftheseas.jpg",
+"wpu": "Vision of the Seas"
+},
+"voyageroftheseas": {
+"f": "ships/voyageroftheseas.jpg",
+"wpu": "Voyager of the Seas"
+},
+"wonderoftheseas": {
+"f": "ships/wonderoftheseas.jpg",
+"wpu": "Wonder of the Seas"
+}
+}
