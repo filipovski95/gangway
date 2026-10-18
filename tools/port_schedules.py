@@ -1,13 +1,14 @@
 """Which cruise ships are in port: read official port-authority cruise schedules and
 merge them into data/ships.json (format: {"updated", "source", "ships": [{"name", "calls": [...]}]}).
 
-Only official public schedules published by the port authority / harbour operator are used.
-Each site has its own small parser; one failing site never breaks the others.
+Only public schedules published by the port authority, cruise-terminal operator, VTS or pilots are used
+(no aggregators). Each site has its own small parser; one failing site never breaks the others.
 
     python3 tools/port_schedules.py                 # fetch all sites, merge into data/ships.json
     python3 tools/port_schedules.py --test DIR      # run every parser on saved samples DIR/<key>*.html
 
-Stdlib only (runs in GitHub Actions).
+Stdlib only, except Port Everglades, which is rendered in headless Chrome (`pip install selenium`, imported
+lazily: without it only that source fails).
 """
 import html as htmllib
 import json
@@ -83,7 +84,8 @@ def ship_name(raw, line=None):
     n = re.sub(r"^(m/?s|m/?v|ms\.)\s+", "", n, flags=re.I)
     if not n or re.match(r"(refer\b|tba\b|tbc\b|tbn\b|unknown|vessel\b|n/?a$)", n, re.I):
         return ""
-    if n.isupper() or n.islower() or n[:1].islower() or re.search(r"\b[a-z]", n) or "Msc " in n:
+    if n.isupper() or n.islower() or n[:1].islower() or re.search(r"\b[a-z]", n) or "Msc " in n \
+            or re.search(r" (Of|The) ", n) or re.match(r"Aida[a-z]", n):  # 'Utopia Of The Seas', 'Aidablu'
         n = smart_case(n)
     prefix = None
     if line:
@@ -353,28 +355,291 @@ def parse_tallinn(h, today):
     return out
 
 
+def pair_moves(events, port, max_days=5):
+    """Movement lists (pilots / vessel traffic) -> calls.
+    events: (ship, line, 'A'|'D', iso). An arrival is paired with the same ship's next departure;
+    a departure with no arrival in the list (ship already alongside) becomes a departure-only call."""
+    by = {}
+    for ev in sorted(events, key=lambda e: e[3]):
+        by.setdefault(ev[0].upper(), []).append(ev)
+    out = []
+    for evs in by.values():
+        arr = None
+        for name, line, kind, t in evs:
+            if kind == "A":
+                if arr:
+                    out.append(call(arr[0], arr[1], port, arr[3], None))
+                arr = (name, line, kind, t)
+            elif arr and datetime.fromisoformat(t) - datetime.fromisoformat(arr[3]) <= timedelta(days=max_days):
+                out.append(call(name, line, port, arr[3], t))
+                arr = None
+            else:
+                if arr:
+                    out.append(call(arr[0], arr[1], port, arr[3], None))
+                    arr = None
+                out.append(call(name, line, port, None, t))
+        if arr:
+            out.append(call(arr[0], arr[1], port, arr[3], None))
+    return out
+
+
+def parse_everglades(h, today):
+    """Port Everglades vessel traffic (pevvesseltraffic.broward.org, Broward County WebX public view, rendered DOM):
+    <tr id=.. role="row"> Status | Start 'mm/dd/yyyy HH:MM' | ARR/DEP/SHFT | Vessel | From | To | Line | Agency |
+    Stevedore | Last port | Next port | Cargo type 'CRUISE - MULTI-DAY' | Tug | Orientation.
+    Only multi-day cruise ships (the daily Bimini ferry is skipped)."""
+    ev = []
+    for row in re.findall(r'<tr id="\d+"[^>]*role="row"[^>]*>(.*?)</tr>', h, re.S):
+        c = [text(x) for x in cells(row)]
+        if len(c) < 12 or "CRUISE" not in c[11].upper() or "DAILY" in c[11].upper():
+            continue
+        if re.search(r"cancel", c[0], re.I) or c[2] not in ("ARR", "DEP"):
+            continue
+        m = re.match(r"(\d{1,2})/(\d{1,2})/(\d{4})\s+(\d{1,2}:\d\d)", c[1])
+        t = iso(m[3], m[1], m[2], m[4]) if m else None
+        if c[3] and t:
+            ev.append((c[3], c[6] or None, c[2][0], t))
+    return pair_moves(ev, "fll")
+
+
+def parse_bbpilots(h, today):
+    """PortMiami via Biscayne Bay Pilots (bbpilots.com, server-rendered): day header
+    <th class="day-title">Sun, Oct 18, 2026</th>, then service rows ARRIVAL/DEPARTURE | time | vessel + vessel-type.
+    Times are pilot times (boarding at the sea buoy for arrivals, roughly the sailing time for departures)."""
+    ev, day = [], None
+    for m in re.finditer(r'<th class="day-title"[^>]*>(.*?)</th>|<tr class="service-row"[^>]*>(.*?)</tr>', h, re.S):
+        if m[1]:
+            d = re.search(r"([A-Za-z]{3})[a-z]* (\d{1,2}), (\d{4})", text(m[1]))
+            day = (d[3], MONTHS.get(d[1].lower()), d[2]) if d else None
+            continue
+        r = m[2]
+        kind = re.search(r'class="action-col">\s*<div[^>]*>\s*<div>\s*(\w+)', r)
+        tm = re.search(r'class="service-time-col">\s*(\d{1,2}:\d\d)', r)
+        v = re.search(r'font-weight-bold[^"]*">([^<]+)</div>\s*<div class="vessel-type">([^<]*)', r)
+        if not (day and day[1] and kind and tm and v) or "CRUISE" not in v[2].upper():
+            continue
+        k = {"ARRIVAL": "A", "DEPARTURE": "D"}.get(kind[1].upper())
+        t = iso(day[0], day[1], day[2], tm[1])
+        if k and t:
+            ev.append((text(v[1]), None, k, t))
+    return pair_moves(ev, "mia")
+
+
+def parse_southampton(h, today):
+    """southamptonvts.co.uk (ABP Southampton VTS): Ship Name | Berth | Arrival '18-Oct-26 06:27' | Departure | Agent.
+    Far-off calls show 'AM'/'PM'/'TBA' instead of a time; those halves are left empty."""
+    out = []
+    for row in re.findall(r"<tr\b[^>]*>(.*?)</tr>", h, re.S):
+        c = [text(x) for x in cells(row)]
+        if len(c) < 4:
+            continue
+
+        def dt(s):
+            m = re.search(r"(\d{1,2})-([A-Za-z]{3})-(\d{2,4})\s+(\d{1,2}:\d\d)", s)
+            if not m or m[2].lower() not in MONTHS:
+                return None
+            y = int(m[3]) + (2000 if len(m[3]) == 2 else 0)
+            return iso(y, MONTHS[m[2].lower()], m[1], m[4])
+        a, d = dt(c[2]), dt(c[3])
+        if c[0] and (a or d):
+            out.append(call(c[0], None, "sou", a, d))
+    return out
+
+
+def parse_cmp(h, today):
+    """Copenhagen Malmö Port 'ships in port' (cmport.com): one <div class="singleCall"> per call with
+    'columnTitle : ' / 'columnValue' pairs (Vessel name, Vessel type, Terminal, Purpose, ETD '19 Oct - 26 at 1700')
+    and the ETA in the header. Copenhagen and Visby quays are kept (Malmö has no port page in the app)."""
+    out = []
+
+    def dt(s):
+        m = re.search(r"(\d{1,2}) ([A-Za-z]{3})[a-z]* - (\d{2}) at (\d\d)(\d\d)", s or "")
+        if not m or m[2].lower() not in MONTHS:
+            return None
+        return iso(2000 + int(m[3]), MONTHS[m[2].lower()], m[1], f"{m[4]}:{m[5]}")
+    for b in h.split('<div class="singleCall')[1:]:
+        f = {text(k).rstrip(" :"): text(v) for k, v in re.findall(
+            r'<span class="columnTitle">(.*?)</span>\s*<span class="columnValue">(.*?)</span>', b, re.S)}
+        if "cruise" not in (f.get("Vessel type", "") + f.get("Purpose", "")).lower():
+            continue
+        q = re.search(r'To quay <span class="greenColored">\s*([^<]*?)\s*<', b)
+        quay, term = (q[1] if q else "").upper(), f.get("Terminal", "").lower()
+        port = "vby" if "visby" in term or quay.startswith("V") else "cph" if quay.startswith("C") else None
+        head = re.search(r"\d{1,2} [A-Za-z]{3}[a-z]* - \d{2} at \d{4}", text(b[:3000]))
+        a, d = dt(head[0] if head else None), dt(f.get("ETD"))
+        name = f.get("Vessel name")
+        if port and name and (a or d) and not re.search(r"cancel", f.get("Status", ""), re.I):
+            out.append(call(name, None, port, a, d))
+    return out
+
+
+def parse_stmaarten(h, today):
+    """Port St. Maarten (gls.portstmaarten.sx, ASP.NET grid myControl_grdCargoShipSchedules, one month per page):
+    Date 'dd-mm' | Day | Time '07:00 - 17:00' | Homeport | CRN | Vessel | Remarks | Pier; year = selected ddlYear."""
+    m = re.search(r'name="myControl\$ddlYear".*?<option[^>]*selected[^>]*value="(\d{4})"', h, re.S) or \
+        re.search(r'name="myControl\$ddlYear".*?<option[^>]*value="(\d{4})"[^>]*selected', h, re.S)
+    year = int(m[1]) if m else today.year
+    i = h.find("myControl_grdCargoShipSchedules")
+    out = []
+    for row in re.findall(r"<tr\b[^>]*>(.*?)</tr>", h[i:h.find("</table>", i)] if i >= 0 else "", re.S):
+        c = [text(x) for x in cells(row)]
+        if len(c) < 6 or not re.match(r"\d\d-\d\d$", c[0]) or re.search(r"cancel", c[6] if len(c) > 6 else "", re.I):
+            continue
+        dy, mo = c[0].split("-")
+        t = re.match(r"(\d{1,2}:\d\d)\s*-\s*(\d{1,2}:\d\d)", c[2])
+        a = iso(year, mo, dy, t[1]) if t else None
+        d = iso(year, mo, dy, t[2]) if t else None
+        if a and d and d < a:  # leaves after midnight
+            d = (datetime.fromisoformat(d) + timedelta(days=1)).strftime("%Y-%m-%dT%H:%M")
+        if c[5] and (a or d):
+            out.append(call(c[5], None, "sxm", a, d))
+    return out
+
+
+def gph_parser(port):
+    """Global Ports Holding cruise-port sites (WordPress theme 'mbcglobalports'): includes/api/schedule-pdf.php
+    returns a JSON list {Cruiseline, Ship Name, Arrival Date, ETA, Departure Date, ETD, Berth, Status, ...}.
+    Placeholder rows (ETA == ETD) and ferries are skipped."""
+    def parse(h, today):
+        i, j = h.find("["), h.rfind("]")
+        rows = json.loads(htmllib.unescape(h[i:j + 1])) if 0 <= i < j else []
+        out = []
+        for r in rows:
+            if not isinstance(r, dict) or re.search(r"cancel", str(r.get("Status", "")), re.I):
+                continue
+            line = (r.get("Cruiseline") or "").strip() or None
+            if line and re.search(r"ferr", line, re.I):
+                continue
+
+            def dt(day, hm):
+                m = re.match(r"(\d{4})-(\d\d)-(\d\d)", day or "")
+                return iso(m[1], m[2], m[3], hm) if m and hm else None
+            a, d = dt(r.get("Arrival Date"), r.get("ETA")), dt(r.get("Departure Date"), r.get("ETD"))
+            if a and a == d:
+                continue
+            name = re.sub(r"\s*\(\d{4}\)$", "", (r.get("Ship Name") or "").strip())  # 'Rotterdam (2020)'
+            if name and (a or d):
+                out.append(call(name, line, port, a, d))
+        return out
+    parse.__name__ = f"parse_gph_{port}"
+    return parse
+
+
 # ---------------------------------------------------------------- fetching
 
-def get(url):
-    req = urllib.request.Request(url, headers={"User-Agent": UA, "Accept": "text/html,*/*;q=0.8",
-                                               "Accept-Language": "en"})
-    with urllib.request.urlopen(req, timeout=TIMEOUT) as r:
+_opener = urllib.request.build_opener(urllib.request.HTTPCookieProcessor())
+
+
+def get(url, data=None):
+    """GET (or form POST when data is a dict). HTTP errors propagate as 'HTTPError: HTTP Error 403: ...'."""
+    body = urllib.parse.urlencode(data).encode() if data is not None else None
+    req = urllib.request.Request(url, data=body, headers={"User-Agent": UA, "Accept": "text/html,*/*;q=0.8",
+                                                          "Accept-Language": "en"})
+    with _opener.open(req, timeout=TIMEOUT) as r:
         return r.read().decode(r.headers.get_content_charset() or "utf-8", "replace")
 
 
 def get_paged_montreal(url):
-    """Joomla list with ?start=20, 40, ... pagination; follow 'next page' links (max 10 pages)."""
-    pages, seen = [], set()
-    while url and url not in seen and len(pages) < 10:
-        seen.add(url)
-        h = get(url)
+    """Joomla list, 20 rows per page via ?start=20, 40, ... The season's upcoming calls are on the LAST pages, so
+    walk the offsets directly (not only 'next' links) until a page has no new rows (max 10 pages)."""
+    pages, prev = [], None
+    for n in range(10):
+        u = url if n == 0 else f"{url}{'&' if '?' in url else '?'}start={20 * n}"
+        h = get(u)
+        rows = [(c["raw"], c["a"], c["d"]) for c in parse_montreal(h, date.today())]
+        if n and (not rows or rows == prev):
+            break
         pages.append(h)
-        m = re.search(r'href="([^"]+)"[^>]*>\s*<span class="icon-angle-right"', h) or \
-            re.search(r'aria-label="Go to next page" href="([^"]+)"', h)
-        url = urllib.parse.urljoin(url, htmllib.unescape(m[1])) if m else None
-        if url:
-            time.sleep(DELAY)
+        prev = rows
+        time.sleep(DELAY)
     return pages
+
+
+CANAVERAL_SUITELET = ("https://3867087.extforms.netsuite.com/app/site/hosting/scriptlet.nl?script=1183&deploy=1"
+                      "&compid=3867087&ns-at=AAEJ7tMQo3zDG9o8drR5sYhZx-SzIrCmA26Jo-BI8lM707JC8Hc")
+
+
+def get_canaveral(url):
+    """The ship-schedule page fills its table with JavaScript from a public NetSuite form whose URL is printed in the
+    page (<p id="suitelet-url">). Read that URL (fallback: the one seen in Oct 2026) and fetch the cruise table."""
+    su = CANAVERAL_SUITELET
+    try:
+        m = re.search(r'id="suitelet-url"[^>]*>\s*([^<\s]+)', get(url))
+        if m:
+            su = htmllib.unescape(m[1])
+    except Exception as e:
+        print(f"     Canaveral page: {type(e).__name__}: {str(e)[:100]} - using stored form URL")
+    if "type=" not in su:
+        su += "&type=Cruise"
+    return [get(su)]
+
+
+def render(url, wait_css, timeout=60):
+    """Headless Chrome for pages that load their data with JavaScript (needs `pip install selenium` and Chrome;
+    both are on GitHub's ubuntu runners - Selenium Manager finds the driver)."""
+    from selenium import webdriver  # lazy: only this source needs it
+    from selenium.webdriver.common.by import By
+    from selenium.webdriver.support.ui import WebDriverWait
+    o = webdriver.ChromeOptions()
+    for arg in ("--headless=new", "--no-sandbox", "--disable-dev-shm-usage", "--window-size=1600,1200"):
+        o.add_argument(arg)
+    drv = webdriver.Chrome(options=o)
+    try:
+        drv.set_page_load_timeout(timeout)
+        drv.get(url)
+        WebDriverWait(drv, timeout).until(lambda d: d.find_elements(By.CSS_SELECTOR, wait_css))
+        time.sleep(3)  # let the grid finish filling
+        return drv.page_source
+    finally:
+        drv.quit()
+
+
+def get_everglades(url):
+    return [render(url, 'tr[role="row"][id]')]
+
+
+def get_stmaarten(url):
+    """Current month as served, plus next month via the page's own month selector (ASP.NET postback)."""
+    h = get(url)
+    pages = [h]
+    try:
+        today = date.today()
+        nxt = (today.replace(day=1) + timedelta(days=32)).replace(day=1)
+        form = dict(re.findall(r'<input[^>]*type="hidden"[^>]*name="([^"]+)"[^>]*value="([^"]*)"', h))
+        form = {k: htmllib.unescape(v) for k, v in form.items()}
+        form.update({"myControl$ddlYear": str(nxt.year), "myControl$ddlMonth": str(nxt.month),
+                     "myControl$btnSearch": "Search", "__EVENTTARGET": "", "__EVENTARGUMENT": ""})
+        time.sleep(DELAY)
+        pages.append(get(url, form))
+    except Exception as e:
+        print(f"     St. Maarten next month: {type(e).__name__}: {str(e)[:100]}")
+    return pages
+
+
+def get_gph(url):
+    """url has {lo}/{hi} placeholders for the date range (yesterday .. +WINDOW_AHEAD days)."""
+    today = date.today()
+    return [get(url.format(lo=(today - timedelta(days=WINDOW_BACK)).isoformat(),
+                           hi=(today + timedelta(days=WINDOW_AHEAD)).isoformat()))]
+
+
+GPH_API = "/wp-content/themes/mbcglobalports/includes/api/schedule-pdf.php?lang=en&param2={lo}&param4={hi}"
+# (port id, name, site) - Global Ports Holding cruise ports that publish the schedule JSON
+GPH_SITES = [
+    ("nas", "Nassau", "https://nassaucruiseport.com"),
+    ("sju", "San Juan", "https://www.sanjuancruiseport.com"),
+    ("anu", "Antigua", "https://antiguacruiseport.com"),
+    ("slu", "St. Lucia", "https://saintluciacruiseport.com"),
+    ("bcn", "Barcelona", "https://bcncruiseport.com"),
+    ("mlt", "Valletta", "https://www.vallettacruiseport.com"),
+    ("agp", "Malaga", "https://malagacruiseport.com"),
+    ("alc", "Alicante", "https://alicantecruiseport.es"),
+    ("cag", "Cagliari", "https://cagliaricruiseport.com"),
+    ("ace", "Lanzarote", "https://lanzarotecruiseport.com"),
+    ("bjv", "Bodrum", "https://bodrumcruiseport.com"),
+    ("zad", "Zadar", "https://zadarcruiseport.com"),
+    ("bar", "Bar", "https://barcruiseport.com"),
+]
 
 
 # key: sample-file prefix for --test
@@ -382,7 +647,8 @@ SOURCES = [
     {"key": "yqb", "name": "Quebec City", "url": "https://www.portquebec.ca/en/cruises/cruise-schedule/", "parse": parse_quebec},
     {"key": "ymq", "name": "Montreal", "url": "https://www.port-montreal.com/en/cruises/arrivals-and-departures",
      "parse": parse_montreal, "fetch": get_paged_montreal},
-    {"key": "pcv", "name": "Port Canaveral (Orlando)", "url": "https://www.portcanaveral.com/port-operations/ship-schedule", "parse": parse_canaveral},
+    {"key": "pcv", "name": "Port Canaveral (Orlando)", "url": "https://www.portcanaveral.com/port-operations/ship-schedule",
+     "parse": parse_canaveral, "fetch": get_canaveral},
     {"key": "hfx", "name": "Halifax", "url": "https://www.porthalifax.ca/cruise/cruise-schedule/", "parse": parse_halifax},
     {"key": "yyg", "name": "Charlottetown", "url": "https://portcharlottetown.com/cruise-schedule/", "parse": parse_charlottetown},
     {"key": "sya", "name": "Sydney", "url": "https://www.portauthoritynsw.com.au/cruise/sydney-harbour/sydney-harbour-full-cruise-schedule",
@@ -395,7 +661,17 @@ SOURCES = [
      "parse": parse_helsinki},
     {"key": "tll", "name": "Tallinn", "url": "https://www.ts.ee/en/cruise-schedules/", "parse": parse_tallinn},
     {"key": "cob", "name": "Cork (Cobh)", "url": "https://www.portofcork.ie/print-cruise-schedule.php", "parse": parse_cork},
-]
+    {"key": "fll", "name": "Fort Lauderdale (Port Everglades)", "url": "https://pevvesseltraffic.broward.org/",
+     "parse": parse_everglades, "fetch": get_everglades},
+    {"key": "mia", "name": "Miami", "url": "https://bbpilots.com/", "parse": parse_bbpilots},
+    {"key": "sou", "name": "Southampton",
+     "url": "https://www.southamptonvts.co.uk/Live_Information/Shipping_Movements_and_Cruise_Ship_Schedule/Cruise_Ship_Schedule/",
+     "parse": parse_southampton},
+    {"key": "cph", "name": "Copenhagen + Visby", "url": "https://www.cmport.com/terminals/ships-in-port/", "parse": parse_cmp},
+    {"key": "sxm", "name": "St. Maarten", "url": "https://gls.portstmaarten.sx/sxm/MainMenu.aspx?ShipScheduleType=2",
+     "parse": parse_stmaarten, "fetch": get_stmaarten},
+] + [{"key": _id, "name": _name, "url": _site + GPH_API, "parse": gph_parser(_id), "fetch": get_gph}
+     for _id, _name, _site in GPH_SITES]
 
 
 def finish(raw_calls, port_names, today, window=True):
@@ -449,8 +725,10 @@ def fetch_all(sources=None, today=None, _covered=None):
                 raise ValueError("no calls parsed (layout changed?)")
             raw += got
             if _covered is not None:
-                _covered.add(got[0]["p"])
-            print(f"ok   {s['name']}: {len(got)} calls")
+                _covered.update(c["p"] for c in got)
+            lo, hi = (today - timedelta(days=WINDOW_BACK)).isoformat(), (today + timedelta(days=WINDOW_AHEAD)).isoformat()
+            inwin = sum(1 for c in got if (c["d"] or c["a"]) >= lo and (c["a"] or c["d"])[:10] <= hi)
+            print(f"ok   {s['name']}: {len(got)} calls, {inwin} in window" + ("  <- nothing current!" if not inwin else ""))
         except Exception as e:  # one site must never break the others
             print(f"WARN {s['name']}: {type(e).__name__}: {str(e)[:160]}")
     return finish(raw, port_names(), today)
@@ -507,7 +785,8 @@ def run_tests(folder):
     for raw, line, want in [("SUMMIT", None, "Celebrity Summit"), ("VISTA", "Oceania Cruises", "Oceania Vista"),
                             ("VICTORY II", None, "Victory II"), ("Silver shadow", None, "Silver Shadow"),
                             ("ZUIDERDAM", "HOLLAND AMERICA LINE INC.", "Holland America Zuiderdam"),
-                            ("AIDADIVA", None, "AIDAdiva"), ("Msc Preziosa", None, "MSC Preziosa"),
+                            ("AIDADIVA", None, "AIDAdiva"), ("Msc Preziosa", None, "MSC Preziosa"), ("Aidablu", None, "AIDAblu"),
+                            ("Utopia Of The Seas", None, "Utopia of the Seas"), ("Le Boreal", "Ponant", "Ponant Le Boreal"),
                             ("JEWEL OF THE SEAS", None, "Jewel of the Seas"), ("CELEBRITY EDGE", None, "Celebrity Edge")]:
         got = ship_name(raw, line)
         if got != want:
