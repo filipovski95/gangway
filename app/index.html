@@ -709,9 +709,9 @@ function renderList() {
     <div id="results"></div>
     <footer class="foot">${icon.wave}<span>Places from OpenStreetMap contributors. Descriptions and photos from Wikipedia. Check times with your ship's daily planner.</span><span>Fair winds ⚓</span></footer>`;
   $("#near").onclick = findNearest;
-  $("#q").oninput = e => { state.q = e.target.value; renderResults(); suggest(); };
+  $("#q").oninput = e => { state.q = e.target.value; renderResults(); suggest(); requestAnimationFrame(() => lift(true)); };
   // Keep the search box just under the header while typing, with room for suggestions below it.
-  const lift = () => { const box = $(".searchbox"); if (!box) return; const top = box.getBoundingClientRect().top + scrollY - $("#band").offsetHeight - 30; scrollTo({ top, behavior: "smooth" }); };
+  const lift = (instant) => { const box = $(".searchbox"); if (!box) return; const top = box.getBoundingClientRect().top + scrollY - $("#band").offsetHeight - 30; if (Math.abs(top - scrollY) > 2) scrollTo({ top, behavior: instant ? "auto" : "smooth" }); };
   $("#q").onfocus = () => { lift(); setTimeout(lift, 350); };
   if (window.visualViewport) visualViewport.onresize = () => { if (document.activeElement && document.activeElement.id === "q") lift(); };
   $("#q").onkeydown = e => { if (e.key === "Enter") { const f = $("#suggest button"); if (f) { e.preventDefault(); f.click(); } } };
