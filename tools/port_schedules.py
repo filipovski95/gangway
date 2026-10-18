@@ -574,7 +574,7 @@ def get_canaveral(url):
     return [get(su)]
 
 
-def render(url, wait_css, timeout=60):
+def render(url, wait_css, timeout=90):
     """Headless Chrome for pages that load their data with JavaScript (needs `pip install selenium` and Chrome;
     both are on GitHub's ubuntu runners - Selenium Manager finds the driver)."""
     from selenium import webdriver  # lazy: only this source needs it
@@ -587,7 +587,12 @@ def render(url, wait_css, timeout=60):
     try:
         drv.set_page_load_timeout(timeout)
         drv.get(url)
-        WebDriverWait(drv, timeout).until(lambda d: d.find_elements(By.CSS_SELECTOR, wait_css))
+        try:
+            WebDriverWait(drv, timeout).until(lambda d: d.find_elements(By.CSS_SELECTOR, wait_css))
+        except Exception:
+            src = drv.page_source
+            raise RuntimeError(f"no rows after {timeout}s; title={drv.title!r} rows={src.count('<tr')} "
+                               f"start={re.sub(r'\s+', ' ', src[:300])!r}")
         time.sleep(3)  # let the grid finish filling
         return drv.page_source
     finally:
