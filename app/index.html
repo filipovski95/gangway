@@ -148,6 +148,7 @@ main .wrap > * { min-width: 0; }
 .lbl { font: 700 11px/1 var(--body); letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
 .pass .today { font-size: 15px; }
 .pass .today b { color: var(--sea-2); }
+.pass .setby { color: var(--muted); font-size: 12.5px; }
 .pass .big { font: 800 30px/1 var(--display); font-variant-numeric: tabular-nums; }
 .pass .stub small { color: var(--muted); font-size: 12px; line-height: 1.2; }
 .pass .row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 4px; }
@@ -612,6 +613,12 @@ function myShip() {
   return (SHIPS && SHIPS.ships.find(s => sameShip(s.name, n))) || { name: n, calls: [] };
 }
 const offset = () => store.get("offset", 30);
+// The port the user said they're in today, for when no schedule lists their ship (or it changed last minute).
+function herePort() {
+  const h = store.get("here:" + dayStr(), null);
+  return h && state.index && portName(h.p) ? { n: portName(h.p), p: h.p, a: null, d: h.d ? dayStr() + "T" + h.d : null, manual: true } : null;
+}
+const setHere = (p, d) => store.set("here:" + dayStr(), { p, d: d || "" });
 function shipsInPort(pid, day = dayStr()) {
   return SHIPS ? SHIPS.ships.map(s => ({ s, c: todayCall(s, day) })).filter(x => x.c && x.c.p === pid) : [];
 }
@@ -647,22 +654,25 @@ function passCard() {
       <div class="row"><button class="btn y" data-pick>⚓ Choose my ship</button></div></div>
       <div class="stub"><span class="lbl">All aboard</span><span class="big">--:--</span><small>Pick your ship</small></div></div></section>`;
   const line = store.get("line", "") || lineOf(ship.name), sub = `My ship · ${line}`;
-  if (!ship.calls.length) return `<section class="pass">${shipHero(ship.name, line, sub)}<div class="ticket"><div class="main">
-      <span class="today">No port has published ${esc(ship.name)}'s schedule for today. Use <b>Find the port I'm in</b> or search your port and type the sailing time.</span>
-      <div class="row"><button class="btn" data-pick>Change ship</button></div></div>
-      <div class="stub"><span class="lbl">All aboard</span><span class="big">--:--</span><small>Set it in port</small></div></div></section>`;
-  const c = todayCall(ship), next = nextCalls(ship);
+  const c = herePort() || todayCall(ship), next = nextCalls(ship);
+  if (c && c.manual && !next.some(x => x.p === c.p && callDays(x)[0] <= dayStr())) next.unshift(c);
   const here = c && c.p ? portName(c.p) : null;
-  const aboard = autoAboard(c);
+  const aboard = (c && c.p && store.get(`aboard:${c.p}:${dayStr()}`, "")) || autoAboard(c);
+  const setPort = `<button class="btn" data-near>📍 Find the port I'm in</button><button class="btn" data-search>🔎 Pick today's port</button>`;
+  if (!c && !ship.calls.length) return `<section class="pass">${shipHero(ship.name, line, sub)}<div class="ticket"><div class="main">
+      <span class="today">No port has published ${esc(ship.name)}'s schedule yet. Tell Gangway where you are today and it fills in the rest.</span>
+      <div class="row">${setPort}<button class="btn" data-pick>Change ship</button></div></div>
+      <div class="stub"><span class="lbl">All aboard</span><span class="big">--:--</span><small>Set today's port</small></div></div></section>`;
   const nextUp = next.find(x => x !== c);
   let line2;
-  if (c) line2 = `Today: <b>${esc(here || c.n.split(",")[0])}</b>${c.a && c.a.slice(0, 10) === dayStr() ? ` · in ${tm(c.a)}` : ""}${c.d ? ` · out ${c.d.slice(0, 10) === dayStr() ? tm(c.d) : new Date(c.d).toLocaleDateString([], { weekday: "short" }) + " " + tm(c.d)}` : ""}`;
+  if (c && c.manual) line2 = `Today: <b>${esc(here)}</b>${c.d ? ` · out ${tm(c.d)}` : ""} <small class="setby">(set by you)</small>`;
+  else if (c) line2 = `Today: <b>${esc(here || c.n.split(",")[0])}</b>${c.a && c.a.slice(0, 10) === dayStr() ? ` · in ${tm(c.a)}` : ""}${c.d ? ` · out ${c.d.slice(0, 10) === dayStr() ? tm(c.d) : new Date(c.d).toLocaleDateString([], { weekday: "short" }) + " " + tm(c.d)}` : ""}`;
   else line2 = nextUp ? `At sea today · next <b>${esc(nextUp.p ? portName(nextUp.p) : nextUp.n.split(",")[0])}</b> ${new Date(nextUp.a || nextUp.d).toLocaleDateString([], { weekday: "short", day: "numeric", month: "short" })}` : "At sea today";
   return `<section class="pass">${shipHero(ship.name, line, sub)}<div class="ticket"><div class="main">
       <span class="today">${line2}</span>
       <div class="calls">${next.map(x => `<button class="call${x === c ? " now" : ""}" ${x.p ? `data-port="${x.p}"` : "disabled"}><span class="ph">${x.p ? flag((state.index.ports.find(p => p.id === x.p) || {}).country) : "⚓"}</span><b>${esc(x.p ? portName(x.p) : x.n.split(",")[0])}</b><span>${new Date(x.a || x.d).toLocaleDateString([], { weekday: "short", day: "numeric" })}</span></button>`).join("")}</div>
-      <div class="row">${here ? `<button class="btn go" data-port="${c.p}">${icon.go}Go ashore</button>` : ""}<button class="btn" data-pick>Change ship</button></div></div>
-      <div class="stub"><span class="lbl">All aboard</span><span class="big">${aboard || "--:--"}</span><small>${aboard ? `${offset()} min before sailing` : c ? "Not sailing today" : "No port today"}</small></div></div></section>`;
+      <div class="row">${here ? `<button class="btn go" data-port="${c.p}">${icon.go}Go ashore</button>` : ""}${!c || c.manual ? `<button class="btn" data-search>${c ? "Change today's port" : "🔎 In port? Pick it"}</button>` : ""}<button class="btn" data-pick>Change ship</button></div></div>
+      <div class="stub"><span class="lbl">All aboard</span><span class="big">${aboard || "--:--"}</span><small>${aboard ? (c && c.d ? `${offset()} min before sailing` : "Set by you") : c ? (c.manual ? "Set it in the port" : "Not sailing today") : "No port today"}</small></div></div></section>`;
 }
 function renderList() {
   const idx = state.index;
@@ -696,7 +706,7 @@ function renderList() {
 }
 // When my ship is in port today, the front page shows that port's highlights straight away.
 async function fillToday() {
-  const ship = myShip(), c = ship && todayCall(ship), box = $("#todayport");
+  const ship = myShip(), c = herePort() || (ship && todayCall(ship)), box = $("#todayport");
   if (!box || !c || !c.p) return;
   let P;
   try { P = await loadPort(c.p); } catch { return; }
@@ -725,6 +735,8 @@ async function fillToday() {
 function bindPass() {
   document.querySelectorAll("#pass [data-port]").forEach(b => b.onclick = () => openPort(b.dataset.port));
   document.querySelectorAll("[data-pick]").forEach(b => b.onclick = pickShip);
+  document.querySelectorAll("#pass [data-near]").forEach(b => b.onclick = findNearest);
+  document.querySelectorAll("#pass [data-search]").forEach(b => b.onclick = () => { const q = $("#q"); q.scrollIntoView({ block: "center", behavior: "smooth" }); q.focus(); toast("Type the name of today's port"); });
 }
 function renderResults() {
   const q = state.q.trim().toLowerCase();
@@ -830,20 +842,20 @@ function checkIn(id) {
     <div class="seg">${[30, 45, 60, 90].map(m => `<button class="chip" data-off="${m}" aria-pressed="${m === offset()}">${m} min</button>`).join("")}</div>
     <div class="seg"><button class="btn" data-skip>Just show the guide</button><button class="btn go" data-go style="margin-left:auto">${icon.go}Go ashore</button></div></div>`;
   document.body.append(el);
-  const go = () => { el.remove(); state.q = ""; openPort(id); };
+  const go = (d) => { setHere(id, d); el.remove(); state.q = ""; openPort(id); };
   el.onclick = e => { if (e.target === el) el.remove(); };
   el.querySelectorAll("[data-off]").forEach(b => b.onclick = () => { store.set("offset", +b.dataset.off); el.querySelectorAll("[data-off]").forEach(x => x.setAttribute("aria-pressed", x === b)); });
   el.querySelectorAll("[data-ship]").forEach(b => b.onclick = () => {
     store.set("ship", b.dataset.ship);
     const c = here.find(x => x.s.name === b.dataset.ship).c, t = autoAboard(c);
     if (t) store.set(key, t);
-    go();
+    go(c.d && c.d.slice(0, 10) === dayStr() ? tm(c.d) : "");
   });
-  el.querySelector("[data-skip]").onclick = go;
+  el.querySelector("[data-skip]").onclick = () => go();
   el.querySelector("[data-go]").onclick = () => {
     const v = $("#sailTime").value;
     if (v) { const [h, m] = v.split(":").map(Number), t = h * 60 + m - offset(); if (t >= 0) store.set(key, hhmm(t)); }
-    go();
+    go(v);
   };
 }
 
@@ -948,7 +960,7 @@ function findNearest() {
     let best, bd = Infinity;
     for (const p of state.index.ports) { const d = distKm(la, lo, p.lat, p.lon); if (d < bd) { bd = d; best = p; } }
     if (bd > 40) toast(`No Gangway port nearby. The closest is ${best.name}, ${Math.round(bd)} km away.`);
-    else openPort(best.id);
+    else { const h = store.get("here:" + dayStr(), null); if (!h || h.p !== best.id) setHere(best.id); openPort(best.id); }
   }, () => toast("Couldn't get your location. Pick your port from the list."), { enableHighAccuracy: false, timeout: 15000, maximumAge: 60000 });
 }
 function distKm(a, b, c, d) {
