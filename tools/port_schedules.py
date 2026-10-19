@@ -131,8 +131,10 @@ def iso(y, m, d, hm=None):
     return dt.strftime("%Y-%m-%dT00:00") if hm is None else None
 
 
-def call(raw, line, port, a, d):
-    return {"raw": raw, "line": line, "p": port, "a": a, "d": d}
+def call(raw, line, port, a, d, name=None):
+    """port: an id from data/index.json, or None with name= for a port the guide doesn't cover (it still
+    belongs in the ship's itinerary)."""
+    return {"raw": raw, "line": line, "p": port, "a": a, "d": d, "n": name}
 
 
 # ---------------------------------------------------------------- parsers
@@ -720,11 +722,12 @@ def finish(raw_calls, port_names, today, window=True):
         a, d = c["a"], c["d"]
         if window and ((d or a) < lo or (a or d) > hi):
             continue
-        ships.setdefault(name, set()).add((c["p"], a, d))
+        ships.setdefault(name, set()).add((c["p"] or "", c.get("n") or "", a, d))
     out = []
     for name in sorted(ships):
-        calls = sorted(ships[name], key=lambda t: (t[1] or t[2], t[0]))
-        out.append({"name": name, "calls": [{"n": port_names.get(p, p), "p": p, "a": a, "d": d} for p, a, d in calls]})
+        calls = sorted(ships[name], key=lambda t: (t[2] or t[3], t[0], t[1]))
+        out.append({"name": name, "calls": [{"n": port_names.get(p, p) if p else n, "p": p or None, "a": a, "d": d}
+                                            for p, n, a, d in calls]})
     return out
 
 
@@ -773,13 +776,109 @@ def fetch_all(sources=None, today=None, _covered=None):
                 raise ValueError("no calls parsed (layout changed?)")
             raw += got
             if _covered is not None:
-                _covered.update(c["p"] for c in got)
+                _covered.update(c["p"] or "~" + (c.get("n") or "") for c in got)
             lo, hi = (today - timedelta(days=WINDOW_BACK)).isoformat(), (today + timedelta(days=WINDOW_AHEAD)).isoformat()
             inwin = sum(1 for c in got if (c["d"] or c["a"]) >= lo and (c["a"] or c["d"])[:10] <= hi)
             print(f"ok   {s['name']}: {len(got)} calls, {inwin} in window" + ("  <- nothing current!" if not inwin else ""))
         except Exception as e:  # one site must never break the others
             print(f"WARN {s['name']}: {type(e).__name__}: {str(e)[:160]}")
     return finish(raw, port_names(), today)
+
+
+MAX_KNOTS = 24  # no cruise ship sails faster; straight-line distance is a lower bound on the real route
+
+
+def _coords():
+    try:
+        with open(os.path.join(os.path.dirname(OUT), "index.json"), encoding="utf-8") as f:
+            return {p["id"]: (p["lat"], p["lon"]) for p in json.load(f)["ports"] if p.get("lat") is not None}
+    except (OSError, ValueError, KeyError):
+        return {}
+
+
+def _nm(a, b):
+    import math
+    (la1, lo1), (la2, lo2) = a, b
+    r = math.radians
+    h = math.sin(r(la2 - la1) / 2) ** 2 + math.cos(r(la1)) * math.cos(r(la2)) * math.sin(r(lo2 - lo1) / 2) ** 2
+    return 6876 * math.asin(math.sqrt(min(1, h)))
+
+
+def _span(c):
+    """(earliest, latest) the ship can be in port. A date without a time could be any time that day."""
+    def t(s, default):
+        if not s:
+            return None
+        if len(s) <= 10 or s[11:16] == "00:00":
+            return datetime.fromisoformat(s[:10] + "T" + default)
+        return datetime.fromisoformat(s[:16])
+    a, d = t(c.get("a"), "06:00"), t(c.get("d"), "20:00")
+    a = a or d - timedelta(hours=10)
+    d = d or (t(c["a"][:10], "20:00") if len(c["a"]) <= 10 or c["a"][11:16] == "00:00" else a + timedelta(hours=10))
+    return a, max(a, d)
+
+
+def reconcile(ships, log=print):
+    """Ports sometimes list the same ship on the same days far apart (a berth booking that moved, a ship swap,
+    a typo). A ship can't be in both, so drop the calls that make its itinerary impossible: the one clashing
+    with the most other calls goes first; if two clash only with each other and nothing says which is right,
+    both go (a gap is better than a wrong port)."""
+    pos = _coords()
+    dropped = 0
+    for s in ships:
+        # the same visit listed twice (two sources, or a time changed): keep one, preferring real times
+        calls = []
+        for c in s["calls"]:
+            a, d = _span(c)
+            twin = next((k for k, o in enumerate(calls) if (o.get("p") or o.get("n")) == (c.get("p") or c.get("n"))
+                         and _span(o)[0] <= d and a <= _span(o)[1]), None)
+            if twin is None:
+                calls.append(c)
+            elif not (calls[twin].get("d") and (calls[twin].get("a") or "")[11:16] not in ("", "00:00")):
+                calls[twin] = c
+        s["calls"] = calls
+        span = [_span(c) for c in calls]
+        def clash(i, j):
+            (a1, d1), (a2, d2) = span[i], span[j]
+            if a2 < a1:
+                (a1, d1), (a2, d2) = (a2, d2), (a1, d1)
+            pi, pj = calls[i].get("p"), calls[j].get("p")
+            if pi == pj and pi:
+                return False
+            if a2 - d1 > timedelta(days=6):
+                return False
+            if a2 <= d1:  # in two ports at once
+                return True
+            if pi in pos and pj in pos:
+                return _nm(pos[pi], pos[pj]) / max((a2 - d1).total_seconds() / 3600, 0.5) > MAX_KNOTS
+            return False
+        n = len(calls)
+        bad = {i: {j for j in range(n) if j != i and abs((span[i][0] - span[j][0]).days) <= 7 and clash(i, j)} for i in range(n)}
+        gone = set()
+        while True:
+            live = {i: bad[i] - gone for i in range(n) if i not in gone and bad[i] - gone}
+            if not live:
+                break
+            worst = max(len(v) for v in live.values())
+            cands = [i for i, v in live.items() if len(v) == worst]
+            if worst == 1:
+                # a pair: keep the call that fits with more of this ship's other calls around then
+                def support(i):
+                    return sum(1 for j in range(n) if j != i and j not in gone and abs((span[i][0] - span[j][0]).days) <= 21
+                               and not clash(i, j))
+                i = cands[0]
+                j = next(iter(live[i]))
+                si, sj = support(i), support(j)
+                gone |= {i, j} if si == sj else {i if si < sj else j}
+            else:
+                gone.add(cands[0])
+        if gone:
+            dropped += len(gone)
+            for i in sorted(gone):
+                log(f"     clash {s['name']}: dropped {calls[i].get('n') or calls[i].get('p')} {calls[i].get('a') or calls[i].get('d')}")
+            s["calls"] = [c for i, c in enumerate(calls) if i not in gone]
+    log(f"reconcile: dropped {dropped} clashing calls")
+    return ships
 
 
 def merge(path, ships, covered, today):
@@ -791,17 +890,17 @@ def merge(path, ships, covered, today):
     lo = (today - timedelta(days=WINDOW_BACK)).isoformat()
     by = {}
     for s in old.get("ships", []):
-        keep = [c for c in s.get("calls", []) if c.get("p") not in covered and (c.get("d") or c.get("a") or "") >= lo]
-        by[s["name"]] = {(c.get("p"), c.get("a"), c.get("d")): c for c in keep}
+        keep = [c for c in s.get("calls", []) if (c.get("p") or "~" + c.get("n", "")) not in covered and (c.get("d") or c.get("a") or "") >= lo]
+        by[s["name"]] = {(c.get("p") or c.get("n"), c.get("a"), c.get("d")): c for c in keep}
     for s in ships:
         d = by.setdefault(s["name"], {})
         for c in s["calls"]:
-            d[(c["p"], c["a"], c["d"])] = c
+            d[(c["p"] or c["n"], c["a"], c["d"])] = c
     out = {
         "updated": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%MZ"),
         "source": "official port schedules",
-        "ships": [{"name": n, "calls": sorted(cs.values(), key=lambda c: (c["a"] or c["d"] or "", c["p"]))}
-                  for n, cs in by.items()],
+        "ships": reconcile([{"name": n, "calls": sorted(cs.values(), key=lambda c: (c["a"] or c["d"] or "", c["p"] or ""))}
+                            for n, cs in by.items()]),
     }
     with open(path, "w", encoding="utf-8") as f:
         json.dump(out, f, ensure_ascii=False, separators=(",", ":"))
