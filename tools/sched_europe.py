@@ -142,6 +142,7 @@ def parse_piraeus(h, today):
 
 
 def _get_bytes(url):
+    url = urllib.parse.quote(url, safe=":/?&=%#+,;@")  # file names with spaces
     req = urllib.request.Request(url, headers={"User-Agent": UA, "Accept": "*/*"})
     with _ps._opener.open(req, timeout=TIMEOUT) as r:
         return r.read()

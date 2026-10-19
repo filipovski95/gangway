@@ -940,7 +940,7 @@ function pickShip(line) {
         <div class="fleet ships">${ships.map(n => { const c = today(n); const short = n.replace(new RegExp("^(" + l + "|Celebrity|Norwegian|Carnival|MSC|Costa|Disney|Oceania|Holland America|Cunard|Viking|Virgin) "), ""); return `<button data-ship="${esc(n)}" aria-pressed="${sameShip(n, cur)}"><span class="porthole sm" aria-hidden="true">${shipArt(lineColor(l))}${shipPhoto(n)}</span><span>${esc(short)}<small>${c ? "⛴ " + esc(c.p ? portName(c.p) : c.n) + " today" : sched(n) ? "At sea or no port today" : "No published schedule"}</small></span></button>`; }).join("")}</div></div>`;
     }
     el.querySelectorAll("[data-line]").forEach(b => b.onclick = () => { sheetPush(() => draw(null)); draw(b.dataset.line); });
-    el.querySelectorAll("[data-ship]").forEach(b => b.onclick = () => { store.set("ship", b.dataset.ship); store.set("line", l); close(); state.listY = 0; scrollTo(0, 0); });
+    el.querySelectorAll("[data-ship]").forEach(b => b.onclick = () => { store.set("ship", b.dataset.ship); store.set("line", l); close(); state.listY = null; scrollTo(0, 0); });
     el.querySelectorAll("[data-off]").forEach(b => b.onclick = () => { store.set("offset", +b.dataset.off); el.querySelectorAll("[data-off]").forEach(x => x.setAttribute("aria-pressed", x === b)); });
     const q = sel => el.querySelector(sel);
     if (q("[data-back]")) q("[data-back]").onclick = () => history.back();
@@ -1146,7 +1146,7 @@ function distKm(a, b, c, d) {
 }
 async function openPort(id) {
   // Remember where crew were in the ports list, so Back returns them to the same spot.
-  if (!state.port) state.listY = scrollY;
+  if (!state.port) state.listY = listSpot();
   try {
     state.port = await loadPort(id); state.openOnly = false; state.shipDay = dayStr();
     // Start on the first tab that has places; some small ports have no food or sights mapped.
@@ -1156,10 +1156,24 @@ async function openPort(id) {
   }
   catch { toast("This port isn't saved yet. Connect to wifi and tap Refresh."); }
 }
+// Where crew were in the ports list: the first port row on screen and how far from the top it sat. Cards
+// above the list (ship card, itinerary) can change height while the page rebuilds, so we come back to
+// that row rather than to a pixel offset.
+function listSpot() {
+  const row = [...document.querySelectorAll("#results [data-port]")].find(b => b.getBoundingClientRect().bottom > $("#band").offsetHeight);
+  return row && scrollY > 0 ? { id: row.dataset.port, top: row.getBoundingClientRect().top } : null;
+}
 function closePort() {
   state.port = null; render();
-  const y = state.listY || 0, back = () => scrollTo(0, y);
-  back(); requestAnimationFrame(back); setTimeout(() => { if (Math.abs(scrollY - y) > 40 && scrollY < 40) back(); }, 300);
+  const spot = state.listY;
+  let moved = false; const stop = () => { moved = true; };
+  addEventListener("touchstart", stop, { once: true }); addEventListener("wheel", stop, { once: true });
+  const back = () => {
+    if (moved) return;
+    const row = spot && document.querySelector(`#results [data-port="${spot.id}"]`);
+    scrollTo(0, row ? row.getBoundingClientRect().top + scrollY - spot.top : 0);
+  };
+  back(); requestAnimationFrame(back); setTimeout(back, 150); setTimeout(back, 400);
 }
 if ("scrollRestoration" in history) history.scrollRestoration = "manual";
 $("#back").onclick = () => { if (history.state && history.state.port) history.back(); else { history.replaceState(null, "", location.pathname); closePort(); } };
