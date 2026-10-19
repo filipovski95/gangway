@@ -147,6 +147,20 @@ main .wrap > * { min-width: 0; }
 .plaque small { font-size: 10.5px; text-transform: uppercase; letter-spacing: .04em; opacity: .8; }
 .shipfacts .more { color: var(--muted); font-size: 12px; text-align: center; }
 .shipfacts .more a { color: inherit; }
+.itin { margin-top: 16px; background: var(--surface); border: 1px solid var(--line); border-radius: 22px; box-shadow: var(--shadow); padding: 14px 14px 16px; display: grid; gap: 10px; }
+.itin .note { color: var(--muted); font-size: 13px; margin: 0; }
+.itlist { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.itlist .mo { font: 700 12px/1 var(--display); letter-spacing: .08em; text-transform: uppercase; color: var(--sea-2); margin: 8px 0 2px; }
+.itlist li:not(.mo) { display: flex; align-items: center; gap: 6px; }
+.it { flex: 1; display: grid; grid-template-columns: 44px 36px 1fr; align-items: center; gap: 10px; text-align: left; padding: 8px 10px; border-radius: 14px; border: 1px solid var(--line); background: var(--surface-2); color: inherit; font: inherit; min-width: 0; }
+.it .dt { display: grid; justify-items: center; line-height: 1; } .it .dt b { font: 800 20px/1 var(--display); } .it .dt small { font-size: 11px; color: var(--muted); text-transform: uppercase; }
+.it .ph { width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center; font-size: 16px; background: var(--surface); box-shadow: 0 0 0 2px var(--brass); }
+.it .txt { display: grid; min-width: 0; } .it .txt b { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } .it .txt small { color: var(--muted); font-size: 12.5px; }
+.it:disabled { opacity: .75; }
+.additin { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.additin input, .additin select { font: inherit; padding: 9px 10px; border-radius: 12px; border: 1px solid var(--line); background: var(--surface-2); color: inherit; min-width: 0; }
+.additin select, .additin .btn { grid-column: 1 / -1; }
+.additin select { grid-row: 1; }
 .ticket { position: relative; display: grid; grid-template-columns: 1fr auto; }
 .ticket::before, .ticket::after { content: ""; position: absolute; width: 22px; height: 22px; border-radius: 50%; background: var(--bg); right: 104px; border: 1px solid var(--line); z-index: 1; }
 .ticket::before { top: -12px; } .ticket::after { bottom: -12px; }
@@ -733,6 +747,7 @@ function renderList() {
   // The search box is built once and never replaced, so typing keeps the phone keyboard steady.
   $("#view").innerHTML = `
     <div id="pass">${passCard()}</div>
+    <div id="itin">${itinCard()}</div>
     <section class="welcome"><div class="sun"></div><div class="sea"></div>${LIGHTHOUSE}
       <p class="kicker">Ahoy · ${DAY_NAMES[new Date().getDay()]}</p>
       <h2>Where are we docked today?</h2>
@@ -756,7 +771,7 @@ function renderList() {
     document.querySelectorAll("[data-region]").forEach(c => c.setAttribute("aria-pressed", c === b));
     renderResults();
   });
-  bindPass();
+  bindPass(); bindItin();
   renderResults();
   fillToday();
 }
@@ -787,6 +802,54 @@ async function fillToday() {
   box.innerHTML = html;
   box.querySelector("[data-port]").onclick = () => openPort(P.id);
   box.querySelectorAll("[data-more]").forEach(b => b.onclick = () => { const d = b.previousElementSibling; b.textContent = d.classList.toggle("full") ? "Show less" : "Read more"; });
+}
+// The ship's itinerary from today to the end of next year: published port calls plus days crew added themselves.
+// Port authorities publish a few weeks to a few months ahead, so crew can fill the gaps from their own schedule.
+function itinDays(ship) {
+  const from = dayStr(), to = (new Date().getFullYear() + 1) + "-12-31", days = {};
+  for (const c of ship.calls) { const d = callDays(c)[0]; if (callDays(c)[1] >= from && d <= to) days[d] = { day: d < from ? from : d, c }; }
+  for (let i = 0; i < localStorage.length; i++) {
+    const k = localStorage.key(i), m = k && k.match(/^gw:here:(\d{4}-\d\d-\d\d)$/);
+    if (!m || m[1] < from || m[1] > to) continue;
+    const h = store.get("here:" + m[1], null);
+    if (h && portName(h.p)) days[m[1]] = { day: m[1], c: { n: portName(h.p), p: h.p, a: null, d: h.d ? m[1] + "T" + h.d : null }, manual: true };
+  }
+  return Object.values(days).sort((a, b) => a.day.localeCompare(b.day));
+}
+function itinCard() {
+  const ship = myShip();
+  if (!ship || !state.index) return "";
+  const days = itinDays(ship), all = state.itinAll, shown = all ? days : days.slice(0, 6);
+  let month = "";
+  const rows = shown.map(({ day, c, manual }) => {
+    const dt = new Date(day + "T12:00"), mo = dt.toLocaleDateString([], { month: "long", year: "numeric" });
+    const head = mo !== month ? `<li class="mo">${esc(month = mo)}</li>` : "";
+    const country = c.p && (state.index.ports.find(p => p.id === c.p) || {}).country;
+    const times = [c.a && c.a.slice(0, 10) === day && "in " + tm(c.a), c.d && "out " + (c.d.slice(0, 10) === day ? tm(c.d) : new Date(c.d).toLocaleDateString([], { weekday: "short" }) + " " + tm(c.d))].filter(Boolean).join(" · ");
+    return head + `<li><button class="it" ${c.p ? `data-port="${c.p}"` : "disabled"}><span class="dt"><b>${dt.getDate()}</b><small>${dt.toLocaleDateString([], { weekday: "short" })}</small></span>
+      <span class="ph">${c.p ? flag(country) : "⚓"}</span><span class="txt"><b>${esc(c.p ? portName(c.p) : c.n.split(",")[0])}</b><small>${times || (manual ? "Added by you" : "")}${day === dayStr() ? " · today" : ""}</small></span></button>
+      ${manual ? `<button class="roundbtn rm" data-unhere="${day}" aria-label="Remove this day">${icon.x}</button>` : ""}</li>`;
+  }).join("");
+  const opts = state.index.ports.map(p => [p.name, p.id]).sort((a, b) => a[0].localeCompare(b[0])).map(([n, id]) => `<option value="${id}">${esc(n)}</option>`).join("");
+  return `<section class="itin"><h3 class="tp-h"><span class="badge">${icon.anchor}</span>${esc(short(ship.name))}'s itinerary</h3>
+    ${days.length ? `<ul class="itlist">${rows}</ul>${days.length > 6 ? `<button class="btn" data-itall>${all ? "Show less" : `Show all ${days.length} port days`}</button>` : ""}`
+      : `<p class="note">No port has published ${esc(ship.name)}'s schedule yet.</p>`}
+    <p class="note">Port authorities publish only a few weeks or months ahead, so days may be missing. Add the ones you know from the ship's schedule:</p>
+    <div class="additin"><input type="date" id="itDay" min="${dayStr()}" max="${new Date().getFullYear() + 1}-12-31" aria-label="Date"><select id="itPort" aria-label="Port"><option value="">Port…</option>${opts}</select>
+      <input type="time" id="itOut" aria-label="Sailing time (optional)" title="Sailing time (optional)"><button class="btn go" data-itadd>Add</button></div></section>`;
+}
+function bindItin() {
+  const box = $("#itin"); if (!box) return;
+  const redraw = () => { box.innerHTML = itinCard(); bindItin(); };
+  box.querySelectorAll("[data-port]").forEach(b => b.onclick = () => openPort(b.dataset.port));
+  box.querySelectorAll("[data-itall]").forEach(b => b.onclick = () => { state.itinAll = !state.itinAll; redraw(); });
+  box.querySelectorAll("[data-unhere]").forEach(b => b.onclick = () => { try { localStorage.removeItem("gw:here:" + b.dataset.unhere); } catch {} redraw(); $("#pass").innerHTML = passCard(); bindPass(); });
+  box.querySelectorAll("[data-itadd]").forEach(b => b.onclick = () => {
+    const d = $("#itDay").value, p = $("#itPort").value;
+    if (!d || !p) return toast("Pick a date and a port");
+    store.set("here:" + d, { p, d: $("#itOut").value || "" }); toast(`Added ${portName(p)} on ${new Date(d + "T12:00").toLocaleDateString([], { day: "numeric", month: "short" })}`);
+    redraw(); if (d === dayStr()) { $("#pass").innerHTML = passCard(); bindPass(); }
+  });
 }
 function bindPass() {
   document.querySelectorAll("#pass [data-port]").forEach(b => b.onclick = () => openPort(b.dataset.port));
