@@ -84,6 +84,7 @@ def smart_case(name):
 def ship_name(raw, line=None):
     n = re.sub(r"\s+", " ", htmllib.unescape(raw or "")).strip(" *.")
     n = re.sub(r"^(m/?s|m/?v|ms\.)\s+", "", n, flags=re.I)
+    n = re.sub(r"^\d{1,3}[.)]?\s+(?=[A-Za-z])", "", n)  # a row number in front of the name ('10 MSC Seaview')
     if not n or re.match(r"(refer\b|tba\b|tbc\b|tbn\b|unknown|vessel\b|n/?a$)", n, re.I):
         return ""
     if n.isupper() or n.islower() or n[:1].islower() or re.search(r"\b[a-z]", n) or "Msc " in n \
