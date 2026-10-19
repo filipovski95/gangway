@@ -19,7 +19,7 @@ on:
         type: boolean
         default: false
       ship_photos:
-        description: "Only find photos of cruise ships on Wikipedia"
+        description: "Only find photos and facts of cruise ships on Wikipedia"
         type: boolean
         default: false
       ports:
@@ -49,8 +49,8 @@ jobs:
       - name: Fetch places (only ports missing data; weekly run refreshes all)
         run: |
           if [ "${{ github.event.schedule }}" = "0 3 * * 1" ] || [ "${{ github.event.inputs.all }}" = "true" ]; then export REFRESH_ALL=1; fi
-          if [ "${{ github.event.inputs.ships_only }}" = "true" ] || [ "${{ github.event.schedule }}" = "30 4 * * *" ]; then pip install -q selenium; python tools/port_schedules.py; python tools/ship_photos.py || true; exit 0; fi
-          if [ "${{ github.event.inputs.ship_photos }}" = "true" ]; then python tools/ship_photos.py; exit 0; fi
+          if [ "${{ github.event.inputs.ships_only }}" = "true" ] || [ "${{ github.event.schedule }}" = "30 4 * * *" ]; then pip install -q selenium; python tools/port_schedules.py; python tools/ship_photos.py || true; python tools/ship_info.py || true; exit 0; fi
+          if [ "${{ github.event.inputs.ship_photos }}" = "true" ]; then python tools/ship_photos.py; python tools/ship_info.py; exit 0; fi
           if [ "${{ github.event.inputs.wiki_only }}" = "true" ]; then python tools/enrich.py $PORTS; exit 0; fi
           python tools/fetch_places.py $PORTS
           if [ -z "$SHARD" ]; then python tools/countries.py; python tools/enrich.py $PORTS; fi
