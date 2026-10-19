@@ -827,10 +827,12 @@ function openSheet(el, onClose) {
   el.onclick = e => { if (e.target === el) closeSheet(); };
 }
 function sheetPush(back) { sheet.depth++; sheet.back = back; history.pushState({ sheet: sheet.depth }, "", location.href); }
+// Closing a sheet steps history back past its own entries; that popstate is ours, not a Back from a port.
+let skipPop = false;
 function closeSheet(keepHistory) {
   if (!sheet) return;
   const s = sheet; sheet = null; s.el.remove();
-  if (!keepHistory) history.go(-s.depth);
+  if (!keepHistory) { skipPop = true; history.go(-s.depth); }
   if (s.onClose) s.onClose();
 }
 
@@ -864,7 +866,7 @@ function pickShip(line) {
         <div class="fleet ships">${ships.map(n => { const c = today(n); const short = n.replace(new RegExp("^(" + l + "|Celebrity|Norwegian|Carnival|MSC|Costa|Disney|Oceania|Holland America|Cunard|Viking|Virgin) "), ""); return `<button data-ship="${esc(n)}" aria-pressed="${sameShip(n, cur)}"><span class="porthole sm" aria-hidden="true">${shipArt(lineColor(l))}${shipPhoto(n)}</span><span>${esc(short)}<small>${c ? "⛴ " + esc(c.p ? portName(c.p) : c.n) + " today" : sched(n) ? "At sea or no port today" : "No published schedule"}</small></span></button>`; }).join("")}</div></div>`;
     }
     el.querySelectorAll("[data-line]").forEach(b => b.onclick = () => { sheetPush(() => draw(null)); draw(b.dataset.line); });
-    el.querySelectorAll("[data-ship]").forEach(b => b.onclick = () => { store.set("ship", b.dataset.ship); store.set("line", l); close(); });
+    el.querySelectorAll("[data-ship]").forEach(b => b.onclick = () => { store.set("ship", b.dataset.ship); store.set("line", l); close(); state.listY = 0; scrollTo(0, 0); });
     el.querySelectorAll("[data-off]").forEach(b => b.onclick = () => { store.set("offset", +b.dataset.off); el.querySelectorAll("[data-off]").forEach(x => x.setAttribute("aria-pressed", x === b)); });
     const q = sel => el.querySelector(sel);
     if (q("[data-back]")) q("[data-back]").onclick = () => history.back();
@@ -1088,6 +1090,7 @@ function closePort() {
 if ("scrollRestoration" in history) history.scrollRestoration = "manual";
 $("#back").onclick = () => { if (history.state && history.state.port) history.back(); else { history.replaceState(null, "", location.pathname); closePort(); } };
 addEventListener("popstate", () => {
+  if (skipPop) { skipPop = false; return; }
   if (sheet) {
     if (sheet.depth > 1 && sheet.back) { sheet.depth--; const b = sheet.back; sheet.back = null; b(); }
     else closeSheet(true);
