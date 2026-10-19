@@ -1,4 +1,6 @@
 """Print what a schedule source returns on this machine, to fix parsers: python tools/debug_source.py KEY [KEY...]"""
+import os
+import re
 import sys
 from datetime import datetime, timezone
 
@@ -19,6 +21,9 @@ for s in ps.all_sources():
     for i, p in enumerate(pages[:2]):
         print(f"----- page {i} -----")
         print(str(p)[:3500])
+        for pat in filter(None, os.environ.get("DEBUG_GREP", "").split("||")):
+            for m in list(re.finditer(pat, str(p)))[:3]:
+                print(f"~~~ {pat} @{m.start()}: {str(p)[max(0, m.start() - 200):m.start() + 900]!r}")
     try:
         got = [c for p in pages for c in s["parse"](p, today)]
         print(f"PARSED {len(got)} calls; first: {got[:3]}")

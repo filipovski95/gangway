@@ -202,15 +202,23 @@ def pdf_text(data):
     import subprocess
     if not shutil.which("pdftotext"):
         raise RuntimeError("pdftotext not installed (apt-get install poppler-utils)")
-    return subprocess.run(["pdftotext", "-enc", "UTF-8", "-", "-"], input=data, capture_output=True,
+    return subprocess.run(["pdftotext", "-layout", "-enc", "UTF-8", "-", "-"], input=data, capture_output=True,
                           check=True, timeout=120).stdout.decode("utf-8", "replace")
 
 
 def get_bytes(url):
     import urllib.request
+    import urllib.error
     req = urllib.request.Request(url, headers={"User-Agent": ps.UA, "Accept": "*/*"})
-    with ps._opener.open(req, timeout=ps.TIMEOUT) as r:
-        return r.read()
+    for wait in (30, 90, None):  # 'Too Many Requests': wait as the site asks (or a while) and try again
+        try:
+            with ps._opener.open(req, timeout=ps.TIMEOUT) as r:
+                return r.read()
+        except urllib.error.HTTPError as e:
+            if e.code != 429 or wait is None:
+                raise
+            ra = e.headers.get("Retry-After", "")
+            time.sleep(min(int(ra), 180) if ra.isdigit() else wait)
 
 
 def get_cruise_maryland(url):
@@ -514,7 +522,7 @@ def get_barbados(url):
 
 AUA_HEAD = re.compile(r"SCHEDULE\s+CRUISE\s*SHIP\s+([A-Z]+)\s+(\d{4})", re.I)
 AUA_ROW = re.compile(r"^(?:(?:MON|TUE|WED|THU|FRI|SAT|SUN)\s+(\d{1,2})\s+)?([A-Z][A-Z0-9 .'&-]*?[A-Z0-9.])\s+"
-                     r"(\d{1,2}\.\d\d|\*{2,})\s+(\d{1,2}\.\d\d|\*{2,})(?:\s+[A-Z]\b)?")
+                     r"(\d{1,2}\.\d\d|\*{2,})\s+(\d{1,2}\.\d\d|\*{2,})(?:\s+[A-Z]\b)?", re.I)
 
 
 def parse_aruba(html, today):

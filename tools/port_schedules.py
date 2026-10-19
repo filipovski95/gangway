@@ -726,6 +726,18 @@ def finish(raw_calls, port_names, today, window=True):
         if window and ((d or a) < lo or (a or d) > hi):
             continue
         ships.setdefault(name, set()).add((c["p"] or "", c.get("n") or "", a, d))
+    # Names cut off by a site's layout ('Quantum of the') join the one ship they start; line names and
+    # fragments ('Royal Caribbean', 'II') that are not a ship are dropped.
+    for name in list(ships):
+        if re.fullmatch(r"(?i)[IVX]+|.{0,2}|(royal caribbean|carnival|celebrity|princess|norwegian|msc|costa|"
+                        r"holland america|disney|cunard|p&o|aida|tui|viking|oceania|regent|silversea|seabourn)"
+                        r"( cruises?| cruise lines?| line)?", name):
+            del ships[name]
+        elif re.search(r"(?i) (of|of the|the)$", name):
+            full = [n for n in ships if n != name and n.lower().startswith(name.lower() + " ")]
+            if len(full) == 1:
+                ships[full[0]] |= ships[name]
+            del ships[name]
     out = []
     for name in sorted(ships):
         calls = sorted(ships[name], key=lambda t: (t[2] or t[3], t[0], t[1]))
@@ -904,7 +916,7 @@ def merge(path, ships, covered, today):
         "updated": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%MZ"),
         "source": "official port schedules",
         "ships": reconcile([{"name": n, "calls": sorted(cs.values(), key=lambda c: (c["a"] or c["d"] or "", c["p"] or ""))}
-                            for n, cs in by.items()]),
+                            for n, cs in by.items() if cs and not re.match(r"\d{1,3}\s", n)]),
     }
     with open(path, "w", encoding="utf-8") as f:
         json.dump(out, f, ensure_ascii=False, separators=(",", ":"))
