@@ -36,24 +36,44 @@ def query(**params):
 key = lambda n: re.sub(r"[^a-z0-9]", "", n.lower())
 
 
-def is_ship(pg):
+def is_ship(pg, photo=True):
     d = (pg.get("description") or "").lower()
-    return "missing" not in pg and "disambiguation" not in d and re.search(r"\b(ship|liner|vessel)\b", d) and pg.get("thumbnail")
+    return "missing" not in pg and "disambiguation" not in d and re.search(r"\b(ship|liner|vessel)\b", d) and (pg.get("thumbnail") or not photo)
 
 
-def find(name):
-    common = dict(prop="pageimages|description", piprop="thumbnail", pithumbsize=WIDTH, redirects=1)
-    found = query(generator="search", gsrsearch=f'intitle:"{name}" cruise ship', gsrlimit=10, **common)
-    found += query(titles=name, **common)
+# Fleet lists name some ships with their line in front ("Holland America Rotterdam"),
+# while Wikipedia calls them "MS Rotterdam (2021)". Those are searched without the line,
+# and only accepted when the article mentions the line, since short names are shared.
+LINES = ["Holland America", "Cunard", "Virgin", "Oceania", "Princess", "Celebrity", "Norwegian", "Carnival", "Costa", "Disney"]
+
+
+def variants(name):
+    out = [(name, None)]
+    for line in LINES:
+        if name.startswith(line + " ") and len(name) > len(line) + 3:
+            out.append((name[len(line) + 1:], line.lower()))
+    return out
+
+
+def find(name, photo=True):
+    common = dict(prop="pageimages|description|extracts", piprop="thumbnail", pithumbsize=WIDTH, redirects=1,
+                  exintro=1, explaintext=1, exlimit=20, exchars=600)
     best, best_year = None, -1
-    for pg in found:
-        t = pg.get("title", "")
-        m = re.fullmatch(re.escape(name) + r"(?: \((?:ship, )?(\d{4})(?: ship)?\))?", t, re.I)
-        if not m or not is_ship(pg):
-            continue
-        year = int(m[1]) if m[1] else 0
-        if year > best_year:
-            best, best_year = pg, year
+    for v, line in variants(name):
+        found = query(generator="search", gsrsearch=f'intitle:"{v}" ship', gsrlimit=10, **common)
+        found += query(titles=v, **common) + query(titles="MS " + v, **common)
+        for pg in found:
+            t = pg.get("title", "")
+            m = re.fullmatch(r"(?:(?:MS|MV|SS|RMS) )?" + re.escape(v) + r"(?: \((?:ship|(?:ship, )?(\d{4})(?: ship)?)\))?", t, re.I)
+            if not m or not is_ship(pg, photo):
+                continue
+            if line and line not in ((pg.get("description") or "") + " " + (pg.get("extract") or "")).lower():
+                continue
+            year = int(m[1]) if m[1] else 0
+            if year > best_year:
+                best, best_year = pg, year
+        if best:
+            break
     return best
 
 

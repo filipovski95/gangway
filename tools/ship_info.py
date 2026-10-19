@@ -6,24 +6,13 @@ Uses the article ship_photos.py already matched where there is one, otherwise th
 same search without needing a photo.
 """
 import html, json, os, re, sys, time
-from ship_photos import DATA, query, key, get, API
+from ship_photos import DATA, find, key, get, API
 import urllib.parse
 
 
 def find_title(name):
-    common = dict(prop="description", redirects=1)
-    found = query(generator="search", gsrsearch=f'intitle:"{name}" cruise ship', gsrlimit=10, **common)
-    found += query(titles=name, **common)
-    best, best_year = None, -1
-    for pg in found:
-        t, d = pg.get("title", ""), (pg.get("description") or "").lower()
-        m = re.fullmatch(re.escape(name) + r"(?: \((?:ship, )?(\d{4})(?: ship)?\))?", t, re.I)
-        if not m or "missing" in pg or "disambiguation" in d or not re.search(r"\b(ship|liner|vessel)\b", d):
-            continue
-        year = int(m[1]) if m[1] else 0
-        if year > best_year:
-            best, best_year = t, year
-    return best
+    pg = find(name, photo=False)
+    return pg and pg["title"]
 
 
 def clean(v):
