@@ -139,6 +139,10 @@
 "f": "ships/britannia.jpg",
 "wpu": "Britannia (2014 ship)"
 },
+"buenavista": {
+"f": "ships/buenavista.jpg",
+"wpu": "MV Buenavista"
+},
 "caribbeanprincess": {
 "f": "ships/caribbeanprincess.jpg",
 "wpu": "Caribbean Princess"
@@ -327,6 +331,10 @@
 "f": "ships/clio.jpg",
 "wpu": "MS Clio"
 },
+"coraladventurer": {
+"f": "ships/coraladventurer.jpg",
+"wpu": "Coral Adventurer"
+},
 "coralprincess": {
 "f": "ships/coralprincess.jpg",
 "wpu": "Coral Princess"
@@ -511,6 +519,10 @@
 "f": "ships/hebrideansky.jpg",
 "wpu": "Hebridean Sky"
 },
+"heritageadventurer": {
+"f": "ships/heritageadventurer.jpg",
+"wpu": "Heritage Adventurer"
+},
 "hollandamericaeurodam": {
 "f": "ships/hollandamericaeurodam.jpg",
 "wpu": "MS Eurodam"
@@ -666,6 +678,10 @@
 "minerva": {
 "f": "ships/minerva.jpg",
 "wpu": "MV Minerva"
+},
+"mitsuioceanfuji": {
+"f": "ships/mitsuioceanfuji.jpg",
+"wpu": "MS Mitsui Ocean Fuji"
 },
 "mscarmonia": {
 "f": "ships/mscarmonia.jpg",
@@ -1002,6 +1018,10 @@
 "sevenseasvoyager": {
 "f": "ships/sevenseasvoyager.jpg",
 "wpu": "Seven Seas Voyager"
+},
+"silvercloud": {
+"f": "ships/silvercloud.jpg",
+"wpu": "Silver Cloud (ship)"
 },
 "silvermuse": {
 "f": "ships/silvermuse.jpg",
