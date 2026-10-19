@@ -24,7 +24,9 @@ OUT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "data", "sh
 UA = "Gangway/0.2 (offline cruise port guide for crew; https://github.com/filipovski95/linguapath)"
 TIMEOUT = 40
 DELAY = 2.0
-WINDOW_BACK, WINDOW_AHEAD = 1, 60
+# Keep everything ports publish up to the end of next year: together the ports give each ship's itinerary.
+WINDOW_BACK = 1
+WINDOW_AHEAD = (date(date.today().year + 1, 12, 31) - date.today()).days
 
 MONTHS = {m: i + 1 for i, m in enumerate(
     ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"])}
@@ -604,20 +606,21 @@ def get_everglades(url):
 
 
 def get_stmaarten(url):
-    """Current month as served, plus next month via the page's own month selector (ASP.NET postback)."""
+    """Current month as served, plus the next 14 months via the page's own month selector (ASP.NET postback)."""
     h = get(url)
     pages = [h]
     try:
-        today = date.today()
-        nxt = (today.replace(day=1) + timedelta(days=32)).replace(day=1)
-        form = dict(re.findall(r'<input[^>]*type="hidden"[^>]*name="([^"]+)"[^>]*value="([^"]*)"', h))
-        form = {k: htmllib.unescape(v) for k, v in form.items()}
-        form.update({"myControl$ddlYear": str(nxt.year), "myControl$ddlMonth": str(nxt.month),
-                     "myControl$btnSearch": "Search", "__EVENTTARGET": "", "__EVENTARGUMENT": ""})
-        time.sleep(DELAY)
-        pages.append(get(url, form))
+        nxt = date.today().replace(day=1)
+        for _ in range(14):
+            nxt = (nxt + timedelta(days=32)).replace(day=1)
+            form = dict(re.findall(r'<input[^>]*type="hidden"[^>]*name="([^"]+)"[^>]*value="([^"]*)"', pages[-1]))
+            form = {k: htmllib.unescape(v) for k, v in form.items()}
+            form.update({"myControl$ddlYear": str(nxt.year), "myControl$ddlMonth": str(nxt.month),
+                         "myControl$btnSearch": "Search", "__EVENTTARGET": "", "__EVENTARGUMENT": ""})
+            time.sleep(DELAY)
+            pages.append(get(url, form))
     except Exception as e:
-        print(f"     St. Maarten next month: {type(e).__name__}: {str(e)[:100]}")
+        print(f"     St. Maarten later months: {type(e).__name__}: {str(e)[:100]}")
     return pages
 
 
