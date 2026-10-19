@@ -659,7 +659,7 @@ const dayStr = (d = new Date()) => d.toLocaleDateString("en-CA");
 // Some ports publish dates only; those come as T00:00 with no departure, so midnight means "no time given".
 const tm = s => s && s.length > 15 && s.slice(11, 16) !== "00:00" ? s.slice(11, 16) : "";
 // "Fri 24 Dec", with the year when it isn't this year.
-const fmtDay = (v, wd = true) => { const d = new Date(v.length === 10 ? v + "T12:00" : v);
+const fmtDay = (v, wd = true) => { if (!v) return ""; const d = new Date(v.length === 10 ? v + "T12:00" : v);
   return d.toLocaleDateString([], { ...(wd && { weekday: "short" }), day: "numeric", month: "short", ...(d.getFullYear() !== new Date().getFullYear() && { year: "numeric" }) }); };
 const callDays = c => [(c.a || c.d).slice(0, 10), (c.d || c.a).slice(0, 10)];
 function todayCall(ship, day = dayStr()) {
@@ -675,7 +675,7 @@ const offset = () => store.get("offset", 30);
 // The port the user said they're in today, for when no schedule lists their ship (or it changed last minute).
 function herePort() {
   const h = store.get("here:" + dayStr(), null);
-  return h && state.index && portName(h.p) ? { n: portName(h.p), p: h.p, a: null, d: h.d ? dayStr() + "T" + h.d : null, manual: true } : null;
+  return h && state.index && portName(h.p) ? { n: portName(h.p), p: h.p, a: dayStr(), d: h.d ? dayStr() + "T" + h.d : null, manual: true } : null;
 }
 const setHere = (p, d) => store.set("here:" + dayStr(), { p, d: d || "" });
 function shipsInPort(pid, day = dayStr()) {
@@ -718,7 +718,13 @@ function shipFacts(name) {
   return `<div class="shipfacts"><div class="plaques">${cells.map(([v, l]) => `<span class="plaque"><b>${esc(v)}</b><small>${l}</small></span>`).join("")}</div>
     ${more || link ? `<small class="more">${[more, link].filter(Boolean).join(" · ")}</small>` : ""}</div>`;
 }
-function passCard() {
+// One broken card must never blank the whole app: show a short note instead and keep the rest working.
+function safe(f, what) {
+  try { return f(); } catch (e) { console.error(e); return `<p class="note">Couldn't show ${what}. Tap Refresh, or change ship.</p>`; }
+}
+const passCard = () => safe(passCardRaw, `your ship <button class="btn" data-pick>Change ship</button>`);
+const itinCard = () => safe(itinCardRaw, "the itinerary");
+function passCardRaw() {
   const ship = myShip();
   if (!ship) return `<section class="pass">${shipHero("", "", "My ship")}<div class="ticket"><div class="main">
       <span class="today">Pick your cruise line and ship. Gangway then shows today's port, what to do ashore and your all-aboard time.</span>
@@ -833,7 +839,7 @@ function itinDays(ship) {
     const k = localStorage.key(i), m = k && k.match(/^gw:here:(\d{4}-\d\d-\d\d)$/);
     if (!m || m[1] < from || m[1] > to) continue;
     const h = store.get("here:" + m[1], null);
-    if (h && portName(h.p)) mine[m[1]] = { day: m[1], end: m[1], c: { n: portName(h.p), p: h.p, a: null, d: h.d ? m[1] + "T" + h.d : null }, manual: true };
+    if (h && portName(h.p)) mine[m[1]] = { day: m[1], end: m[1], c: { n: portName(h.p), p: h.p, a: m[1], d: h.d ? m[1] + "T" + h.d : null }, manual: true };
   }
   for (const c of ship.calls) {
     const [d, e] = callDays(c);
@@ -851,7 +857,7 @@ function gapNote(after, before) {
   return n <= 3 ? { short: n === 1 ? "1 day" : `${n} days`, text: `${when} · at sea, or a port that isn't listed` }
     : { short: n < 60 ? `${n} days` : `${Math.round(n / 30.4)} months`, text: `${when} · ${n} days no port has listed yet`, big: true };
 }
-function itinCard() {
+function itinCardRaw() {
   const ship = myShip();
   if (!ship || !state.index) return "";
   const days = itinDays(ship), all = state.itinAll, shown = all ? days : days.slice(0, 6);
