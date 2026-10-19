@@ -691,15 +691,17 @@ SKIP = {"cur", "ast"}
 
 
 def all_sources():
-    out = list(SOURCES)
+    out = {s["key"]: s for s in SOURCES}
     sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-    for mod in ("sched_carib", "sched_pacific", "sched_europe"):
+    # A later module's source with the same key replaces the earlier one (a fixed parser for that port).
+    for mod in ("sched_carib", "sched_pacific", "sched_europe", "sched_usca", "sched_med", "sched_north",
+                "sched_americas", "sched_asiapac"):
         try:
             m = __import__(mod)
-            out += [s for s in m.SOURCES if s["key"] not in SKIP]
+            out.update({s["key"]: s for s in m.SOURCES if s["key"] not in SKIP})
         except Exception as e:  # a broken regional file must not stop the others
             print(f"WARN {mod}: {type(e).__name__}: {str(e)[:160]}")
-    return out
+    return list(out.values())
 
 
 def finish(raw_calls, port_names, today, window=True):

@@ -197,6 +197,16 @@ main .wrap > * { min-width: 0; }
 .chips::-webkit-scrollbar { display: none; }
 .chip { flex: none; border: 2px solid var(--line); background: var(--surface); border-radius: 999px; padding: 8px 15px; font-size: 14.5px; font-weight: 600; white-space: nowrap; }
 .chip[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); box-shadow: 0 3px 0 var(--signal); }
+.areas-h { display: flex; align-items: center; gap: 8px; font: 800 20px/1.1 var(--display); text-transform: uppercase; letter-spacing: .06em; margin: 8px 2px 12px; }
+.areas-h svg { width: 20px; height: 20px; color: var(--sea); flex: none; }
+.areagrid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.area { display: grid; justify-items: start; gap: 4px; text-align: left; padding: 14px; border-radius: 18px; border: 1px solid var(--line); background: var(--surface); color: inherit; font: inherit; box-shadow: 0 3px 0 var(--line); min-width: 0; }
+.area .em { font-size: 30px; line-height: 1; }
+.area b { font: 800 17px/1.15 var(--display); text-transform: uppercase; letter-spacing: .03em; }
+.area small { color: var(--muted); font-size: 12.5px; }
+.areabar { display: flex; align-items: center; gap: 10px; margin: 4px 0 10px; }
+.areabar .btn svg { width: 18px; height: 18px; }
+.areabar b { font: 800 20px/1 var(--display); text-transform: uppercase; letter-spacing: .05em; }
 .region h2 { display: flex; align-items: center; gap: 8px; font: 800 20px/1 var(--display); text-transform: uppercase; letter-spacing: .06em; margin: 8px 2px 12px; }
 .region h2 svg { width: 20px; height: 20px; color: var(--sea); flex: none; }
 .region h2::after { content: ""; flex: 1; height: 6px; border-radius: 3px; opacity: .55;
@@ -421,7 +431,7 @@ const store = {
   set(k, v) { try { localStorage.setItem("gw:" + k, JSON.stringify(v)); } catch {} }
 };
 let COUNTRIES = {}, SHIPS = null;
-const state = { index: store.get("index", null), port: null, tab: "food", openOnly: false, region: "All", q: "" };
+const state = { index: store.get("index", null), port: null, tab: "food", openOnly: false, region: "All", area: store.get("area", ""), q: "" };
 const $ = s => document.querySelector(s);
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 
@@ -771,7 +781,6 @@ function passCardRaw() {
 function renderList() {
   const idx = state.index;
   if (!idx) { $("#view").innerHTML = `<p class="empty">Loading ports…</p>`; return; }
-  const regions = ["All", ...new Set(idx.ports.map(p => p.region))];
   // The search box is built once and never replaced, so typing keeps the phone keyboard steady.
   $("#view").innerHTML = `
     <div id="pass">${passCard()}</div>
@@ -784,7 +793,6 @@ function renderList() {
       <ul class="suggest" id="suggest" role="listbox" hidden></ul>
     </section>
     <div id="todayport"></div>
-    <div class="chips" role="group" aria-label="Regions">${regions.map(r => `<button class="chip" data-region="${esc(r)}" aria-pressed="${r === state.region}">${esc(r)}</button>`).join("")}</div>
     <div id="results"></div>
     <footer class="foot">${icon.wave}<span>Places from OpenStreetMap contributors. Descriptions and photos from Wikipedia. Check times with your ship's daily planner.</span><span>Fair winds ⚓</span></footer>`;
   $("#near").onclick = findNearest;
@@ -794,11 +802,6 @@ function renderList() {
   $("#q").onfocus = () => { lift(); setTimeout(lift, 350); };
   if (window.visualViewport) visualViewport.onresize = () => { if (document.activeElement && document.activeElement.id === "q") lift(); };
   $("#q").onkeydown = e => { if (e.key === "Enter") { const f = $("#suggest button"); if (f) { e.preventDefault(); f.click(); } } };
-  document.querySelectorAll("[data-region]").forEach(b => b.onclick = () => {
-    state.region = b.dataset.region;
-    document.querySelectorAll("[data-region]").forEach(c => c.setAttribute("aria-pressed", c === b));
-    renderResults();
-  });
   bindPass(); bindItin();
   renderResults();
   fillToday();
@@ -901,10 +904,40 @@ function bindPass() {
   document.querySelectorAll("#pass [data-near]").forEach(b => b.onclick = findNearest);
   document.querySelectorAll("#pass [data-search]").forEach(b => b.onclick = () => { const q = $("#q"); q.focus(); toast("Type the name of today's port"); });
 }
+// The ports list starts with a choice of area (continent or sea); picking one shows its ports, grouped by region.
+const AREAS = [
+  ["North America", "🗽", ["Alaska", "Canada & New England", "Florida & Bahamas", "Hawaii", "Mexican Riviera", "Bermuda"]],
+  ["Caribbean", "🏝️", ["Eastern Caribbean", "Western Caribbean", "Southern Caribbean"]],
+  ["Central & South America", "🌎", ["Panama Canal", "South America", "Galápagos"]],
+  ["Europe", "🏰", ["Western Mediterranean", "Eastern Mediterranean", "Atlantic Europe", "Northern Europe", "British Isles", "Norwegian Fjords", "Iceland"]],
+  ["Asia", "⛩️", ["Asia"]],
+  ["Australia & Pacific", "🐨", ["Australia & New Zealand", "South Pacific"]],
+];
+const areaOf = region => (AREAS.find(a => a[2].includes(region)) || ["More ports"])[0];
+function setArea(a) {
+  state.area = a; state.region = "All"; store.set("area", a); renderResults();
+  const r = $("#results"); if (r) scrollTo({ top: r.getBoundingClientRect().top + scrollY - $("#band").offsetHeight - 12 });
+}
 function renderResults() {
-  const q = state.q.trim().toLowerCase();
-  const list = state.index.ports.filter(p => (state.region === "All" || p.region === state.region) &&
-    (!q || (p.name + " " + p.country).toLowerCase().includes(q)));
+  const q = state.q.trim().toLowerCase(), ports = state.index.ports, box = $("#results");
+  const areas = [...AREAS.map(a => a[0]), ...(ports.some(p => areaOf(p.region) === "More ports") ? ["More ports"] : [])];
+  if (state.area && !areas.includes(state.area)) state.area = "";
+  if (!q && !state.area) {
+    // No area chosen yet: one tile per area, with how many ports and ships in port today
+    box.innerHTML = `<section class="areas"><h2 class="areas-h">${icon.anchor}Where is your ship sailing?</h2><div class="areagrid">${areas.map(a => {
+      const ps = ports.filter(p => areaOf(p.region) === a), inport = ps.reduce((n, p) => n + shipsInPort(p.id).length, 0);
+      const emoji = (AREAS.find(x => x[0] === a) || [, "⚓"])[1];
+      return `<button class="area" data-area="${esc(a)}"><span class="em" aria-hidden="true">${emoji}</span><b>${esc(a)}</b><small>${ps.length} ports${inport ? ` · ${inport} ship${inport > 1 ? "s" : ""} in port today` : ""}</small></button>`;
+    }).join("")}</div></section>`;
+    box.querySelectorAll("[data-area]").forEach(b => b.onclick = () => setArea(b.dataset.area));
+    return;
+  }
+  const inArea = p => !state.area || areaOf(p.region) === state.area;
+  const regions = ["All", ...new Set(ports.filter(inArea).map(p => p.region))];
+  if (!regions.includes(state.region)) state.region = "All";
+  // Searching looks through every port, whatever area is picked.
+  const list = ports.filter(p => q ? (p.name + " " + p.country).toLowerCase().includes(q)
+    : inArea(p) && (state.region === "All" || p.region === state.region));
   const groups = {};
   for (const p of list) (groups[p.region] ||= []).push(p);
   const row = p => {
@@ -915,10 +948,14 @@ function renderResults() {
       ${here.length ? `<span class="inport">⛴ ${here.map(x => esc(short(x.s.name))).join(", ")} in port today</span>` : ""}</span>
       ${p.tender ? '<span class="tag">TENDER</span>' : ""}${icon.chev}</button></li>`;
   };
-  $("#results").innerHTML = list.length ? Object.entries(groups).map(([r, ps]) => `
+  const head = q ? "" : `<div class="areabar"><button class="btn" data-areas>${icon.left}All areas</button><b>${esc(state.area)}</b></div>
+    ${regions.length > 2 ? `<div class="chips" role="group" aria-label="Regions">${regions.map(r => `<button class="chip" data-region="${esc(r)}" aria-pressed="${r === state.region}">${esc(r === "All" ? "All of " + state.area : r)}</button>`).join("")}</div>` : ""}`;
+  box.innerHTML = head + (list.length ? Object.entries(groups).map(([r, ps]) => `
       <section class="region"><h2>${icon.anchor}${esc(r)}</h2><ul class="ports">${ps.map(row).join("")}</ul></section>`).join("")
-    : `<p class="empty">No port matches “${esc(state.q)}”.</p>`;
-  document.querySelectorAll("#results [data-port]").forEach(b => b.onclick = () => openPort(b.dataset.port));
+    : `<p class="empty">No port matches “${esc(state.q)}”.</p>`);
+  box.querySelectorAll("[data-port]").forEach(b => b.onclick = () => openPort(b.dataset.port));
+  box.querySelectorAll("[data-region]").forEach(b => b.onclick = () => { state.region = b.dataset.region; renderResults(); });
+  const all = box.querySelector("[data-areas]"); if (all) all.onclick = () => setArea("");
 }
 
 /* Bottom sheets: a coloured header with round back and close buttons; the phone's back button steps back too. */
