@@ -1,0 +1,1490 @@
+{
+"adventureoftheseas": {
+"builder": "Kværner Masa-Yards Turku New Shipyard",
+"built": "2001",
+"crew": "1,185",
+"decks": "14",
+"gt": "138,193",
+"len": "311.1",
+"pax": "3,807",
+"wpu": "Adventure of the Seas"
+},
+"allureoftheseas": {
+"builder": "STX Europe Turku Shipyard",
+"built": "2010",
+"crew": "2,200",
+"decks": "16",
+"gt": "226,637",
+"len": "362",
+"pax": "5,484",
+"wpu": "Allure of the Seas"
+},
+"anthemoftheseas": {
+"builder": "Meyer Werft",
+"built": "2015",
+"decks": "16",
+"gt": "168,666",
+"len": "347.06",
+"pax": "4,180",
+"wpu": "Anthem of the Seas"
+},
+"arcadia": {
+"builder": "Fincantieri",
+"built": "2005",
+"crew": "866",
+"decks": "11",
+"gt": "83,781",
+"len": "289.90",
+"pax": "1,952",
+"wpu": "Arcadia (2004 ship)"
+},
+"brillianceoftheseas": {
+"builder": "Meyer Werft",
+"built": "2002",
+"crew": "848",
+"decks": "12",
+"gt": "90,090",
+"len": "292",
+"pax": "2,140",
+"wpu": "Brilliance of the Seas"
+},
+"britannia": {
+"builder": "Fincantieri",
+"built": "2015",
+"crew": "1,398",
+"decks": "15",
+"gt": "143,730",
+"len": "330",
+"pax": "3,647",
+"wpu": "Britannia (2014 ship)"
+},
+"caribbeanprincess": {
+"builder": "Fincantieri",
+"built": "2004",
+"crew": "1,200",
+"decks": "17",
+"gt": "112,894",
+"len": "289.9",
+"pax": "3,142",
+"wpu": "Caribbean Princess"
+},
+"carnivaladventure": {
+"builder": "Fincantieri",
+"built": "2001",
+"crew": "1,100",
+"decks": "17",
+"gt": "109,000",
+"len": "290",
+"pax": "2,600",
+"wpu": "Carnival Adventure"
+},
+"carnivalbreeze": {
+"builder": "Fincantieri",
+"built": "2012",
+"crew": "1,386",
+"decks": "15",
+"gt": "130,000",
+"len": "306.02",
+"pax": "3,690",
+"wpu": "Carnival Breeze"
+},
+"carnivalcelebration": {
+"builder": "Meyer Turku",
+"built": "2022",
+"crew": "1,735",
+"decks": "19",
+"gt": "183,521",
+"len": "344.5",
+"pax": "5,374",
+"wpu": "Carnival Celebration"
+},
+"carnivalconquest": {
+"builder": "Fincantieri",
+"built": "2002",
+"crew": "1,150",
+"decks": "13",
+"gt": "110,000",
+"len": "290.5",
+"pax": "2,980",
+"wpu": "Carnival Conquest"
+},
+"carnivaldream": {
+"builder": "Fincantieri",
+"built": "2009",
+"crew": "1,369",
+"decks": "15",
+"gt": "128,250",
+"len": "306.02",
+"pax": "3,646",
+"wpu": "Carnival Dream"
+},
+"carnivalelation": {
+"builder": "Kvaerner Masa-Yards",
+"built": "1998",
+"crew": "900",
+"decks": "14",
+"gt": "71,909",
+"len": "261",
+"pax": "2,190",
+"wpu": "Carnival Elation"
+},
+"carnivalencounter": {
+"builder": "Fincantieri",
+"built": "2002",
+"crew": "1,100",
+"gt": "109,000",
+"len": "290",
+"pax": "2,600",
+"wpu": "Carnival Encounter"
+},
+"carnivalfirenze": {
+"builder": "Fincantieri",
+"built": "2021",
+"crew": "1,278",
+"decks": "18",
+"gt": "135,156",
+"len": "323.63",
+"pax": "4,208",
+"wpu": "Carnival Firenze"
+},
+"carnivalfreedom": {
+"builder": "Fincantieri",
+"built": "2007",
+"crew": "1,150",
+"decks": "13",
+"gt": "110,000",
+"len": "290.2",
+"pax": "2,980",
+"wpu": "Carnival Freedom"
+},
+"carnivalglory": {
+"builder": "Fincantieri",
+"built": "2003",
+"crew": "1,150",
+"decks": "13",
+"gt": "110,000",
+"len": "290.2",
+"pax": "2,980",
+"wpu": "Carnival Glory"
+},
+"carnivalhorizon": {
+"builder": "Fincantieri",
+"built": "2018",
+"crew": "1,450",
+"decks": "15",
+"gt": "133,596",
+"len": "323.63",
+"pax": "3,960",
+"wpu": "Carnival Horizon"
+},
+"carnivaljubilee": {
+"builder": "Meyer Werft",
+"built": "2023",
+"crew": "1,745",
+"decks": "19",
+"gt": "183,521",
+"len": "345",
+"pax": "5,228",
+"wpu": "Carnival Jubilee"
+},
+"carnivallegend": {
+"builder": "Kvaerner Masa-Yards",
+"built": "2002",
+"crew": "930",
+"decks": "12",
+"gt": "88,500",
+"len": "294",
+"pax": "2,124",
+"wpu": "Carnival Legend"
+},
+"carnivalliberty": {
+"builder": "Fincantieri",
+"built": "2005",
+"crew": "1,160",
+"decks": "13",
+"gt": "110,000",
+"len": "290.2",
+"pax": "2,974",
+"wpu": "Carnival Liberty"
+},
+"carnivalluminosa": {
+"builder": "Fincantieri",
+"built": "2009",
+"crew": "1,050",
+"decks": "12",
+"gt": "92,600",
+"len": "293.5",
+"pax": "2,260",
+"wpu": "Carnival Luminosa"
+},
+"carnivalmagic": {
+"builder": "Fincantieri",
+"built": "2011",
+"crew": "1,386",
+"decks": "14",
+"gt": "130,000",
+"len": "306.471",
+"pax": "3,690",
+"wpu": "Carnival Magic"
+},
+"carnivalmiracle": {
+"builder": "Kvaerner Masa-Yards",
+"built": "2004",
+"crew": "930",
+"decks": "12",
+"gt": "88,500",
+"len": "294",
+"pax": "2,124",
+"wpu": "Carnival Miracle"
+},
+"carnivalpanorama": {
+"builder": "Fincantieri",
+"built": "2019",
+"crew": "1,450",
+"decks": "15",
+"gt": "133,868",
+"len": "323.0",
+"pax": "4,008",
+"wpu": "Carnival Panorama"
+},
+"carnivalparadise": {
+"builder": "Kvaerner Masa-Yards",
+"built": "1998",
+"crew": "920",
+"decks": "14",
+"gt": "71,925",
+"len": "260.60",
+"pax": "2,124",
+"wpu": "Carnival Paradise"
+},
+"carnivalpride": {
+"builder": "Kvaerner Masa-Yards",
+"built": "2002",
+"crew": "930",
+"decks": "12",
+"gt": "88,500",
+"len": "294",
+"pax": "2,124",
+"wpu": "Carnival Pride"
+},
+"carnivalradiance": {
+"builder": "Fincantieri",
+"built": "2000",
+"crew": "1,100",
+"decks": "13",
+"gt": "101,509",
+"len": "272",
+"pax": "2,764",
+"wpu": "Carnival Radiance"
+},
+"carnivalspirit": {
+"builder": "Kvaerner Masa-Yards",
+"built": "2001",
+"crew": "930",
+"decks": "12",
+"gt": "88,500",
+"len": "293.52",
+"pax": "2,124",
+"wpu": "Carnival Spirit"
+},
+"carnivalsplendor": {
+"builder": "Fincantieri",
+"built": "2008",
+"crew": "1,150",
+"decks": "13",
+"gt": "113,300",
+"len": "290",
+"pax": "3,012",
+"wpu": "Carnival Splendor"
+},
+"carnivalsunrise": {
+"builder": "Fincantieri",
+"built": "1999",
+"crew": "1,108",
+"decks": "13",
+"gt": "101,509",
+"len": "272.3",
+"pax": "2,984",
+"wpu": "Carnival Sunrise"
+},
+"carnivalsunshine": {
+"builder": "Fincantieri",
+"built": "1996",
+"crew": "1,150",
+"decks": "13",
+"gt": "102,853",
+"len": "272.2",
+"pax": "3,002",
+"wpu": "Carnival Sunshine"
+},
+"carnivalvalor": {
+"builder": "Fincantieri",
+"built": "2004",
+"crew": "1,180",
+"decks": "13",
+"gt": "110,000",
+"len": "290.2",
+"pax": "2,974",
+"wpu": "Carnival Valor"
+},
+"carnivalvenezia": {
+"builder": "Fincantieri",
+"built": "2019",
+"crew": "1,278",
+"decks": "14",
+"gt": "135,225",
+"len": "323.6",
+"pax": "4,208",
+"wpu": "Carnival Venezia"
+},
+"carnivalvista": {
+"builder": "Fincantieri",
+"built": "2016",
+"crew": "1,450",
+"decks": "15",
+"gt": "133,596",
+"len": "323.63",
+"pax": "3,934",
+"wpu": "Carnival Vista"
+},
+"celebrityapex": {
+"builder": "Chantiers de l'Atlantique",
+"built": "2020",
+"crew": "1,320",
+"decks": "14",
+"gt": "130,818",
+"len": "306",
+"pax": "2,910",
+"wpu": "Celebrity Apex"
+},
+"celebrityascent": {
+"builder": "Chantiers de l'Atlantique",
+"built": "2023",
+"crew": "1,416",
+"decks": "21",
+"gt": "141,420",
+"len": "326.5",
+"pax": "3,260",
+"wpu": "Celebrity Ascent"
+},
+"celebritybeyond": {
+"builder": "Chantiers de l'Atlantique",
+"built": "2022",
+"crew": "1,416",
+"decks": "21",
+"gt": "141,420",
+"len": "326.5",
+"pax": "3,260",
+"wpu": "Celebrity Beyond"
+},
+"celebrityconstellation": {
+"builder": "Chantier de L'Atlantique",
+"built": "2002",
+"crew": "999",
+"decks": "13",
+"gt": "90,940",
+"len": "294",
+"pax": "2,170",
+"wpu": "Celebrity Constellation"
+},
+"celebrityeclipse": {
+"builder": "Meyer Werft",
+"built": "2010",
+"crew": "1,271",
+"decks": "17",
+"gt": "121,878",
+"len": "317.14",
+"pax": "2,850",
+"wpu": "Celebrity Eclipse"
+},
+"celebrityedge": {
+"builder": "STX France",
+"built": "2018",
+"crew": "1,377",
+"decks": "15",
+"gt": "130,818",
+"len": "306",
+"pax": "2,918",
+"wpu": "Celebrity Edge"
+},
+"celebrityequinox": {
+"builder": "Meyer Werft",
+"built": "2009",
+"crew": "1,250",
+"decks": "19",
+"gt": "121,878",
+"len": "317.2",
+"pax": "2,850",
+"wpu": "Celebrity Equinox"
+},
+"celebrityflora": {
+"builder": "Shipyard De Hoop",
+"built": "2019",
+"crew": "80",
+"decks": "6",
+"gt": "5,922",
+"len": "101.5",
+"pax": "100",
+"wpu": "Celebrity Flora"
+},
+"celebrityinfinity": {
+"builder": "Chantiers de l'Atlantique",
+"built": "2001",
+"crew": "999",
+"decks": "12",
+"gt": "90,940",
+"len": "294.0",
+"pax": "2,170",
+"wpu": "Celebrity Infinity"
+},
+"celebritymillennium": {
+"builder": "Chantiers de l'Atlantique",
+"built": "2000",
+"crew": "920",
+"decks": "11",
+"gt": "90,963",
+"len": "294",
+"pax": "2,138",
+"wpu": "Celebrity Millennium"
+},
+"celebrityreflection": {
+"builder": "Meyer Werft",
+"built": "2012",
+"crew": "1,271",
+"decks": "17",
+"gt": "125,366",
+"len": "319",
+"pax": "3,046",
+"wpu": "Celebrity Reflection"
+},
+"celebritysilhouette": {
+"builder": "Meyer Werft",
+"built": "2011",
+"crew": "1,500",
+"gt": "122,210",
+"len": "319",
+"pax": "2,886",
+"wpu": "Celebrity Silhouette"
+},
+"celebritysolstice": {
+"builder": "Meyer Werft",
+"built": "2008",
+"crew": "1,250",
+"decks": "19",
+"gt": "121,878",
+"len": "314.86",
+"pax": "2,852",
+"wpu": "Celebrity Solstice"
+},
+"celebritysummit": {
+"builder": "Chantiers de l'Atlantique",
+"built": "2001",
+"crew": "999",
+"decks": "11",
+"gt": "90,940",
+"len": "294",
+"pax": "2,158",
+"wpu": "Celebrity Summit"
+},
+"celebrityxcel": {
+"builder": "Chantiers de l'Atlantique",
+"built": "2025",
+"crew": "1,416",
+"decks": "21",
+"gt": "141,420",
+"len": "326.5",
+"pax": "3,260",
+"wpu": "Celebrity Xcel"
+},
+"coralprincess": {
+"builder": "Chantiers de l'Atlantique",
+"built": "2003",
+"crew": "900",
+"decks": "16",
+"gt": "91,627",
+"len": "294",
+"pax": "1,970",
+"wpu": "Coral Princess"
+},
+"costadeliziosa": {
+"builder": "Fincantieri",
+"built": "2010",
+"crew": "934",
+"decks": "16",
+"gt": "92,720",
+"len": "294",
+"pax": "2,260",
+"wpu": "Costa Deliziosa"
+},
+"costadiadema": {
+"builder": "Fincantieri",
+"built": "2014",
+"crew": "1,253",
+"gt": "132,500",
+"len": "306",
+"pax": "3,724",
+"wpu": "Costa Diadema"
+},
+"costafascinosa": {
+"builder": "Fincantieri",
+"built": "2012",
+"crew": "1,100",
+"decks": "13",
+"gt": "113,321",
+"len": "289",
+"pax": "3,780",
+"wpu": "Costa Fascinosa"
+},
+"costafavolosa": {
+"builder": "Fincantieri",
+"built": "2011",
+"crew": "1,110",
+"decks": "13",
+"gt": "113,216",
+"len": "290",
+"pax": "3,780",
+"wpu": "Costa Favolosa"
+},
+"costafortuna": {
+"builder": "Fincantieri",
+"built": "2003",
+"crew": "1,090",
+"decks": "13",
+"gt": "102,669",
+"len": "272.19",
+"pax": "2,702",
+"wpu": "Costa Fortuna"
+},
+"costapacifica": {
+"builder": "Fincantieri",
+"built": "2009",
+"crew": "1,100",
+"decks": "14",
+"gt": "114,500",
+"len": "290",
+"pax": "3,780",
+"wpu": "Costa Pacifica"
+},
+"costaserena": {
+"built": "2007",
+"crew": "1,100",
+"gt": "114,147",
+"len": "289.59",
+"pax": "3,700",
+"wpu": "Costa Serena"
+},
+"costatoscana": {
+"builder": "Meyer Turku",
+"built": "2022",
+"crew": "1,645",
+"decks": "20",
+"gt": "186,364",
+"len": "337",
+"pax": "6,554",
+"wpu": "Costa Toscana"
+},
+"crownprincess": {
+"builder": "Fincantieri",
+"built": "2006",
+"crew": "1,200",
+"decks": "18",
+"gt": "113,561",
+"len": "290",
+"pax": "3,080",
+"wpu": "Crown Princess (2005)"
+},
+"discoveryprincess": {
+"builder": "Fincantieri",
+"built": "2022",
+"crew": "1,346",
+"decks": "19",
+"gt": "145,000",
+"len": "330",
+"pax": "3,660",
+"wpu": "Discovery Princess"
+},
+"disneyadventure": {
+"builder": "MV Werften",
+"built": "2026",
+"crew": "2,300",
+"decks": "19",
+"gt": "208,108",
+"len": "342.7",
+"pax": "4,222",
+"wpu": "Disney Adventure"
+},
+"disneydestiny": {
+"builder": "Meyer Werft",
+"built": "2025",
+"crew": "1,606",
+"decks": "15",
+"gt": "144,000",
+"len": "341.8",
+"pax": "2,508",
+"wpu": "Disney Destiny"
+},
+"disneydream": {
+"builder": "Meyer Werft",
+"built": "2011",
+"crew": "1,458",
+"decks": "18",
+"gt": "129,690",
+"len": "339.8",
+"pax": "2,500",
+"wpu": "Disney Dream"
+},
+"disneyfantasy": {
+"builder": "Meyer Werft",
+"built": "2012",
+"crew": "1,458",
+"decks": "18",
+"gt": "129,690",
+"len": "339.8",
+"pax": "2,500",
+"wpu": "Disney Fantasy"
+},
+"disneymagic": {
+"builder": "Fincantieri",
+"built": "1998",
+"crew": "950",
+"decks": "11",
+"gt": "83,338",
+"len": "294",
+"pax": "1,750",
+"wpu": "Disney Magic"
+},
+"disneytreasure": {
+"builder": "Meyer Werft",
+"built": "2024",
+"crew": "1,555",
+"decks": "15",
+"gt": "144,256",
+"len": "341.8",
+"pax": "2,492",
+"wpu": "Disney Treasure"
+},
+"disneywish": {
+"builder": "Meyer Werft",
+"built": "2022",
+"crew": "1,555",
+"decks": "15",
+"gt": "144,000",
+"len": "341.8",
+"pax": "2,508",
+"wpu": "Disney Wish"
+},
+"disneywonder": {
+"builder": "Fincantieri",
+"built": "1999",
+"crew": "950",
+"decks": "11",
+"gt": "84,130",
+"len": "294",
+"pax": "2,713",
+"wpu": "Disney Wonder"
+},
+"emeraldprincess": {
+"builder": "Fincantieri",
+"built": "2007",
+"crew": "1,200",
+"decks": "15",
+"gt": "113,561",
+"len": "290",
+"pax": "3,114",
+"wpu": "Emerald Princess"
+},
+"enchantedprincess": {
+"builder": "Fincantieri",
+"built": "2021",
+"crew": "1,346",
+"decks": "18",
+"gt": "145,281",
+"len": "329.92",
+"pax": "3,660",
+"wpu": "Enchanted Princess"
+},
+"enchantmentoftheseas": {
+"builder": "Kvaerner Masa Yards Helsinki New Shipyar",
+"built": "1997",
+"decks": "11",
+"gt": "74,000",
+"len": "279.20",
+"pax": "2,446",
+"wpu": "Enchantment of the Seas"
+},
+"exploreroftheseas": {
+"builder": "Kværner Masa-Yards Turku New Shipyard",
+"built": "2000",
+"crew": "1,180",
+"decks": "15",
+"gt": "138,194",
+"len": "311",
+"pax": "3,286",
+"wpu": "Explorer of the Seas"
+},
+"grandeuroftheseas": {
+"builder": "Kværner Masa-Yards Hietalahti shipyard",
+"built": "1996",
+"crew": "760",
+"decks": "11",
+"gt": "73,817",
+"len": "279",
+"pax": "2,446",
+"wpu": "Grandeur of the Seas"
+},
+"grandprincess": {
+"builder": "Fincantieri",
+"built": "1998",
+"crew": "1,100",
+"decks": "17",
+"gt": "107,517",
+"len": "289.86",
+"pax": "2,590",
+"wpu": "Grand Princess"
+},
+"harmonyoftheseas": {
+"builder": "Chantiers de l'Atlantique",
+"built": "2016",
+"crew": "2,300",
+"decks": "18",
+"gt": "226,963",
+"len": "362.12",
+"pax": "5,479",
+"wpu": "Harmony of the Seas"
+},
+"iconoftheseas": {
+"builder": "Meyer Turku",
+"built": "2024",
+"crew": "2,350",
+"decks": "20",
+"gt": "248,663",
+"pax": "5,610",
+"wpu": "Icon of the Seas"
+},
+"independenceoftheseas": {
+"builder": "Aker Finnyards Turku Shipyard",
+"built": "2008",
+"decks": "15",
+"gt": "155,889",
+"len": "338.72",
+"wpu": "Independence of the Seas"
+},
+"jeweloftheseas": {
+"builder": "Meyer Werft",
+"built": "2004",
+"crew": "842",
+"decks": "12",
+"gt": "90,090",
+"len": "293",
+"pax": "2,501",
+"wpu": "Jewel of the Seas"
+},
+"legendoftheseas": {
+"builder": "Meyer Turku",
+"built": "2026",
+"crew": "2,350",
+"decks": "20",
+"gt": "248,663",
+"pax": "5,610",
+"wpu": "Legend of the Seas"
+},
+"libertyoftheseas": {
+"builder": "Aker Yards Turku Shipyard",
+"built": "2007",
+"crew": "1,300",
+"decks": "18",
+"gt": "155,889",
+"len": "338.92",
+"pax": "3,798",
+"wpu": "Liberty of the Seas"
+},
+"majesticprincess": {
+"builder": "Fincantieri",
+"built": "2017",
+"crew": "1,346",
+"decks": "19",
+"gt": "144,216",
+"len": "330.0",
+"pax": "3,560",
+"wpu": "Majestic Princess"
+},
+"mardigras": {
+"builder": "Meyer Turku",
+"built": "2021",
+"crew": "2,000",
+"decks": "18",
+"gt": "181,808",
+"len": "344.5",
+"pax": "5,282",
+"wpu": "Mardi Gras (2020 ship)"
+},
+"marineroftheseas": {
+"builder": "Kværner Masa-Yards Turku New Shipyard",
+"built": "2003",
+"crew": "1,185",
+"gt": "139,863",
+"len": "311.12",
+"pax": "3,114",
+"wpu": "Mariner of the Seas"
+},
+"mscarmonia": {
+"builder": "Chantiers de l'Atlantique",
+"built": "2001",
+"crew": "721",
+"decks": "9",
+"gt": "58,625",
+"len": "251.25",
+"pax": "1,554",
+"wpu": "MSC Armonia"
+},
+"mscbellissima": {
+"builder": "Chantiers de l'Atlantique",
+"built": "2019",
+"decks": "18",
+"gt": "171,598",
+"len": "315.83",
+"pax": "4,500",
+"wpu": "MSC Bellissima"
+},
+"mscdivina": {
+"builder": "Chantiers de l'Atlantique",
+"crew": "1,388",
+"decks": "18",
+"gt": "139,072",
+"len": "333.33",
+"pax": "3,502",
+"wpu": "MSC Divina"
+},
+"msceuribia": {
+"builder": "Chantiers de l'Atlantique",
+"built": "2023",
+"crew": "1,711",
+"decks": "16",
+"gt": "184,011",
+"len": "331",
+"pax": "6,327",
+"wpu": "MSC Euribia"
+},
+"mscfantasia": {
+"builder": "STX France",
+"built": "2008",
+"crew": "1,313",
+"decks": "13",
+"gt": "137,936",
+"len": "333.33",
+"pax": "3,274",
+"wpu": "MSC Fantasia"
+},
+"mscgrandiosa": {
+"builder": "Chantiers de l’Atlantique",
+"built": "2019",
+"crew": "1,704",
+"decks": "19",
+"gt": "181,541",
+"len": "331.43",
+"pax": "4,842",
+"wpu": "MSC Grandiosa"
+},
+"msclirica": {
+"builder": "Chantiers de l'Atlantique",
+"built": "2003",
+"crew": "700",
+"decks": "13",
+"gt": "59,058",
+"len": "251.25",
+"pax": "1,984",
+"wpu": "MSC Lirica"
+},
+"mscmagnifica": {
+"builder": "STX Europe",
+"built": "2010",
+"crew": "1,027",
+"decks": "16",
+"gt": "95,128",
+"len": "299",
+"pax": "2,550",
+"wpu": "MSC Magnifica"
+},
+"mscmeraviglia": {
+"builder": "STX France",
+"built": "2017",
+"crew": "1,536",
+"decks": "15",
+"gt": "171,598",
+"len": "315.83",
+"pax": "4,488",
+"wpu": "MSC Meraviglia"
+},
+"mscmusica": {
+"builder": "Chantiers de l'Atlantique",
+"built": "2006",
+"crew": "987",
+"decks": "13",
+"gt": "92,409",
+"len": "293.83",
+"pax": "2,550",
+"wpu": "MSC Musica"
+},
+"mscopera": {
+"builder": "Chantiers de l'Atlantique",
+"built": "2004",
+"crew": "728",
+"decks": "9",
+"gt": "59,058",
+"len": "251.25",
+"pax": "2,150",
+"wpu": "MSC Opera"
+},
+"mscorchestra": {
+"builder": "Aker Yards",
+"built": "2007",
+"crew": "987",
+"decks": "13",
+"gt": "92,409",
+"len": "293.83",
+"pax": "2,550",
+"wpu": "MSC Orchestra"
+},
+"mscpoesia": {
+"builder": "Aker Yards",
+"built": "2008",
+"crew": "1,027",
+"decks": "13",
+"gt": "92,627",
+"len": "293.8",
+"pax": "2,550",
+"wpu": "MSC Poesia"
+},
+"mscpreziosa": {
+"builder": "STX France",
+"built": "2013",
+"crew": "1,370",
+"decks": "18",
+"gt": "139,072",
+"len": "333.33",
+"pax": "3,959",
+"wpu": "MSC Preziosa"
+},
+"mscseascape": {
+"builder": "Fincantieri",
+"built": "2022",
+"decks": "20",
+"gt": "170,412",
+"len": "339",
+"pax": "4,540",
+"wpu": "MSC Seascape"
+},
+"mscseashore": {
+"builder": "Fincantieri",
+"built": "2021",
+"decks": "20",
+"gt": "170,412",
+"len": "339",
+"pax": "4,540",
+"wpu": "MSC Seashore"
+},
+"mscseaside": {
+"builder": "Fincantieri",
+"built": "2017",
+"crew": "1,413",
+"decks": "18",
+"gt": "153,516",
+"len": "323",
+"pax": "4,132",
+"wpu": "MSC Seaside"
+},
+"mscseaview": {
+"builder": "Fincantieri",
+"built": "2017",
+"crew": "1,413",
+"decks": "18",
+"gt": "153,516",
+"len": "323",
+"pax": "4,132",
+"wpu": "MSC Seaview"
+},
+"mscsinfonia": {
+"builder": "Chantiers de l'Atlantique",
+"built": "2002",
+"crew": "721",
+"decks": "9",
+"gt": "58,625",
+"len": "251.25",
+"pax": "2,087",
+"wpu": "MSC Sinfonia"
+},
+"mscsplendida": {
+"builder": "STX Europe",
+"built": "2009",
+"crew": "1,313",
+"decks": "18",
+"gt": "137,936",
+"len": "333.33",
+"pax": "3,900",
+"wpu": "MSC Splendida"
+},
+"mscvirtuosa": {
+"builder": "Chantiers de l'Atlantique",
+"built": "2021",
+"crew": "1,704",
+"decks": "16",
+"gt": "181,541",
+"len": "331.43",
+"pax": "4,842",
+"wpu": "MSC Virtuosa"
+},
+"mscworldeuropa": {
+"builder": "Chantiers de l'Atlantique",
+"built": "2022",
+"crew": "2,138",
+"decks": "22",
+"gt": "215,863",
+"len": "333.3",
+"pax": "6,762",
+"wpu": "MSC World Europa"
+},
+"navigatoroftheseas": {
+"builder": "Kværner Masa-Yards Turku New Shipyard",
+"built": "2002",
+"crew": "1,200",
+"decks": "15",
+"gt": "139,999",
+"len": "311",
+"pax": "3,386",
+"wpu": "Navigator of the Seas"
+},
+"norwegianaqua": {
+"builder": "Fincantieri",
+"built": "2025",
+"crew": "1597",
+"gt": "156,300",
+"len": "322",
+"pax": "3,571",
+"wpu": "Norwegian Aqua"
+},
+"norwegianbliss": {
+"builder": "Meyer Werft",
+"built": "2018",
+"crew": "1,700",
+"decks": "20",
+"gt": "168,028",
+"len": "333",
+"pax": "4,002",
+"wpu": "Norwegian Bliss"
+},
+"norwegianbreakaway": {
+"builder": "Meyer Werft",
+"built": "2013",
+"crew": "1,657",
+"decks": "18",
+"gt": "145,655",
+"len": "325.64",
+"pax": "3,963",
+"wpu": "Norwegian Breakaway"
+},
+"norwegiandawn": {
+"builder": "Meyer Werft",
+"built": "2002",
+"crew": "1,032",
+"decks": "15",
+"gt": "92,250",
+"len": "294",
+"pax": "2,340",
+"wpu": "Norwegian Dawn"
+},
+"norwegianencore": {
+"builder": "Meyer Werft",
+"built": "2019",
+"crew": "2,100",
+"decks": "16",
+"gt": "169,116",
+"len": "333.44",
+"pax": "3,998",
+"wpu": "Norwegian Encore"
+},
+"norwegianepic": {
+"builder": "STX France Cruise",
+"built": "2009",
+"crew": "1,724",
+"decks": "19",
+"gt": "155,873",
+"len": "329.45",
+"pax": "4,100",
+"wpu": "Norwegian Epic"
+},
+"norwegianescape": {
+"builder": "Meyer Werft",
+"built": "2015",
+"crew": "1,733",
+"decks": "20",
+"gt": "164,998",
+"len": "325.9",
+"pax": "4,266",
+"wpu": "Norwegian Escape"
+},
+"norwegiangem": {
+"builder": "Meyer Werft",
+"built": "2007",
+"crew": "1,070",
+"decks": "15",
+"gt": "93,530",
+"len": "294.13",
+"pax": "2,394",
+"wpu": "Norwegian Gem"
+},
+"norwegiangetaway": {
+"builder": "Meyer Werft",
+"built": "2014",
+"crew": "1,646",
+"decks": "18",
+"gt": "145,655",
+"len": "325.65",
+"pax": "3,963",
+"wpu": "Norwegian Getaway"
+},
+"norwegianjade": {
+"builder": "Meyer Werft",
+"built": "2006",
+"crew": "1,037",
+"decks": "15",
+"gt": "93,558",
+"len": "294",
+"pax": "2,402",
+"wpu": "Norwegian Jade"
+},
+"norwegianjewel": {
+"builder": "Meyer Werft",
+"built": "2005",
+"crew": "1,100",
+"decks": "15",
+"gt": "93,502",
+"len": "294.13",
+"pax": "2,376",
+"wpu": "Norwegian Jewel"
+},
+"norwegianjoy": {
+"builder": "Meyer Werft",
+"built": "2017",
+"crew": "1,821",
+"decks": "20",
+"gt": "167,725",
+"pax": "4,622",
+"wpu": "Norwegian Joy"
+},
+"norwegianluna": {
+"builder": "Fincantieri",
+"built": "2026",
+"crew": "1597",
+"gt": "156,300",
+"len": "322",
+"pax": "3,565",
+"wpu": "Norwegian Luna"
+},
+"norwegianpearl": {
+"builder": "Meyer Werft",
+"built": "2006",
+"crew": "1,099",
+"decks": "15",
+"gt": "93,530",
+"len": "294.13",
+"pax": "2,394",
+"wpu": "Norwegian Pearl"
+},
+"norwegianprima": {
+"builder": "Fincantieri",
+"built": "2022",
+"crew": "1,506",
+"gt": "143,535",
+"len": "299.0",
+"pax": "3,099",
+"wpu": "Norwegian Prima"
+},
+"norwegiansky": {
+"builder": "Bremer Vulkan",
+"built": "1999",
+"crew": "899",
+"decks": "13",
+"gt": "77,104",
+"len": "258.5",
+"pax": "2,004",
+"wpu": "Norwegian Sky"
+},
+"norwegianspirit": {
+"builder": "Meyer Werft",
+"built": "1998",
+"crew": "912",
+"decks": "14",
+"gt": "75,904",
+"len": "267.92",
+"pax": "2,018",
+"wpu": "Norwegian Spirit"
+},
+"norwegianstar": {
+"builder": "Meyer Werft",
+"built": "2001",
+"crew": "1,031",
+"decks": "15",
+"gt": "91,740",
+"len": "294.13",
+"pax": "2,348",
+"wpu": "Norwegian Star"
+},
+"norwegiansun": {
+"builder": "Lloyd Werft",
+"built": "2001",
+"crew": "906",
+"decks": "14",
+"gt": "78,309",
+"len": "258.47",
+"pax": "1,976",
+"wpu": "Norwegian Sun"
+},
+"norwegianviva": {
+"builder": "Fincantieri",
+"built": "2023",
+"gt": "143,535",
+"len": "299",
+"pax": "3,215",
+"wpu": "Norwegian Viva"
+},
+"oasisoftheseas": {
+"builder": "STX Europe Turku Shipyard",
+"built": "2009",
+"crew": "2,165",
+"decks": "16",
+"gt": "226,838",
+"len": "361.8",
+"pax": "5,606",
+"wpu": "Oasis of the Seas"
+},
+"odysseyoftheseas": {
+"builder": "Meyer Werft",
+"built": "2021",
+"crew": "1,663",
+"decks": "16",
+"len": "347.08",
+"pax": "4,284",
+"wpu": "Odyssey of the Seas"
+},
+"ovationoftheseas": {
+"builder": "Meyer Werft",
+"built": "2016",
+"decks": "16",
+"gt": "168,666",
+"len": "348",
+"pax": "4,180",
+"wpu": "Ovation of the Seas"
+},
+"prideofamerica": {
+"builder": "Litton-Ingalls",
+"built": "2005",
+"crew": "927",
+"decks": "15",
+"gt": "80,439",
+"len": "280.6",
+"pax": "2,186",
+"wpu": "Pride of America"
+},
+"quantumoftheseas": {
+"builder": "Meyer Werft",
+"built": "2014",
+"decks": "16",
+"gt": "168,666",
+"len": "347.7",
+"pax": "4,180",
+"wpu": "Quantum of the Seas"
+},
+"radianceoftheseas": {
+"builder": "Meyer Werft",
+"built": "2001",
+"crew": "859",
+"decks": "13",
+"gt": "90,090",
+"len": "293.2",
+"pax": "2,501",
+"wpu": "Radiance of the Seas"
+},
+"regalprincess": {
+"builder": "Fincantieri",
+"built": "2014",
+"crew": "1,350",
+"decks": "19",
+"gt": "142,714",
+"len": "330",
+"pax": "4,250",
+"wpu": "Regal Princess (2013)"
+},
+"rhapsodyoftheseas": {
+"builder": "Chantiers de l'Atlantique",
+"built": "1997",
+"crew": "772",
+"decks": "12",
+"gt": "78,878",
+"len": "279",
+"pax": "1,020",
+"wpu": "Rhapsody of the Seas"
+},
+"royalprincess": {
+"builder": "Fincantieri",
+"built": "2013",
+"gt": "142,714",
+"len": "330",
+"pax": "3,600",
+"wpu": "Royal Princess (2012)"
+},
+"rubyprincess": {
+"builder": "Fincantieri",
+"built": "2008",
+"crew": "1,100",
+"decks": "19",
+"gt": "113,561",
+"len": "290",
+"pax": "3,080",
+"wpu": "Ruby Princess"
+},
+"sapphireprincess": {
+"builder": "Mitsubishi Heavy Industries",
+"built": "2004",
+"crew": "1,100",
+"decks": "13",
+"gt": "115,875",
+"len": "290",
+"pax": "2,670",
+"wpu": "Sapphire Princess"
+},
+"serenadeoftheseas": {
+"builder": "Meyer Werft",
+"built": "2003",
+"crew": "891",
+"decks": "12",
+"gt": "90,090",
+"len": "293.2",
+"pax": "2,490",
+"wpu": "Serenade of the Seas"
+},
+"skyprincess": {
+"builder": "Fincantieri",
+"built": "2019",
+"crew": "1,346",
+"decks": "19",
+"gt": "145,281",
+"len": "330",
+"pax": "3,660",
+"wpu": "Sky Princess (2019)"
+},
+"spectrumoftheseas": {
+"builder": "Meyer Werft",
+"built": "2019",
+"decks": "16",
+"gt": "169,379",
+"len": "347.11",
+"pax": "4,246",
+"wpu": "Spectrum of the Seas"
+},
+"staroftheseas": {
+"builder": "Meyer Turku",
+"built": "2025",
+"crew": "2,350",
+"decks": "20",
+"gt": "248,663",
+"pax": "5,610",
+"wpu": "Star of the Seas"
+},
+"starprincess": {
+"builder": "Fincantieri",
+"built": "2025",
+"crew": "1,547",
+"decks": "20",
+"gt": "177,882",
+"len": "345",
+"pax": "4,300",
+"wpu": "Star Princess (2024)"
+},
+"sunprincess": {
+"builder": "Fincantieri",
+"built": "2024",
+"crew": "1,600",
+"decks": "20",
+"gt": "177,882",
+"len": "345",
+"pax": "4,300",
+"wpu": "Sun Princess (2024)"
+},
+"symphonyoftheseas": {
+"builder": "Chantiers de l'Atlantique",
+"built": "2018",
+"crew": "2,200",
+"decks": "18",
+"gt": "228,081",
+"len": "361.8",
+"pax": "5,518",
+"wpu": "Symphony of the Seas"
+},
+"utopiaoftheseas": {
+"builder": "Chantiers de l'Atlantique",
+"built": "2024",
+"crew": "2,290",
+"decks": "18",
+"gt": "236,473",
+"pax": "5,668",
+"wpu": "Utopia of the Seas"
+},
+"vikingoctantis": {
+"builder": "Vard",
+"built": "2022",
+"gt": "30,150",
+"len": "205",
+"pax": "378",
+"wpu": "Viking Octantis"
+},
+"vikingorion": {
+"builder": "Fincantieri",
+"built": "2018",
+"crew": "550",
+"decks": "14",
+"gt": "47,842",
+"len": "228.2",
+"pax": "930",
+"wpu": "Viking Orion"
+},
+"vikingvesta": {
+"builder": "Fincantieri",
+"built": "2025",
+"crew": "550",
+"decks": "14",
+"gt": "53,769",
+"len": "228",
+"pax": "998",
+"wpu": "Viking Vesta"
+},
+"visionoftheseas": {
+"builder": "Chantiers de l'Atlantique",
+"built": "1998",
+"crew": "765",
+"decks": "11",
+"gt": "78,340",
+"len": "279.0",
+"pax": "2,050",
+"wpu": "Vision of the Seas"
+},
+"voyageroftheseas": {
+"builder": "Kværner Masa-Yards",
+"built": "1999",
+"crew": "1,200",
+"decks": "15",
+"gt": "137,276",
+"len": "311.1",
+"pax": "3,602",
+"wpu": "Voyager of the Seas"
+},
+"wonderoftheseas": {
+"builder": "Chantiers de l'Atlantique",
+"built": "2022",
+"crew": "2,369",
+"decks": "19",
+"gt": "235,600",
+"len": "362.04",
+"pax": "5,734",
+"wpu": "Wonder of the Seas"
+}
+}
