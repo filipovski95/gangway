@@ -67,6 +67,10 @@
 "f": "ships/amera.jpg",
 "wpu": "MS Amera"
 },
+"amsterdam": {
+"f": "ships/amsterdam.jpg",
+"wpu": "Amsterdam (1748 ship)"
+},
 "anthemoftheseas": {
 "f": "ships/anthemoftheseas.jpg",
 "wpu": "Anthem of the Seas"
@@ -210,6 +214,10 @@
 "carnivalmagic": {
 "f": "ships/carnivalmagic.jpg",
 "wpu": "Carnival Magic"
+},
+"carnivalmardigras": {
+"f": "ships/carnivalmardigras.jpg",
+"wpu": "Mardi Gras (2020 ship)"
 },
 "carnivalmiracle": {
 "f": "ships/carnivalmiracle.jpg",
@@ -607,6 +615,10 @@
 "f": "ships/legendoftheseas.jpg",
 "wpu": "Legend of the Seas"
 },
+"lelaprouse": {
+"f": "ships/lelaprouse.jpg",
+"wpu": "Le Lapérouse"
+},
 "libertyoftheseas": {
 "f": "ships/libertyoftheseas.jpg",
 "wpu": "Liberty of the Seas"
@@ -786,6 +798,10 @@
 "navigatoroftheseas": {
 "f": "ships/navigatoroftheseas.jpg",
 "wpu": "Navigator of the Seas"
+},
+"nordstjernen": {
+"f": "ships/nordstjernen.jpg",
+"wpu": "MS Nordstjernen"
 },
 "norwegianaqua": {
 "f": "ships/norwegianaqua.jpg",
