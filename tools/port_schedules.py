@@ -776,7 +776,8 @@ def fetch_all(sources=None, today=None, _covered=None):
             pages = s["fetch"](s["url"]) if "fetch" in s else [get(s["url"])]
             got = [c for h in pages for c in s["parse"](h, today)]
             if not got:
-                raise ValueError("no calls parsed (layout changed?)")
+                head = re.sub(r"\s+", " ", str(pages[0])[:200]) if pages else ""
+                raise ValueError(f"no calls parsed (layout changed?) pages={len(pages)} sizes={[len(x) for x in pages][:6]} start={head!r}")
             raw += got
             if _covered is not None:
                 _covered.update(c["p"] or "~" + (c.get("n") or "") for c in got)

@@ -5,6 +5,7 @@ Parsers follow port_schedules.py: (html_or_text, today) -> [call(...)], plus a S
 """
 import html as htmllib
 import re
+from urllib.parse import urljoin
 import time
 from datetime import date, datetime, timedelta
 
@@ -559,8 +560,11 @@ def parse_aruba(html, today):
 
 def get_aruba(url):
     """The schedules page lists one PDF per month (current and coming months): fetch each one from this month on."""
-    links = re.findall(r'href="(https://www\.arubaports\.com/[^"]*Cruise-Ship-Schedule-([A-Z]+)-(\d{4})[^"]*\.pdf)"',
-                       get(url), re.I)
+    page = get(url)
+    links = [(urljoin(url, u.replace("&#038;", "&")), mon, yr) for u, mon, yr in
+             re.findall(r'href=["\']([^"\']*Cruise-Ship-Schedule-([A-Za-z]+)-(\d{4})[^"\']*\.pdf)["\']', page, re.I)]
+    if not links:
+        raise ValueError(f"no monthly PDF links on the page ({len(page)} chars)")
     today = date.today()
     want = {}
     for u, mon, yr in links:
