@@ -651,7 +651,8 @@ function sameShip(a, b) { return shipKey(a) === shipKey(b); }
 
 /* ---- Ships: itineraries give today's port and the all-aboard time ---- */
 const dayStr = (d = new Date()) => d.toLocaleDateString("en-CA");
-const tm = s => s ? s.slice(11, 16) : "";
+// Some ports publish dates only; those come as T00:00 with no departure, so midnight means "no time given".
+const tm = s => s && s.length > 15 && s.slice(11, 16) !== "00:00" ? s.slice(11, 16) : "";
 // "Fri 24 Dec", with the year when it isn't this year.
 const fmtDay = (v, wd = true) => { const d = new Date(v.length === 10 ? v + "T12:00" : v);
   return d.toLocaleDateString([], { ...(wd && { weekday: "short" }), day: "numeric", month: "short", ...(d.getFullYear() !== new Date().getFullYear() && { year: "numeric" }) }); };
@@ -677,7 +678,7 @@ function shipsInPort(pid, day = dayStr()) {
 }
 // All aboard = departure minus the offset, only on the day the ship sails.
 function autoAboard(c) {
-  if (!c || !c.d || c.d.slice(0, 10) !== dayStr()) return "";
+  if (!c || !tm(c.d) || c.d.slice(0, 10) !== dayStr()) return "";
   const [h, m] = tm(c.d).split(":").map(Number), t = h * 60 + m - offset();
   return t >= 0 ? hhmm(t) : "";
 }
@@ -733,7 +734,7 @@ function passCard() {
   const nextUp = next.find(x => x !== c);
   let line2;
   if (c && c.manual) line2 = `Today: <b>${esc(here)}</b>${c.d ? ` · out ${tm(c.d)}` : ""} <small class="setby">(set by you)</small>`;
-  else if (c) line2 = `Today: <b>${esc(here || c.n.split(",")[0])}</b>${c.a && c.a.slice(0, 10) === dayStr() ? ` · in ${tm(c.a)}` : ""}${c.d ? ` · out ${c.d.slice(0, 10) === dayStr() ? tm(c.d) : new Date(c.d).toLocaleDateString([], { weekday: "short" }) + " " + tm(c.d)}` : ""}`;
+  else if (c) line2 = `Today: <b>${esc(here || c.n.split(",")[0])}</b>${tm(c.a) && c.a.slice(0, 10) === dayStr() ? ` · in ${tm(c.a)}` : ""}${c.d ? ` · out ${c.d.slice(0, 10) === dayStr() ? tm(c.d) : new Date(c.d).toLocaleDateString([], { weekday: "short" }) + " " + tm(c.d)}` : ""}`;
   else {
     // Only say "at sea" when published calls sit close on both sides of today; otherwise the schedule just has a gap.
     const today = dayStr(), near = n => Math.abs(new Date(n) - new Date(today)) <= 2 * 864e5;
@@ -835,7 +836,7 @@ function itinCard() {
     const dt = new Date(day + "T12:00"), mo = dt.toLocaleDateString([], { month: "long", year: "numeric" });
     const head = mo !== month ? `<li class="mo">${esc(month = mo)}</li>` : "";
     const country = c.p && (state.index.ports.find(p => p.id === c.p) || {}).country;
-    const times = [c.a && c.a.slice(0, 10) === day && "in " + tm(c.a), c.d && "out " + (c.d.slice(0, 10) === day ? tm(c.d) : new Date(c.d).toLocaleDateString([], { weekday: "short" }) + " " + tm(c.d))].filter(Boolean).join(" · ");
+    const times = [tm(c.a) && c.a.slice(0, 10) === day && "in " + tm(c.a), c.d && "out " + (c.d.slice(0, 10) === day ? tm(c.d) : new Date(c.d).toLocaleDateString([], { weekday: "short" }) + " " + tm(c.d))].filter(Boolean).join(" · ");
     return head + `<li><button class="it" ${c.p ? `data-port="${c.p}"` : "disabled"}><span class="dt"><b>${dt.getDate()}</b><small>${dt.toLocaleDateString([], { weekday: "short" })}</small></span>
       <span class="ph">${c.p ? flag(country) : "⚓"}</span><span class="txt"><b>${esc(c.p ? portName(c.p) : c.n.split(",")[0])}</b><small>${times || (manual ? "Added by you" : "")}${day === dayStr() ? " · today" : ""}</small></span></button>
       ${manual ? `<button class="roundbtn rm" data-unhere="${day}" aria-label="Remove this day">${icon.x}</button>` : ""}</li>`;
@@ -985,7 +986,7 @@ function checkIn(id) {
     ${sheetHead("#0e6f82", `<span class="sh-flag">${flag(P.country)}</span>`, esc(P.name), `${esc(P.country)} · ${DAY_NAMES[new Date().getDay()]}`)}
     ${here.length ? `<p>Ships in port today. Tap yours to set the all-aboard time.</p>
       <div class="checkin">${here.map(x => `<button class="shipopt${x.s.name === mine ? " mine" : ""}" data-ship="${esc(x.s.name)}"><span class="porthole sm">${shipArt(lineColor(lineOf(x.s.name)))}${shipPhoto(x.s.name)}</span>
-        <span><b>${esc(x.s.name)}</b><small>${x.c.a ? "in " + tm(x.c.a) : "overnight"} · ${x.c.d ? "sails " + (x.c.d.slice(0, 10) === dayStr() ? tm(x.c.d) : new Date(x.c.d).toLocaleDateString([], { weekday: "short" }) + " " + tm(x.c.d)) : "turnaround"}</small></span></button>`).join("")}</div>
+        <span><b>${esc(x.s.name)}</b><small>${x.c.a ? (tm(x.c.a) ? "in " + tm(x.c.a) : "in port") : "overnight"} · ${x.c.d ? "sails " + (x.c.d.slice(0, 10) === dayStr() ? tm(x.c.d) : new Date(x.c.d).toLocaleDateString([], { weekday: "short" }) + " " + tm(x.c.d)) : x.c.a && !tm(x.c.a) ? "times not published" : "turnaround"}</small></span></button>`).join("")}</div>
       <p>Not listed? Enter your sailing time below.</p>`
     : `<p>No ship schedule for this port today. Enter your ship's sailing time and Gangway works out all aboard.</p>`}
     <div class="sailrow"><label for="sailTime"><b>Ship sails at</b></label><input id="sailTime" type="time"></div>
@@ -1103,7 +1104,7 @@ function drawHarbour() {
   const days = Array.from({ length: 14 }, (_, i) => { const d = new Date(); d.setDate(d.getDate() + i); return d; });
   const label = d => { const k = dayStr(d); return k === dayStr() ? "Today" : d.toLocaleDateString([], { weekday: "short", day: "numeric" }); };
   const list = shipsInPort(P.id, day).sort((a, b) => (a.c.a || "").localeCompare(b.c.a || ""));
-  const t = (v, k) => v && v.slice(0, 10) === k ? tm(v) : "··";
+  const t = (v, k) => v && v.slice(0, 10) === k ? tm(v) || "··" : "··";
   const nice = new Date(day + "T12:00").toLocaleDateString([], { weekday: "long", day: "numeric", month: "long" });
   box.innerHTML = `<div class="hh"><span class="lbl">⚓ Ships in port</span><label class="datepick">📅 Pick a date<input type="date" id="shipDay" min="${dayStr()}" value="${day}" aria-label="Pick a date"></label></div>
     <div class="chips days">${days.map(d => { const k = dayStr(d), n = shipsInPort(P.id, k).length; return `<button class="chip day" data-day="${k}" aria-pressed="${k === day}">${label(d)}<small>${n ? `⛴ ${n}` : "–"}</small></button>`; }).join("")}</div>

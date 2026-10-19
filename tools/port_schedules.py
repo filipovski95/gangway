@@ -682,6 +682,24 @@ SOURCES = [
      for _id, _name, _site in GPH_SITES]
 
 
+# More ports live in tools/sched_<region>.py, each with its own SOURCES list. They import helpers from this
+# module, so they are loaded on first use rather than at import time. Sources whose page fingerprints visitors
+# (bot checks) are left out on purpose.
+SKIP = {"cur"}
+
+
+def all_sources():
+    out = list(SOURCES)
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    for mod in ("sched_carib", "sched_pacific", "sched_europe"):
+        try:
+            m = __import__(mod)
+            out += [s for s in m.SOURCES if s["key"] not in SKIP]
+        except Exception as e:  # a broken regional file must not stop the others
+            print(f"WARN {mod}: {type(e).__name__}: {str(e)[:160]}")
+    return out
+
+
 def finish(raw_calls, port_names, today, window=True):
     """raw calls -> [{"name", "calls": [{"n","p","a","d"}]}], normalised, windowed, merged, de-duplicated."""
     lo = (today - timedelta(days=WINDOW_BACK)).isoformat()
@@ -725,7 +743,7 @@ def fetch_all(sources=None, today=None, _covered=None):
     raw = []
     # These sites refuse requests from GitHub's servers (403 or a Cloudflare challenge), so the daily run skips them.
     blocked = {"ymq", "hfx", "fll"} if sources is None else set()
-    for i, s in enumerate([x for x in (sources or SOURCES) if x["key"] not in blocked]):
+    for i, s in enumerate([x for x in (sources or all_sources()) if x["key"] not in blocked]):
         if i:
             time.sleep(DELAY)
         try:
@@ -772,7 +790,7 @@ def merge(path, ships, covered, today):
 
 def run_tests(folder):
     names, ok = port_names(), True
-    for s in SOURCES:
+    for s in all_sources():
         files = sorted(f for f in os.listdir(folder) if re.match(rf"{s['key']}(_p\d+)?\.html$", f))
         if not files:
             print(f"SKIP {s['name']}: no sample {s['key']}.html")
