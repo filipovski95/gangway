@@ -766,7 +766,7 @@ def fetch_all(sources=None, today=None, _covered=None):
     today = today or datetime.now(timezone.utc).date()
     raw = []
     # These sites refuse requests from GitHub's servers (403 or a Cloudflare challenge), so the daily run skips them.
-    blocked = {"ymq", "hfx", "fll"} if sources is None else set()
+    blocked = {"ymq", "hfx"} if sources is None else set()
     for i, s in enumerate([x for x in (sources or all_sources()) if x["key"] not in blocked]):
         if i:
             time.sleep(DELAY)
