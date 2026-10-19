@@ -38,6 +38,26 @@
 "pax": "1,952",
 "wpu": "Arcadia (2004 ship)"
 },
+"aurora": {
+"builder": "Meyer Werft",
+"built": "2000",
+"crew": "850",
+"decks": "10",
+"gt": "76,152",
+"len": "270.0",
+"pax": "1,878",
+"wpu": "MV Aurora (2000)"
+},
+"azura": {
+"builder": "Fincantieri",
+"built": "2010",
+"crew": "1,226",
+"decks": "19",
+"gt": "115,055",
+"len": "290.0",
+"pax": "3,096",
+"wpu": "MS Azura"
+},
 "brillianceoftheseas": {
 "builder": "Meyer Werft",
 "built": "2002",
@@ -573,6 +593,15 @@
 "pax": "3,700",
 "wpu": "Costa Serena"
 },
+"costasmeralda": {
+"builder": "Meyer Turku",
+"built": "2019",
+"crew": "1,646",
+"gt": "185,010",
+"len": "337",
+"pax": "5,224",
+"wpu": "Costa Smeralda (ship)"
+},
 "costatoscana": {
 "builder": "Meyer Turku",
 "built": "2022",
@@ -592,6 +621,54 @@
 "len": "290",
 "pax": "3,080",
 "wpu": "Crown Princess (2005)"
+},
+"cunardqueenanne": {
+"builder": "Fincantieri Marghera Shipyard",
+"built": "2024",
+"gt": "114,188",
+"len": "322.51",
+"pax": "3,000",
+"wpu": "MS Queen Anne"
+},
+"cunardqueenelizabeth": {
+"builder": "John Brown and Company",
+"built": "1946",
+"crew": "1,000",
+"decks": "13",
+"gt": "83,673",
+"len": "314.2",
+"pax": "2,283",
+"wpu": "RMS Queen Elizabeth"
+},
+"cunardqueenmary2": {
+"builder": "STX Europe Chantiers de l'Atlantique",
+"built": "2004",
+"crew": "1,253",
+"decks": "14",
+"gt": "149,215",
+"len": "345.03",
+"pax": "2,695",
+"wpu": "Queen Mary 2"
+},
+"cunardqueenvictoria": {
+"builder": "Fincantieri Marghera shipyard",
+"built": "2007",
+"crew": "900",
+"decks": "16",
+"gt": "90,049",
+"len": "294",
+"pax": "2,081",
+"wpu": "MS Queen Victoria"
+},
+"diamondprincess": {
+"builder": "Mitsubishi Heavy Industries",
+"built": "2004",
+"crew": "1,100",
+"decks": "16",
+"gt": "115,875",
+"len": "290.2",
+"pax": "2,670",
+"wpu": "Diamond Princess (ship)"
 },
 "discoveryprincess": {
 "builder": "Fincantieri",
@@ -722,6 +799,16 @@
 "pax": "3,286",
 "wpu": "Explorer of the Seas"
 },
+"freedomoftheseas": {
+"builder": "Aker Yards Turku Shipyard",
+"built": "2006",
+"crew": "1,360",
+"decks": "19",
+"gt": "156,271",
+"len": "338.774",
+"pax": "3,782",
+"wpu": "MS Freedom of the Seas"
+},
 "grandeuroftheseas": {
 "builder": "Kværner Masa-Yards Hietalahti shipyard",
 "built": "1996",
@@ -752,6 +839,116 @@
 "pax": "5,479",
 "wpu": "Harmony of the Seas"
 },
+"hollandamericaeurodam": {
+"builder": "Fincantieri",
+"built": "2008",
+"crew": "929",
+"decks": "11",
+"gt": "86,273",
+"len": "285.0",
+"pax": "2,104",
+"wpu": "MS Eurodam"
+},
+"hollandamericakoningsdam": {
+"builder": "Fincantieri",
+"built": "2016",
+"crew": "1,036",
+"decks": "12",
+"gt": "99,863",
+"len": "299.65",
+"pax": "2,650",
+"wpu": "MS Koningsdam"
+},
+"hollandamericanieuwamsterdam": {
+"builder": "Fincantieri",
+"built": "2010",
+"crew": "929",
+"decks": "11",
+"gt": "86,700",
+"len": "285.3",
+"pax": "2,106",
+"wpu": "MS Nieuw Amsterdam (2009)"
+},
+"hollandamericanieuwstatendam": {
+"builder": "Fincantieri",
+"built": "2018",
+"crew": "1,053",
+"decks": "12",
+"gt": "99,902",
+"len": "299.75",
+"pax": "2,666",
+"wpu": "MS Nieuw Statendam"
+},
+"hollandamericanoordam": {
+"builder": "Fincantieri",
+"built": "2006",
+"crew": "800",
+"decks": "11",
+"gt": "82,500",
+"len": "285.3",
+"pax": "1,916",
+"wpu": "MS Noordam"
+},
+"hollandamericaoosterdam": {
+"builder": "Fincantieri",
+"built": "2003",
+"crew": "812",
+"decks": "11",
+"gt": "82,305",
+"len": "285.24",
+"pax": "1,964",
+"wpu": "MS Oosterdam"
+},
+"hollandamericarotterdam": {
+"builder": "Fincantieri",
+"built": "2021",
+"crew": "1,053",
+"decks": "12",
+"gt": "99,935",
+"len": "299.79",
+"pax": "2,668",
+"wpu": "MS Rotterdam (2020)"
+},
+"hollandamericavolendam": {
+"builder": "Marghera",
+"built": "1999",
+"crew": "647",
+"decks": "14",
+"gt": "61,214",
+"len": "237.7",
+"pax": "1,837",
+"wpu": "MS Volendam"
+},
+"hollandamericawesterdam": {
+"builder": "Fincantieri",
+"built": "2004",
+"crew": "800",
+"decks": "11",
+"gt": "82,500",
+"len": "285.3",
+"pax": "1,964",
+"wpu": "MS Westerdam"
+},
+"hollandamericazaandam": {
+"builder": "Fincantieri Cantieri Navali Italiana SpA",
+"built": "2000",
+"crew": "647",
+"decks": "14",
+"gt": "61,396",
+"len": "237.7",
+"pax": "1,837",
+"wpu": "MS Zaandam"
+},
+"hollandamericazuiderdam": {
+"builder": "Fincantieri",
+"built": "2002",
+"crew": "842",
+"decks": "11",
+"gt": "81,769",
+"len": "285",
+"pax": "1,916",
+"wpu": "MS Zuiderdam"
+},
 "iconoftheseas": {
 "builder": "Meyer Turku",
 "built": "2024",
@@ -768,6 +965,26 @@
 "gt": "155,889",
 "len": "338.72",
 "wpu": "Independence of the Seas"
+},
+"iona": {
+"builder": "Meyer Werft",
+"built": "2021",
+"crew": "1,762",
+"decks": "19",
+"gt": "184,089",
+"len": "344.08",
+"pax": "6,685",
+"wpu": "MS Iona"
+},
+"islandprincess": {
+"builder": "Chantiers de l'Atlantique",
+"built": "2003",
+"crew": "900",
+"decks": "16",
+"gt": "91,627",
+"len": "294",
+"pax": "2,214",
+"wpu": "MS Island Princess (2002)"
 },
 "jeweloftheseas": {
 "builder": "Meyer Werft",
@@ -1257,6 +1474,64 @@
 "pax": "5,606",
 "wpu": "Oasis of the Seas"
 },
+"oceaniainsignia": {
+"builder": "Chantiers de l'Atlantique",
+"built": "1998",
+"crew": "400",
+"decks": "9",
+"gt": "30,277",
+"len": "180.45",
+"pax": "698",
+"wpu": "MS Insignia"
+},
+"oceaniamarina": {
+"builder": "Fincantieri Sestri Ponente",
+"built": "2011",
+"crew": "780",
+"gt": "66,084",
+"len": "238.35",
+"pax": "1,250",
+"wpu": "MS Marina"
+},
+"oceanianautica": {
+"builder": "Chantiers de l'Atlantique",
+"built": "2000",
+"crew": "386",
+"decks": "11",
+"gt": "30,277",
+"len": "181.00",
+"pax": "684",
+"wpu": "MS Nautica"
+},
+"oceaniaregatta": {
+"builder": "Chantiers de l'Atlantique",
+"built": "1998",
+"crew": "386",
+"decks": "9",
+"gt": "30,277",
+"len": "180.96",
+"pax": "684",
+"wpu": "MS Regatta"
+},
+"oceaniariviera": {
+"builder": "Fincantieri Sestri Ponente",
+"built": "2012",
+"crew": "800",
+"decks": "15",
+"gt": "66,172",
+"len": "239.27",
+"pax": "1,250",
+"wpu": "MS Riviera"
+},
+"oceaniasirena": {
+"builder": "Chantiers de l'Atlantique",
+"crew": "373",
+"decks": "11",
+"gt": "30,277",
+"len": "181.00",
+"pax": "688",
+"wpu": "MS Sirena"
+},
 "odysseyoftheseas": {
 "builder": "Meyer Werft",
 "built": "2021",
@@ -1429,6 +1704,15 @@
 "pax": "5,668",
 "wpu": "Utopia of the Seas"
 },
+"ventura": {
+"builder": "Fincantieri",
+"built": "2008",
+"decks": "19",
+"gt": "116,017",
+"len": "288.6",
+"pax": "3,192",
+"wpu": "MV Ventura"
+},
 "vikingoctantis": {
 "builder": "Vard",
 "built": "2022",
@@ -1447,6 +1731,45 @@
 "pax": "930",
 "wpu": "Viking Orion"
 },
+"vikingsea": {
+"builder": "Fincantieri",
+"built": "2016",
+"crew": "550",
+"decks": "10",
+"gt": "47,842",
+"len": "227.20",
+"pax": "930",
+"wpu": "MV Viking Sea (2015)"
+},
+"vikingsky": {
+"builder": "Fincantieri",
+"built": "2017",
+"crew": "550",
+"decks": "14",
+"gt": "47,842",
+"len": "228.2",
+"pax": "930",
+"wpu": "MV Viking Sky"
+},
+"vikingstar": {
+"builder": "Fincantieri",
+"built": "2015",
+"crew": "602",
+"decks": "14",
+"gt": "47,842",
+"len": "228",
+"pax": "930",
+"wpu": "MV Viking Star"
+},
+"vikingsun": {
+"builder": "Fincantieri",
+"built": "2017",
+"crew": "480",
+"gt": "47,842",
+"len": "228.2",
+"pax": "930",
+"wpu": "MV Viking Sun"
+},
 "vikingvesta": {
 "builder": "Fincantieri",
 "built": "2025",
@@ -1456,6 +1779,45 @@
 "len": "228",
 "pax": "998",
 "wpu": "Viking Vesta"
+},
+"virginbrilliantlady": {
+"builder": "Fincantieri",
+"built": "2025",
+"decks": "17",
+"gt": "110,000",
+"len": "277",
+"pax": "2,770",
+"wpu": "Brilliant Lady"
+},
+"virginresilientlady": {
+"builder": "Fincantieri",
+"built": "2023",
+"crew": "1,160",
+"decks": "17",
+"gt": "110,000",
+"len": "278",
+"pax": "2,770",
+"wpu": "Resilient Lady"
+},
+"virginscarletlady": {
+"builder": "Fincantieri",
+"built": "2020",
+"crew": "1,160",
+"decks": "17",
+"gt": "110,000",
+"len": "277.2",
+"pax": "2,770",
+"wpu": "Scarlet Lady"
+},
+"virginvaliantlady": {
+"builder": "Fincantieri",
+"built": "2022",
+"crew": "1,160",
+"decks": "17",
+"gt": "110,000",
+"len": "278",
+"pax": "2,770",
+"wpu": "Valiant Lady (ship)"
 },
 "visionoftheseas": {
 "builder": "Chantiers de l'Atlantique",

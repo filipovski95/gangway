@@ -47,6 +47,18 @@
 "f": "ships/allureoftheseas.jpg",
 "wpu": "Allure of the Seas"
 },
+"amadea": {
+"f": "ships/amadea.jpg",
+"wpu": "MS Amadea"
+},
+"ambience": {
+"f": "ships/ambience.jpg",
+"wpu": "MS Ambience"
+},
+"ambition": {
+"f": "ships/ambition.jpg",
+"wpu": "MS Ambition"
+},
 "anthemoftheseas": {
 "f": "ships/anthemoftheseas.jpg",
 "wpu": "Anthem of the Seas"
@@ -55,9 +67,21 @@
 "f": "ships/arcadia.jpg",
 "wpu": "Arcadia (2004 ship)"
 },
+"aroya": {
+"f": "ships/aroya.jpg",
+"wpu": "Aroya (ship)"
+},
+"artania": {
+"f": "ships/artania.jpg",
+"wpu": "MV Artania"
+},
 "astoriagrande": {
 "f": "ships/astoriagrande.jpg",
 "wpu": "Astoria Grande"
+},
+"aurora": {
+"f": "ships/aurora.jpg",
+"wpu": "MV Aurora (2000)"
 },
 "azamarajourney": {
 "f": "ships/azamarajourney.jpg",
@@ -74,6 +98,22 @@
 "azamaraquest": {
 "f": "ships/azamaraquest.jpg",
 "wpu": "Azamara Quest"
+},
+"azura": {
+"f": "ships/azura.jpg",
+"wpu": "MS Azura"
+},
+"balmoral": {
+"f": "ships/balmoral.jpg",
+"wpu": "MV Balmoral (2008)"
+},
+"bolette": {
+"f": "ships/bolette.jpg",
+"wpu": "MS Bolette"
+},
+"borealis": {
+"f": "ships/borealis.jpg",
+"wpu": "MS Borealis"
 },
 "brillianceoftheseas": {
 "f": "ships/brillianceoftheseas.jpg",
@@ -259,9 +299,17 @@
 "f": "ships/celebrityxcel.jpg",
 "wpu": "Celebrity Xcel"
 },
+"clio": {
+"f": "ships/clio.jpg",
+"wpu": "MS Clio"
+},
 "coralprincess": {
 "f": "ships/coralprincess.jpg",
 "wpu": "Coral Princess"
+},
+"corinthian": {
+"f": "ships/corinthian.jpg",
+"wpu": "MV Corinthian"
 },
 "costadeliziosa": {
 "f": "ships/costadeliziosa.jpg",
@@ -291,6 +339,10 @@
 "f": "ships/costaserena.jpg",
 "wpu": "Costa Serena"
 },
+"costasmeralda": {
+"f": "ships/costasmeralda.jpg",
+"wpu": "Costa Smeralda (ship)"
+},
 "costatoscana": {
 "f": "ships/costatoscana.jpg",
 "wpu": "Costa Toscana"
@@ -306,6 +358,26 @@
 "crystalsymphony": {
 "f": "ships/crystalsymphony.jpg",
 "wpu": "Crystal Symphony"
+},
+"cunardqueenanne": {
+"f": "ships/cunardqueenanne.jpg",
+"wpu": "MS Queen Anne"
+},
+"cunardqueenelizabeth": {
+"f": "ships/cunardqueenelizabeth.jpg",
+"wpu": "RMS Queen Elizabeth"
+},
+"cunardqueenmary2": {
+"f": "ships/cunardqueenmary2.jpg",
+"wpu": "Queen Mary 2"
+},
+"cunardqueenvictoria": {
+"f": "ships/cunardqueenvictoria.jpg",
+"wpu": "MS Queen Victoria"
+},
+"diamondprincess": {
+"f": "ships/diamondprincess.jpg",
+"wpu": "Diamond Princess (ship)"
 },
 "discoveryprincess": {
 "f": "ships/discoveryprincess.jpg",
@@ -355,6 +427,14 @@
 "f": "ships/enchantmentoftheseas.jpg",
 "wpu": "Enchantment of the Seas"
 },
+"europa": {
+"f": "ships/europa.jpg",
+"wpu": "SS Europa (1928)"
+},
+"europa2": {
+"f": "ships/europa2.jpg",
+"wpu": "MS Europa 2"
+},
 "exploreroftheseas": {
 "f": "ships/exploreroftheseas.jpg",
 "wpu": "Explorer of the Seas"
@@ -362,6 +442,14 @@
 "explorisone": {
 "f": "ships/explorisone.jpg",
 "wpu": "Exploris One"
+},
+"finnmarken": {
+"f": "ships/finnmarken.jpg",
+"wpu": "MS Finnmarken (2001)"
+},
+"freedomoftheseas": {
+"f": "ships/freedomoftheseas.jpg",
+"wpu": "MS Freedom of the Seas"
 },
 "grandeuroftheseas": {
 "f": "ships/grandeuroftheseas.jpg",
@@ -379,6 +467,50 @@
 "f": "ships/hebrideansky.jpg",
 "wpu": "Hebridean Sky"
 },
+"hollandamericaeurodam": {
+"f": "ships/hollandamericaeurodam.jpg",
+"wpu": "MS Eurodam"
+},
+"hollandamericakoningsdam": {
+"f": "ships/hollandamericakoningsdam.jpg",
+"wpu": "MS Koningsdam"
+},
+"hollandamericanieuwamsterdam": {
+"f": "ships/hollandamericanieuwamsterdam.jpg",
+"wpu": "MS Nieuw Amsterdam (2009)"
+},
+"hollandamericanieuwstatendam": {
+"f": "ships/hollandamericanieuwstatendam.jpg",
+"wpu": "MS Nieuw Statendam"
+},
+"hollandamericanoordam": {
+"f": "ships/hollandamericanoordam.jpg",
+"wpu": "MS Noordam"
+},
+"hollandamericaoosterdam": {
+"f": "ships/hollandamericaoosterdam.jpg",
+"wpu": "MS Oosterdam"
+},
+"hollandamericarotterdam": {
+"f": "ships/hollandamericarotterdam.jpg",
+"wpu": "MS Rotterdam (2020)"
+},
+"hollandamericavolendam": {
+"f": "ships/hollandamericavolendam.jpg",
+"wpu": "MS Volendam"
+},
+"hollandamericawesterdam": {
+"f": "ships/hollandamericawesterdam.jpg",
+"wpu": "MS Westerdam"
+},
+"hollandamericazaandam": {
+"f": "ships/hollandamericazaandam.jpg",
+"wpu": "MS Zaandam"
+},
+"hollandamericazuiderdam": {
+"f": "ships/hollandamericazuiderdam.jpg",
+"wpu": "MS Zuiderdam"
+},
 "iconoftheseas": {
 "f": "ships/iconoftheseas.jpg",
 "wpu": "Icon of the Seas"
@@ -386,6 +518,14 @@
 "independenceoftheseas": {
 "f": "ships/independenceoftheseas.jpg",
 "wpu": "Independence of the Seas"
+},
+"iona": {
+"f": "ships/iona.jpg",
+"wpu": "MS Iona"
+},
+"islandprincess": {
+"f": "ships/islandprincess.jpg",
+"wpu": "MS Island Princess (2002)"
 },
 "jeweloftheseas": {
 "f": "ships/jeweloftheseas.jpg",
@@ -458,6 +598,10 @@
 "meinschiffrelax": {
 "f": "ships/meinschiffrelax.jpg",
 "wpu": "Mein Schiff Relax"
+},
+"midnatsol": {
+"f": "ships/midnatsol.jpg",
+"wpu": "MS Midnatsol"
 },
 "mscarmonia": {
 "f": "ships/mscarmonia.jpg",
@@ -635,6 +779,30 @@
 "f": "ships/oasisoftheseas.jpg",
 "wpu": "Oasis of the Seas"
 },
+"oceaniainsignia": {
+"f": "ships/oceaniainsignia.jpg",
+"wpu": "MS Insignia"
+},
+"oceaniamarina": {
+"f": "ships/oceaniamarina.jpg",
+"wpu": "MS Marina"
+},
+"oceanianautica": {
+"f": "ships/oceanianautica.jpg",
+"wpu": "MS Nautica"
+},
+"oceaniaregatta": {
+"f": "ships/oceaniaregatta.jpg",
+"wpu": "MS Regatta"
+},
+"oceaniariviera": {
+"f": "ships/oceaniariviera.jpg",
+"wpu": "MS Riviera"
+},
+"oceaniasirena": {
+"f": "ships/oceaniasirena.jpg",
+"wpu": "MS Sirena"
+},
 "odysseyoftheseas": {
 "f": "ships/odysseyoftheseas.jpg",
 "wpu": "Odyssey of the Seas"
@@ -663,6 +831,10 @@
 "f": "ships/regalprincess.jpg",
 "wpu": "Regal Princess (2013)"
 },
+"renaissance": {
+"f": "ships/renaissance.jpg",
+"wpu": "MS Renaissance (1992)"
+},
 "rhapsodyoftheseas": {
 "f": "ships/rhapsodyoftheseas.jpg",
 "wpu": "Rhapsody of the Seas"
@@ -682,6 +854,14 @@
 "sapphireprincess": {
 "f": "ships/sapphireprincess.jpg",
 "wpu": "Sapphire Princess"
+},
+"seabournovation": {
+"f": "ships/seabournovation.jpg",
+"wpu": "MV Seabourn Ovation"
+},
+"seabournquest": {
+"f": "ships/seabournquest.jpg",
+"wpu": "MV Seabourn Quest"
 },
 "seadreami": {
 "f": "ships/seadreami.jpg",
@@ -710,6 +890,14 @@
 "silvernova": {
 "f": "ships/silvernova.jpg",
 "wpu": "Silver Nova"
+},
+"silvershadow": {
+"f": "ships/silvershadow.jpg",
+"wpu": "Silver Shadow (ship)"
+},
+"silverspirit": {
+"f": "ships/silverspirit.jpg",
+"wpu": "Silver Spirit (ship)"
 },
 "skyprincess": {
 "f": "ships/skyprincess.jpg",
@@ -747,9 +935,21 @@
 "f": "ships/symphonyoftheseas.jpg",
 "wpu": "Symphony of the Seas"
 },
+"trollfjord": {
+"f": "ships/trollfjord.jpg",
+"wpu": "MS Trollfjord"
+},
 "utopiaoftheseas": {
 "f": "ships/utopiaoftheseas.jpg",
 "wpu": "Utopia of the Seas"
+},
+"vascodagama": {
+"f": "ships/vascodagama.jpg",
+"wpu": "Vasco da Gama (ship)"
+},
+"ventura": {
+"f": "ships/ventura.jpg",
+"wpu": "MV Ventura"
 },
 "victoryi": {
 "f": "ships/victoryi.jpg",
@@ -763,9 +963,41 @@
 "f": "ships/vikingorion.jpg",
 "wpu": "Viking Orion"
 },
+"vikingsea": {
+"f": "ships/vikingsea.jpg",
+"wpu": "MV Viking Sea (2015)"
+},
+"vikingsky": {
+"f": "ships/vikingsky.jpg",
+"wpu": "MV Viking Sky"
+},
+"vikingstar": {
+"f": "ships/vikingstar.jpg",
+"wpu": "MV Viking Star"
+},
+"vikingsun": {
+"f": "ships/vikingsun.jpg",
+"wpu": "MV Viking Sun"
+},
 "vikingvesta": {
 "f": "ships/vikingvesta.jpg",
 "wpu": "Viking Vesta"
+},
+"virginbrilliantlady": {
+"f": "ships/virginbrilliantlady.jpg",
+"wpu": "Brilliant Lady"
+},
+"virginresilientlady": {
+"f": "ships/virginresilientlady.jpg",
+"wpu": "Resilient Lady"
+},
+"virginscarletlady": {
+"f": "ships/virginscarletlady.jpg",
+"wpu": "Scarlet Lady"
+},
+"virginvaliantlady": {
+"f": "ships/virginvaliantlady.jpg",
+"wpu": "Valiant Lady (ship)"
 },
 "visionoftheseas": {
 "f": "ships/visionoftheseas.jpg",
