@@ -26,6 +26,10 @@ on:
         description: "Port ids to refetch, space separated (empty = only ports missing data)"
         required: false
         default: ""
+      debug_sources:
+        description: "Only print what these schedule sources return (keys, space separated); changes no data"
+        required: false
+        default: ""
   schedule:
     - cron: "0 3 * * 1"   # weekly refresh of opening hours and new places
     - cron: "30 4 * * *"  # daily ship schedules from port authorities
@@ -48,6 +52,7 @@ jobs:
           git config user.email "actions@users.noreply.github.com"
       - name: Fetch places (only ports missing data; weekly run refreshes all)
         run: |
+          if [ -n "${{ github.event.inputs.debug_sources }}" ]; then pip install -q selenium; sudo apt-get install -y -qq poppler-utils >/dev/null; cd tools && python debug_source.py ${{ github.event.inputs.debug_sources }}; exit 0; fi
           if [ "${{ github.event.schedule }}" = "0 3 * * 1" ] || [ "${{ github.event.inputs.all }}" = "true" ]; then export REFRESH_ALL=1; fi
           if [ "${{ github.event.inputs.ships_only }}" = "true" ] || [ "${{ github.event.schedule }}" = "30 4 * * *" ]; then pip install -q selenium; sudo apt-get install -y -qq poppler-utils >/dev/null; python tools/port_schedules.py; python tools/ship_photos.py || true; python tools/ship_info.py || true; exit 0; fi
           if [ "${{ github.event.inputs.ship_photos }}" = "true" ]; then python tools/ship_photos.py; python tools/ship_info.py; exit 0; fi
