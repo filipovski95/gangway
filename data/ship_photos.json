@@ -463,6 +463,10 @@
 "f": "ships/freedomoftheseas.jpg",
 "wpu": "MS Freedom of the Seas"
 },
+"fridtjofnansen": {
+"f": "ships/fridtjofnansen.jpg",
+"wpu": "MS Fridtjof Nansen"
+},
 "grandeuroftheseas": {
 "f": "ships/grandeuroftheseas.jpg",
 "wpu": "Grandeur of the Seas"
@@ -470,6 +474,10 @@
 "grandprincess": {
 "f": "ships/grandprincess.jpg",
 "wpu": "Grand Princess"
+},
+"gregmortimer": {
+"f": "ships/gregmortimer.jpg",
+"wpu": "Greg Mortimer (ship)"
 },
 "hamburg": {
 "f": "ships/hamburg.jpg",
@@ -539,6 +547,10 @@
 "f": "ships/iona.jpg",
 "wpu": "MS Iona"
 },
+"islander": {
+"f": "ships/islander.jpg",
+"wpu": "SS Islander"
+},
 "islandprincess": {
 "f": "ships/islandprincess.jpg",
 "wpu": "MS Island Princess (2002)"
@@ -550,6 +562,10 @@
 "labelledesoceans": {
 "f": "ships/labelledesoceans.jpg",
 "wpu": "La Belle Des Oceans"
+},
+"laustral": {
+"f": "ships/laustral.jpg",
+"wpu": "L'Austral"
 },
 "legendoftheseas": {
 "f": "ships/legendoftheseas.jpg",
@@ -586,6 +602,10 @@
 "marellavoyager": {
 "f": "ships/marellavoyager.jpg",
 "wpu": "Marella Voyager"
+},
+"margaritavilleatseaislander": {
+"f": "ships/margaritavilleatseaislander.jpg",
+"wpu": "Margaritaville at Sea Islander"
 },
 "margaritavilleatseaparadise": {
 "f": "ships/margaritavilleatseaparadise.jpg",
@@ -867,6 +887,10 @@
 "f": "ships/rhapsodyoftheseas.jpg",
 "wpu": "Rhapsody of the Seas"
 },
+"roaldamundsen": {
+"f": "ships/roaldamundsen.jpg",
+"wpu": "MS Roald Amundsen"
+},
 "royalclipper": {
 "f": "ships/royalclipper.jpg",
 "wpu": "Royal Clipper"
@@ -886,6 +910,10 @@
 "sceniceclipse": {
 "f": "ships/sceniceclipse.jpg",
 "wpu": "Scenic Eclipse"
+},
+"seabournencore": {
+"f": "ships/seabournencore.jpg",
+"wpu": "MV Seabourn Encore"
 },
 "seabournovation": {
 "f": "ships/seabournovation.jpg",
@@ -942,6 +970,10 @@
 "silverspirit": {
 "f": "ships/silverspirit.jpg",
 "wpu": "Silver Spirit (ship)"
+},
+"silverwhisper": {
+"f": "ships/silverwhisper.jpg",
+"wpu": "Silver Whisper"
 },
 "skyprincess": {
 "f": "ships/skyprincess.jpg",
