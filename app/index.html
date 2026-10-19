@@ -1047,6 +1047,8 @@ function distKm(a, b, c, d) {
   return 12742 * Math.asin(Math.sqrt(x));
 }
 async function openPort(id) {
+  // Remember where crew were in the ports list, so Back returns them to the same spot.
+  if (!state.port) state.listY = scrollY;
   try {
     state.port = await loadPort(id); state.openOnly = false; state.shipDay = dayStr();
     // Start on the first tab that has places; some small ports have no food or sights mapped.
@@ -1056,7 +1058,12 @@ async function openPort(id) {
   }
   catch { toast("This port isn't saved yet. Connect to wifi and tap Refresh."); }
 }
-function closePort() { state.port = null; render(); }
+function closePort() {
+  state.port = null; render();
+  const y = state.listY || 0, back = () => scrollTo(0, y);
+  back(); requestAnimationFrame(back); setTimeout(() => { if (Math.abs(scrollY - y) > 40 && scrollY < 40) back(); }, 300);
+}
+if ("scrollRestoration" in history) history.scrollRestoration = "manual";
 $("#back").onclick = () => { if (history.state && history.state.port) history.back(); else { history.replaceState(null, "", location.pathname); closePort(); } };
 addEventListener("popstate", () => {
   if (sheet) {
