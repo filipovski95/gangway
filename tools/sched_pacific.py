@@ -296,8 +296,9 @@ def branded(name, line):
     return name
 
 
-def pdf_link_fetch(page, pattern):
-    """Read the schedule page, follow the first PDF link whose URL or link text matches pattern, return its text."""
+def pdf_link_fetch(page, pattern, every=False):
+    """Read the schedule page, follow the first PDF link whose URL or link text matches pattern (every=True: all of
+    them, e.g. one PDF per season), return their text."""
     def fetch(url):
         h = get(page)
         links = [urllib.parse.urljoin(page, htmllib.unescape(u))
@@ -305,8 +306,11 @@ def pdf_link_fetch(page, pattern):
                  if re.search(pattern, u + " " + text(inner), re.I)]
         if not links:
             raise ValueError(f"no schedule PDF linked on {page}")
-        time.sleep(DELAY)
-        return [pdf_text(get_bytes(links[0]))]
+        out = []
+        for u in (list(dict.fromkeys(links)) if every else links[:1]):
+            time.sleep(DELAY)
+            out.append(pdf_text(get_bytes(u)))
+        return out
     return fetch
 
 
@@ -411,6 +415,44 @@ def parse_sandiego(h, today):
     return list(out.values())
 
 
+def parse_astoria(h, today):
+    """portofastoria.com 'Cruise Ship Log YYYY' PDF: DAY | DATE OF ARRIVAL '4/9/26' (overnights '6/14 - 6/15/26') |
+    VESSEL | TYPE | PIER | OAL | DRAFT | AGENCY | AGENT | ETA '8:00' | ETD '18:00' | ... | status ('CANCELLED')."""
+    out = {}
+    for c in table_rows(h):
+        i = next((k for k, x in enumerate(c[:3])
+                  if re.fullmatch(r"\d{1,2}/\d{1,2}(?:\s*-\s*\d{1,2}/\d{1,2})?/\d{2}", x)), None)
+        if i is None or len(c) < i + 2 or not c[i + 1] or "CANCEL" in " ".join(c).upper():
+            continue
+        m = re.fullmatch(r"(\d{1,2})/(\d{1,2})(?:\s*-\s*(\d{1,2})/(\d{1,2}))?/(\d{2})", c[i])
+        y = 2000 + int(m[5])
+        times = [x for x in c[i + 2:] if re.fullmatch(r"\d{1,2}:\d\d", x)][:2]
+        ship = c[i + 1]
+        a = iso(y, m[1], m[2], times[0] if times else None)
+        d = iso(y, m[3] or m[1], m[4] or m[2], times[1]) if len(times) > 1 else (
+            iso(y, m[3], m[4]) if m[3] else None)
+        out[(ship, a)] = call(ship, None, "ast", a, d)
+    return list(out.values())
+
+
+def get_astoria(url):
+    """The index links one page per season ('/2027-cruise-ship-schedule'); each links its 'Cruise Ship Log' PDF."""
+    h, pages = get(url), []
+    year = datetime.now().year
+    for u in dict.fromkeys(re.findall(r'href="([^"]*/(\d{4})-cruise-ship-schedule)"', h)):
+        if int(u[1]) >= year:
+            pages.append(urllib.parse.urljoin(url, u[0]))
+    out = []
+    for pg in sorted(pages):
+        time.sleep(DELAY)
+        ph = get(pg)
+        pdfs = re.findall(r'href="([^"]*/files/[^"]+\.pdf)"', ph, re.I)
+        if pdfs:
+            time.sleep(DELAY)
+            out.append(pdf_text(get_bytes(urllib.parse.urljoin(pg, htmllib.unescape(pdfs[0])))))
+    return out
+
+
 # ---------------------------------------------------------------- sources
 
 PORTCALL_MAINE = "https://maine.portcall.com/PortCallServer/portcall/app/home/cruise/2?isThisYear="
@@ -436,8 +478,10 @@ SOURCES = [{"key": _id, "name": f"{_name} (CLAA)", "url": "https://claalaska.com
     {"key": "lax", "name": "Los Angeles (Ports America)",
      "url": "https://www.portsamerica.com/our-services/cruise-los-angeles-terminal-schedule", "parse": parse_portsamerica},
     {"key": "sfo", "name": "San Francisco", "url": "https://www.sfport.com/maritime/cruise", "parse": parse_sanfrancisco,
-     "fetch": pdf_link_fetch("https://www.sfport.com/maritime/cruise", r"cruise_schedule")},
+     "fetch": pdf_link_fetch("https://www.sfport.com/maritime/cruise", r"cruise_schedule", every=True)},
     {"key": "san", "name": "San Diego", "url": "https://www.portofsandiego.org/maritime/cruise-operations",
      "parse": parse_sandiego,
      "fetch": pdf_link_fetch("https://www.portofsandiego.org/maritime/cruise-operations", r"Cruise-Schedule")},
+    {"key": "ast", "name": "Astoria", "url": "https://www.portofastoria.com/cruise-schedules", "parse": parse_astoria,
+     "fetch": get_astoria},
 ]

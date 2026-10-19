@@ -685,7 +685,7 @@ SOURCES = [
 # More ports live in tools/sched_<region>.py, each with its own SOURCES list. They import helpers from this
 # module, so they are loaded on first use rather than at import time. Sources whose page fingerprints visitors
 # (bot checks) are left out on purpose.
-SKIP = {"cur"}
+SKIP = {"cur", "ast"}
 
 
 def all_sources():
@@ -737,6 +737,24 @@ def port_names():
         return {s["key"]: s["name"] for s in SOURCES}
 
 
+_robots = {}
+
+
+def robots_ok(url):
+    """Respect each site's robots.txt for our user agent (unreadable robots.txt = allowed)."""
+    import urllib.robotparser
+    u = urllib.parse.urlsplit(url)
+    host = f"{u.scheme}://{u.netloc}"
+    if host not in _robots:
+        rp = urllib.robotparser.RobotFileParser()
+        try:
+            rp.parse(get(host + "/robots.txt").splitlines())
+        except Exception:
+            rp = None
+        _robots[host] = rp
+    return _robots[host] is None or _robots[host].can_fetch(UA, url)
+
+
 def fetch_all(sources=None, today=None, _covered=None):
     """Fetch every official schedule; returns [{"name": ..., "calls": [...]}] (see module docstring)."""
     today = today or datetime.now(timezone.utc).date()
@@ -747,6 +765,8 @@ def fetch_all(sources=None, today=None, _covered=None):
         if i:
             time.sleep(DELAY)
         try:
+            if not robots_ok(s["url"]):
+                raise PermissionError("robots.txt disallows this page")
             pages = s["fetch"](s["url"]) if "fetch" in s else [get(s["url"])]
             got = [c for h in pages for c in s["parse"](h, today)]
             if not got:
