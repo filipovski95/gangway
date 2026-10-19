@@ -38,6 +38,16 @@
 "pax": "1,952",
 "wpu": "Arcadia (2004 ship)"
 },
+"arvia": {
+"builder": "Meyer Werft",
+"built": "2022",
+"crew": "1,800",
+"decks": "16",
+"gt": "184,700",
+"len": "344",
+"pax": "5,200",
+"wpu": "MS Arvia"
+},
 "aurora": {
 "builder": "Meyer Werft",
 "built": "2000",
@@ -516,6 +526,14 @@
 "pax": "3,260",
 "wpu": "Celebrity Xcel"
 },
+"celebrityxpedition": {
+"built": "2001",
+"decks": "4",
+"gt": "2,842",
+"len": "90",
+"pax": "48",
+"src": "https://www.travelweekly.com/Cruise/Celebrity-Cruises/Celebrity-Xpedition"
+},
 "coralprincess": {
 "builder": "Chantiers de l'Atlantique",
 "built": "2003",
@@ -565,6 +583,15 @@
 "pax": "3,780",
 "wpu": "Costa Favolosa"
 },
+"costafirenze": {
+"builder": "Fincantieri",
+"built": "2021",
+"gt": "135,156",
+"len": "324",
+"note": "Now sails as Carnival Firenze",
+"pax": "4,126",
+"wpu": "Carnival Firenze"
+},
 "costafortuna": {
 "builder": "Fincantieri",
 "built": "2003",
@@ -611,6 +638,17 @@
 "len": "337",
 "pax": "6,554",
 "wpu": "Costa Toscana"
+},
+"costavenezia": {
+"builder": "Fincantieri",
+"built": "2019",
+"crew": "1,424",
+"decks": "14",
+"gt": "135,225",
+"len": "323",
+"note": "Now sails as Carnival Venezia",
+"pax": "4,090",
+"wpu": "Carnival Venezia"
 },
 "crownprincess": {
 "builder": "Fincantieri",
@@ -1250,6 +1288,16 @@
 "pax": "4,842",
 "wpu": "MSC Virtuosa"
 },
+"mscworldamerica": {
+"builder": "Chantiers de l'Atlantique",
+"built": "2025",
+"crew": "2,138",
+"decks": "22",
+"gt": "215,863",
+"len": "333",
+"pax": "6,762",
+"src": "https://www.msccruisesusa.com/ships/msc-world-america"
+},
 "mscworldeuropa": {
 "builder": "Chantiers de l'Atlantique",
 "built": "2022",
@@ -1474,6 +1522,15 @@
 "pax": "5,606",
 "wpu": "Oasis of the Seas"
 },
+"oceaniaallura": {
+"builder": "Fincantieri",
+"built": "2025",
+"crew": "800",
+"gt": "67,000",
+"len": "241",
+"pax": "1,200",
+"src": "https://oceaniacruisesale.com/ships"
+},
 "oceaniainsignia": {
 "builder": "Chantiers de l'Atlantique",
 "built": "1998",
@@ -1531,6 +1588,16 @@
 "len": "181.00",
 "pax": "688",
 "wpu": "MS Sirena"
+},
+"oceaniavista": {
+"builder": "Fincantieri",
+"built": "2023",
+"crew": "800",
+"decks": "16",
+"gt": "67,000",
+"len": "241",
+"pax": "1,200",
+"src": "https://www.travelweekly.com/Cruise/Oceania-Cruises/Vista"
 },
 "odysseyoftheseas": {
 "builder": "Meyer Werft",
@@ -1713,6 +1780,41 @@
 "pax": "3,192",
 "wpu": "MV Ventura"
 },
+"vikingjupiter": {
+"builder": "Fincantieri",
+"built": "2019",
+"crew": "465",
+"gt": "47,800",
+"len": "227",
+"pax": "930",
+"src": "https://www.vikingcruises.com/oceans/ships/index.html"
+},
+"vikingmars": {
+"builder": "Fincantieri",
+"built": "2022",
+"crew": "465",
+"gt": "47,800",
+"len": "227",
+"pax": "930",
+"src": "https://www.vikingcruises.com/oceans/ships/index.html"
+},
+"vikingmira": {
+"builder": "Fincantieri",
+"built": "2026",
+"gt": "54,300",
+"len": "239",
+"pax": "998",
+"src": "https://www.vikingcruises.com/oceans/ships/viking-mira.html"
+},
+"vikingneptune": {
+"builder": "Fincantieri",
+"built": "2022",
+"crew": "465",
+"gt": "47,800",
+"len": "227",
+"pax": "930",
+"src": "https://www.vikingcruises.com/oceans/ships/index.html"
+},
 "vikingoctantis": {
 "builder": "Vard",
 "built": "2022",
@@ -1730,6 +1832,25 @@
 "len": "228.2",
 "pax": "930",
 "wpu": "Viking Orion"
+},
+"vikingpolaris": {
+"builder": "Fincantieri",
+"built": "2022",
+"crew": "256",
+"decks": "6",
+"gt": "30,150",
+"len": "203",
+"pax": "378",
+"src": "https://www.vikingcruises.com/expeditions/ships/viking-polaris.html"
+},
+"vikingsaturn": {
+"builder": "Fincantieri",
+"built": "2023",
+"crew": "465",
+"gt": "47,800",
+"len": "227",
+"pax": "930",
+"src": "https://www.vikingcruises.com/oceans/ships/index.html"
 },
 "vikingsea": {
 "builder": "Fincantieri",
@@ -1769,6 +1890,23 @@
 "len": "228.2",
 "pax": "930",
 "wpu": "MV Viking Sun"
+},
+"vikingvela": {
+"builder": "Fincantieri",
+"built": "2024",
+"gt": "54,300",
+"len": "239",
+"pax": "998",
+"src": "https://www.vikingcruises.com/oceans/ships/viking-vela.html"
+},
+"vikingvenus": {
+"builder": "Fincantieri",
+"built": "2021",
+"crew": "465",
+"gt": "47,800",
+"len": "227",
+"pax": "930",
+"src": "https://www.vikingcruises.com/oceans/ships/index.html"
 },
 "vikingvesta": {
 "builder": "Fincantieri",

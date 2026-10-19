@@ -692,9 +692,12 @@ function shipFacts(name) {
   const f = INFO[shipKey(name)];
   if (!f) return "";
   const cells = [[f.pax, "guests"], [f.crew, "crew"], [f.gt, "gross tons"], [f.len && Math.round(f.len) + " m", "long"], [f.decks, "decks"], [f.built, "in service"]].filter(([v]) => v);
-  const more = [f.class, f.builder && "built by " + f.builder].filter(Boolean).join(" · ");
+  // Most facts come from Wikipedia; a few new ships from the cruise line's own page (src).
+  const more = [f.note, f.class, f.builder && "built by " + f.builder].filter(Boolean).map(esc).join(" · ");
+  const link = f.wpu ? `<a href="https://en.wikipedia.org/wiki/${encodeURIComponent(f.wpu.replace(/ /g, "_"))}" target="_blank" rel="noopener">Wikipedia</a>`
+    : f.src ? `<a href="${esc(f.src)}" target="_blank" rel="noopener">Source</a>` : "";
   return `<div class="shipfacts"><div class="plaques">${cells.map(([v, l]) => `<span class="plaque"><b>${esc(v)}</b><small>${l}</small></span>`).join("")}</div>
-    ${more ? `<small class="more">${esc(more)} · <a href="https://en.wikipedia.org/wiki/${encodeURIComponent(f.wpu.replace(/ /g, "_"))}" target="_blank" rel="noopener">Wikipedia</a></small>` : ""}</div>`;
+    ${more || link ? `<small class="more">${[more, link].filter(Boolean).join(" · ")}</small>` : ""}</div>`;
 }
 function passCard() {
   const ship = myShip();
