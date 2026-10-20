@@ -617,7 +617,8 @@ const LIGHTHOUSE = `<svg class="lighthouse" viewBox="0 0 120 150" aria-hidden="t
   <path d="M60 40h14l6 92H60z" fill="#000" opacity=".1"/><rect x="56" y="112" width="8" height="20" rx="4" fill="#0d2536"/>
   <path d="M20 134c20-8 60-8 80 0v16H20z" fill="#3c4f5c"/></svg>`;
 // A funnel in the cruise line's colours, used as its badge.
-const funnel = (color, txt) => `<svg class="funnel" viewBox="0 0 44 48" aria-hidden="true"><path d="M8 46 13 4h26l-5 42z" fill="${color}"/><path d="M12.4 9h26" stroke="#fff" stroke-opacity=".85" stroke-width="3"/><path d="M13 4h26" stroke="#0d2536" stroke-width="3"/><path d="M34 6l-5 40h5l5-42z" fill="#000" opacity=".22"/><text x="23" y="34" text-anchor="middle" font-family="Big Shoulders Display, Arial Narrow, sans-serif" font-weight="800" font-size="${txt.length > 1 ? 14 : 17}" fill="#fff">${txt}</text></svg>`;
+// A funnel in the line's own colours (hull colour and band), with its initials: never a copy of the line's logo.
+const funnel = (color, txt, band = "#fff") => `<svg class="funnel" viewBox="0 0 44 48" aria-hidden="true"><path d="M8 46 13 4h26l-5 42z" fill="${color}"/><path d="M12 12.5h26.6" stroke="${band}" stroke-width="5"/><path d="M13 4h26" stroke="#0d2536" stroke-width="3"/><path d="M34 6l-5 40h5l5-42z" fill="#000" opacity=".22"/><text x="23" y="34" text-anchor="middle" font-family="Big Shoulders Display, Arial Narrow, sans-serif" font-weight="800" font-size="${txt.length > 1 ? 14 : 17}" fill="#fff">${txt}</text></svg>`;
 // Nautical signal flags on a line.
 function bunting() {
   const flags = [["#e2412f", "#fff"], ["#ffc21a", "#0d2536"], ["#1f5fbf", "#fff"], ["#fff", "#e2412f"], ["#0d2536", "#ffc21a"], ["#18915a", "#fff"],
@@ -635,8 +636,8 @@ const img = (src, cls, alt = "") => src ? `<img class="${cls}" src="${esc(src)}"
 const wikiUrl = t => "https://en.wikipedia.org/wiki/" + encodeURIComponent(t.replace(/ /g, "_"));
 
 /* ---- Cruise lines and their ships (data/fleets.json), with photos (data/ship_photos.json) ---- */
-let FLEETS = {}, LINE_COLOR = {}, PHOTOS = {}, INFO = {};
-function setFleets(f) { FLEETS = {}; LINE_COLOR = {}; for (const [l, x] of Object.entries(f)) { FLEETS[l] = x.ships; LINE_COLOR[l] = x.color; } }
+let FLEETS = {}, LINE_COLOR = {}, LINE_BAND = {}, PHOTOS = {}, INFO = {};
+function setFleets(f) { FLEETS = {}; LINE_COLOR = {}; LINE_BAND = {}; for (const [l, x] of Object.entries(f)) { FLEETS[l] = x.ships; LINE_COLOR[l] = x.color; LINE_BAND[l] = x.band; } }
 const lineColor = l => LINE_COLOR[l] || "#557080";
 const initials = l => l.split(/\s|&/).filter(Boolean).map(w => w[0]).join("").slice(0, 2);
 // The ship's photo ships inside the app; one added after this build comes from the online copy.
@@ -713,7 +714,7 @@ addEventListener("resize", setBandHeight);
 function shipHero(name, line, sub) {
   const ph = name ? shipPhoto(name, "shipphoto") : "";
   return `<div class="hero${ph ? " photo" : ""}">${ph}<div class="scene">${bunting()}<div class="sun"></div><div class="sea"></div>${shipArt(lineColor(line), true)}</div>
-    <div class="ovl">${line ? funnel(lineColor(line), esc(initials(line))) : `<svg class="wheel" viewBox="0 0 48 48" aria-hidden="true"><use href="#wheel"/></svg>`}
+    <div class="ovl">${line ? funnel(lineColor(line), esc(initials(line)), LINE_BAND[line]) : `<svg class="wheel" viewBox="0 0 48 48" aria-hidden="true"><use href="#wheel"/></svg>`}
     <span><span class="lbl">${sub}</span><span class="shipname">${esc(name || "Which ship are you on?")}</span></span></div></div>`;
 }
 // A row of brass plaques with the ship's basic facts (data/ship_info.json, from Wikipedia).
@@ -998,14 +999,14 @@ function pickShip(line) {
       el.innerHTML = `<div class="in" role="dialog" aria-label="Choose your cruise line">
         ${sheetHead("#0d2536", `<svg class="sh-wheel" viewBox="0 0 48 48" aria-hidden="true"><use href="#wheel"/></svg>`, "Which cruise line?", "Then pick your ship", true)}
         <p>Gangway then shows today's port and your all-aboard time.</p>
-        <div class="fleet lines">${lines.map(x => { const n = all[x].filter(today).length; return `<button data-line="${esc(x)}">${funnel(lineColor(x), esc(initials(x)))}<span>${esc(x)}<small>${all[x].length} ships${n ? ` · ${n} in port today` : ""}</small></span></button>`; }).join("")}</div>
+        <div class="fleet lines">${lines.map(x => { const n = all[x].filter(today).length; return `<button data-line="${esc(x)}">${funnel(lineColor(x), esc(initials(x)), LINE_BAND[x])}<span>${esc(x)}<small>${all[x].length} ships${n ? ` · ${n} in port today` : ""}</small></span></button>`; }).join("")}</div>
         <p>All aboard is how long before sailing?</p>
         <div class="seg">${[30, 45, 60, 90].map(m => `<button class="chip" data-off="${m}" aria-pressed="${m === offset()}">${m} min</button>`).join("")}</div>
         <div class="seg">${cur ? `<button class="btn" data-clear>Not on a ship</button>` : ""}<button class="btn go" data-done style="margin-left:auto">Done</button></div></div>`;
     } else {
       const ships = [...all[l]].sort((a, b) => !!today(b) - !!today(a) || a.localeCompare(b));
       el.innerHTML = `<div class="in" role="dialog" aria-label="Choose your ship">
-        ${sheetHead(lineColor(l), funnel(lineColor(l), esc(initials(l))), esc(l), `${all[l].length} ships · tap yours`, true)}
+        ${sheetHead(lineColor(l), funnel(lineColor(l), esc(initials(l)), LINE_BAND[l]), esc(l), `${all[l].length} ships · tap yours`, true)}
         <p>Ships with a port today come first. Wrong cruise line? Tap the back arrow.</p>
         <div class="fleet ships">${ships.map(n => { const c = today(n); const short = n.replace(new RegExp("^(" + l + "|Celebrity|Norwegian|Carnival|MSC|Costa|Disney|Oceania|Holland America|Cunard|Viking|Virgin) "), ""); return `<button data-ship="${esc(n)}" aria-pressed="${sameShip(n, cur)}"><span class="porthole sm" aria-hidden="true">${shipArt(lineColor(l))}${shipPhoto(n)}</span><span>${esc(short)}<small>${c ? "⛴ " + esc(c.p ? portName(c.p) : c.n) + " today" : sched(n) ? "At sea or no port today" : "No published schedule"}</small></span></button>`; }).join("")}</div></div>`;
     }

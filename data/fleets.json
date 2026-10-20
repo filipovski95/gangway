@@ -32,7 +32,8 @@
    "Enchantment of the Seas",
    "Grandeur of the Seas",
    "Rhapsody of the Seas"
-  ]
+  ],
+  "band": "#ffd200"
  },
  "Celebrity": {
   "color": "#111",
@@ -53,7 +54,8 @@
    "Celebrity Millennium",
    "Celebrity Flora",
    "Celebrity Xpedition"
-  ]
+  ],
+  "band": "#c9c9c9"
  },
  "Princess": {
   "color": "#1f5fa8",
@@ -75,7 +77,8 @@
    "Sapphire Princess",
    "Coral Princess",
    "Island Princess"
-  ]
+  ],
+  "band": "#ffffff"
  },
  "Norwegian": {
   "color": "#00427a",
@@ -101,7 +104,8 @@
    "Norwegian Sky",
    "Norwegian Spirit",
    "Pride of America"
-  ]
+  ],
+  "band": "#6ec1e4"
  },
  "Carnival": {
   "color": "#d6202c",
@@ -135,7 +139,8 @@
    "Carnival Adventure",
    "Carnival Encounter",
    "Mardi Gras"
-  ]
+  ],
+  "band": "#1f5fbf"
  },
  "MSC": {
   "color": "#0b2a4a",
@@ -163,7 +168,8 @@
    "MSC Opera",
    "MSC Armonia",
    "MSC Sinfonia"
-  ]
+  ],
+  "band": "#c9a24a"
  },
  "Holland America": {
   "color": "#0d3b66",
@@ -179,7 +185,8 @@
    "Holland America Zuiderdam",
    "Holland America Volendam",
    "Holland America Zaandam"
-  ]
+  ],
+  "band": "#ffffff"
  },
  "Disney": {
   "color": "#a3121f",
@@ -192,7 +199,8 @@
    "Disney Magic",
    "Disney Wonder",
    "Disney Adventure"
-  ]
+  ],
+  "band": "#ffd200"
  },
  "Cunard": {
   "color": "#7d1d2c",
@@ -201,7 +209,8 @@
    "Cunard Queen Mary 2",
    "Cunard Queen Victoria",
    "Cunard Queen Elizabeth"
-  ]
+  ],
+  "band": "#111111"
  },
  "Virgin Voyages": {
   "color": "#c8102e",
@@ -210,7 +219,8 @@
    "Virgin Valiant Lady",
    "Virgin Resilient Lady",
    "Virgin Brilliant Lady"
-  ]
+  ],
+  "band": "#ffffff"
  },
  "Oceania": {
   "color": "#00586e",
@@ -223,7 +233,8 @@
    "Oceania Nautica",
    "Oceania Regatta",
    "Oceania Sirena"
-  ]
+  ],
+  "band": "#c9a24a"
  },
  "Viking": {
   "color": "#2f4f6f",
@@ -243,7 +254,8 @@
    "Viking Sky",
    "Viking Sea",
    "Viking Sun"
-  ]
+  ],
+  "band": "#c9a24a"
  },
  "Costa": {
   "color": "#f6b21a",
@@ -259,7 +271,8 @@
    "Costa Deliziosa",
    "Costa Serena",
    "Costa Fortuna"
-  ]
+  ],
+  "band": "#1f5fbf"
  },
  "P&O Cruises": {
   "color": "#00205b",
@@ -271,6 +284,7 @@
    "Ventura",
    "Arcadia",
    "Aurora"
-  ]
+  ],
+  "band": "#ffd200"
  }
 }
