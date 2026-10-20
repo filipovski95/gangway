@@ -59,8 +59,12 @@ def parse_cayman(h, today):
     <div class="day-number">d</div> and one <a id="div-ship-detail-N"> Ship </a> per vessel; month/year are the
     selected sc_month/sc_year options. Cargo names end in '*', ships that missed the call are red. No times:
     the call is dated 00:00 (times only via a per-ship popup)."""
-    mo = re.search(r'name="sc_month">.*?value="(\d+)" selected', h, re.S)
-    yr = re.search(r'name="sc_year">.*?value="(\d{4})" selected', h, re.S)
+    t = re.search(r'title">([A-Z][a-z]{2})[a-z]* (\d{4})</h2>', h)
+    if t and MONTHS.get(t[1].lower()):
+        mo, yr = (None, str(MONTHS[t[1].lower()])), (None, t[2])
+    else:
+        mo = re.search(r'name="sc_month">.*?value="(\d+)"\s+selected', h, re.S)
+        yr = re.search(r'name="sc_year">.*?value="(\d{4})"\s+selected', h, re.S)
     if not (mo and yr):
         return []
     out = []
@@ -74,20 +78,36 @@ def parse_cayman(h, today):
 
 
 def get_cayman(url):
-    """Cruise ships (vessel_type=22) for the current month, then the next 14 months through the page's own
-    month form (POST sc_month/sc_year, the form's no-JavaScript action)."""
+    """Cruise ships (vessel_type=22) for the current month, then up to 14 more months by submitting the page's own
+    'next month' form (its hidden fields carry the month, year and nonce), as a browser without JavaScript would."""
+    import html as htmllib
     import time
     pages = [get(url)]
+    seen = {_cayman_month(pages[0])}
     try:
-        nxt = date.today().replace(day=1)
         for _ in range(14):
-            nxt = (nxt + timedelta(days=32)).replace(day=1)
+            f = re.search(r'<form id="sc_event_nav_next".*?</form>', pages[-1], re.S)
+            if not f:
+                break
+            data = {n: htmllib.unescape(v) for n, v in
+                    re.findall(r'<input type="(?:hidden|submit)"[^>]*?name="([^"]+)"[^>]*?value=["\']([^"\']*)', f[0])}
+            data["vessel_type"] = "22"
             time.sleep(DELAY)
-            pages.append(get(url.split("?")[0], {"sc_month": nxt.month, "sc_year": nxt.year,
-                                                 "vessel_type": "22", "vessel_location": "2"}))
+            h = get(url, data)
+            m = _cayman_month(h)
+            if not m or m in seen:
+                print(f"     Grand Cayman: the next-month form returned {m or 'no month'}; stopping")
+                break
+            seen.add(m)
+            pages.append(h)
     except Exception as e:
         print(f"     Grand Cayman later months: {type(e).__name__}: {str(e)[:100]}")
     return pages
+
+
+def _cayman_month(h):
+    t = re.search(r'title">([A-Z][a-z]+ \d{4})</h2>', h)
+    return t[1] if t else None
 
 
 def parse_curports(h, today):

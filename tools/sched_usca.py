@@ -450,6 +450,8 @@ def get_vipa_stx(url):
                                capture_output=True, check=True, timeout=120).stdout.decode("utf-8", "replace")
         except Exception as e:
             print(f"     VIPA {u[-12:]}: {type(e).__name__}: {str(e)[:100]}")
+            if "429" in str(e):
+                break  # the file host refuses us for now; asking again only takes longer
             continue
         if re.search(r"ABRAMSON|FREDERIKSTED|FREDRIKSTED", t, re.I):
             pages.append(t)
