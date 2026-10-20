@@ -996,7 +996,7 @@ function pickShip(line) {
   const draw = l => {
     if (!l) {
       el.innerHTML = `<div class="in" role="dialog" aria-label="Choose your cruise line">
-        ${sheetHead("#0d2536", `<svg class="sh-wheel" viewBox="0 0 48 48" aria-hidden="true"><use href="#wheel"/></svg>`, "Which cruise line?", "Then pick your ship")}
+        ${sheetHead("#0d2536", `<svg class="sh-wheel" viewBox="0 0 48 48" aria-hidden="true"><use href="#wheel"/></svg>`, "Which cruise line?", "Then pick your ship", true)}
         <p>Gangway then shows today's port and your all-aboard time.</p>
         <div class="fleet lines">${lines.map(x => { const n = all[x].filter(today).length; return `<button data-line="${esc(x)}">${funnel(lineColor(x), esc(initials(x)))}<span>${esc(x)}<small>${all[x].length} ships${n ? ` · ${n} in port today` : ""}</small></span></button>`; }).join("")}</div>
         <p>All aboard is how long before sailing?</p>
