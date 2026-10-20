@@ -423,6 +423,10 @@
 "f": "ships/diamondprincess.jpg",
 "wpu": "Diamond Princess (ship)"
 },
+"diana": {
+"f": "ships/diana.jpg",
+"wpu": "Diana (1840 ship)"
+},
 "discoveryprincess": {
 "f": "ships/discoveryprincess.jpg",
 "wpu": "Discovery Princess"
@@ -498,6 +502,10 @@
 "freedomoftheseas": {
 "f": "ships/freedomoftheseas.jpg",
 "wpu": "MS Freedom of the Seas"
+},
+"freewinds": {
+"f": "ships/freewinds.jpg",
+"wpu": "Freewinds"
 },
 "fridtjofnansen": {
 "f": "ships/fridtjofnansen.jpg",
@@ -1007,6 +1015,10 @@
 "f": "ships/seabournventure.jpg",
 "wpu": "Seabourn Venture"
 },
+"seacloud": {
+"f": "ships/seacloud.jpg",
+"wpu": "Sea Cloud"
+},
 "seadreami": {
 "f": "ships/seadreami.jpg",
 "wpu": "SeaDream I"
@@ -1154,6 +1166,10 @@
 "vikingvesta": {
 "f": "ships/vikingvesta.jpg",
 "wpu": "Viking Vesta"
+},
+"villavieodyssey": {
+"f": "ships/villavieodyssey.jpg",
+"wpu": "Villa Vie Odyssey"
 },
 "virginbrilliantlady": {
 "f": "ships/virginbrilliantlady.jpg",
