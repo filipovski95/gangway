@@ -196,13 +196,13 @@ def smart(s):
     return ps.smart_case(re.sub(r"\s+", " ", s).strip())
 
 
-def pdf_text(data):
+def pdf_text(data, layout=True):
     """PDF bytes -> plain text in reading order (poppler pdftotext, installed on GitHub's runners)."""
     import shutil
     import subprocess
     if not shutil.which("pdftotext"):
         raise RuntimeError("pdftotext not installed (apt-get install poppler-utils)")
-    return subprocess.run(["pdftotext", "-layout", "-enc", "UTF-8", "-", "-"], input=data, capture_output=True,
+    return subprocess.run(["pdftotext"] + (["-layout"] if layout else []) + ["-enc", "UTF-8", "-", "-"], input=data, capture_output=True,
                           check=True, timeout=120).stdout.decode("utf-8", "replace")
 
 
@@ -226,7 +226,7 @@ def get_cruise_maryland(url):
     pages = []
     for y in (date.today().year, date.today().year + 1):
         try:
-            pages.append(pdf_text(get_bytes(url.format(year=y))))
+            pages.append(pdf_text(get_bytes(url.format(year=y)), layout=False))
         except Exception as e:
             print(f"     Cruise Maryland {y}: {type(e).__name__}: {str(e)[:100]}")
         time.sleep(DELAY)
