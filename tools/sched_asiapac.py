@@ -396,7 +396,7 @@ def get_nzca(url):
 SOUTHERN_PORTS = {"Albany": "alh"}
 SP_ROW = re.compile(r"^(?P<ship>[A-Za-z][\w .'-]*?)\s+[A-Z][a-z]{2,4}\s+(?P<d1>\d{1,2})(?:\s+(?P<m1>[A-Z][a-z]{2}))?"
                     r"(?:\s+to\s+[A-Z][a-z]{2,4}\s+(?P<d2>\d{1,2}))?\s+(?P<mon>[A-Z][a-z]{2})\s+[\d,]+\s+"
-                    r"(?P<t1>\d{1,2}(?:[.:]\d\d)?\s*[ap]m)\s*-\s*(?P<t2>\d{1,2}(?:[.:]\d\d)?\s*[ap]m)")
+                    r"(?P<t1>\d{1,2}(?:[.:]\d\d)?\s*[ap]m)\s*[-\u2013\u2014]\s*(?P<t2>\d{1,2}(?:[.:]\d\d)?\s*[ap]m)")
 
 
 def _ampm(s):

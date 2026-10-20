@@ -259,13 +259,16 @@ def parse_amsterdam(h, today):
     """sea.cruiseportamsterdam.com/cruise-calendar/YYYY (year = the active data-year button): per ship
     <figcaption><span>04<br>Apr</span>, <p class="ship-title">, <p class="ship-time"><strong>20:00</strong> -
     <strong>17:30 uur</strong> [Departure: 06 Apr]."""
-    m = re.search(r'data-year="(\d{4})" class="button button-active"', h)
+    # The page year: a '<!-- gangway-year:YYYY -->' tag added by the fetcher, else the active year button.
+    m = re.search(r"gangway-year:(\d{4})", h) or re.search(
+        r"""data-year=["'](\d{4})["'][^>]*class=["'][^"']*button-active""", h)
     year = int(m[1]) if m else today.year
     out = []
-    for b in h.split("ship-image")[1:]:
-        cap = re.search(r"<figcaption[^>]*>\s*<span>(\d{1,2})<br>([A-Za-z]{3})", b)
-        name = re.search(r'<p class="ship-title">(.*?)</p>', b, re.S)
-        tm = re.search(r'<p class="ship-time">(.*?)</p>', b, re.S)
+    # Served HTML differs from the browser DOM (quotes, '<br />', extra classes), so match loosely.
+    for b in re.split(r"""class=["'][^"']*\bship-image\b""", h)[1:]:
+        cap = re.search(r"<figcaption[^>]*>\s*<span[^>]*>\s*(\d{1,2})\s*<br\s*/?>\s*([A-Za-z]{3})", b)
+        name = re.search(r"""<p[^>]*class=["'][^"']*\bship-title\b[^>]*>(.*?)</p>""", b, re.S)
+        tm = re.search(r"""<p[^>]*class=["'][^"']*\bship-time\b[^>]*>(.*?)</p>""", b, re.S)
         if not (cap and name and tm) or cap[2].lower() not in _ps.MONTHS:
             continue
         t = re.findall(r"\d{1,2}:\d\d", text(tm[1]))
@@ -417,8 +420,13 @@ def parse_lerwick(h, today):
     m = re.search(r"Visiting Cruise Ships[^<]*?(\d{4})", h)
     year = int(m[1]) if m else today.year
     out, mo = [], None
-    for attrs, row in re.findall(r"<tr\b([^>]*)>(.*?)</tr>", h, re.S):
-        c = [text(x) for x in cells(row)]
+    # The served page is minified: unquoted attributes and optional end tags (no </td>, </tr>), so rows and cells
+    # are split on their start tags instead of matched with their end tags.
+    body = h[h.find("<tbody"):] if "<tbody" in h else h
+    body = re.split(r"</tbody|</table", body)[0]
+    for part in re.split(r"<tr\b", body)[1:]:
+        attrs, _, row = part.partition(">")
+        c = [text(x) for x in re.split(r"<td\b[^>]*>", row)[1:]]
         if "tall-ship" in attrs:  # sail-training vessels, not cruise ships
             continue
         if len(c) == 1 and c[0][:3].lower() in _ps.MONTHS and len(c[0]) <= 9:

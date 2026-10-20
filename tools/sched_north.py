@@ -8,6 +8,7 @@ import html as _html
 import json
 import re
 import time
+import urllib.parse
 from datetime import date, datetime, timedelta, timezone
 
 from port_schedules import text, cells, iso, call, get, render, DELAY, WINDOW_AHEAD
@@ -139,7 +140,27 @@ def get_rotterdam(url):
 def parse_flam(h, today):
     """Flåm Port arrival list (flamport.no/arrival-list, this year and next): Date 'dd.mm.yy' | Ship | ETA | ETD |
     No. Of Hours '24:00' | From | To | Pier/Anchor | LOA | GRT | PAX. The departure is arrival + hours (so stays
-    over midnight land on the right day)."""
+    over midnight land on the right day).
+    The page builds that table in the browser from api.flamport.no/Open/index.php: a JSON list of {"ship",
+    "eta": "2027-04-29 04:30:00", "etd", ...} in UTC, which is what the daily run fetches."""
+    i = h.find("[{")
+    if i >= 0:
+        try:
+            rows = json.loads(h[i:h.rfind("}]") + 2])
+        except ValueError:
+            rows = []
+
+        def local(s):
+            m = re.match(r"(\d{4})-(\d\d)-(\d\d)[ T](\d\d):(\d\d)", s or "")
+            return _eu._eu_local(f"{m[1]}{m[2]}{m[3]}T{m[4]}{m[5]}00Z", 1) if m else None
+        out = []
+        for r in rows:
+            ship = (r.get("ship") or "").strip() if isinstance(r, dict) else ""
+            a, d = local(r.get("eta")), local(r.get("etd"))
+            if ship and (a or d) and not re.search(r"cancel|kansel", ship, re.I):
+                out.append(call(ship, None, "flm", a, _later(a, d)))
+        if out:
+            return out
     out = []
     for row in re.findall(r"<tr\b[^>]*>(.*?)</tr>", h, re.S):
         c = [text(x) for x in cells(row)]
@@ -333,10 +354,30 @@ def parse_dokk_other(h, today):
 
 # ---------------------------------------------------------------- Belgium
 
+# The Zeebrugge page fills its table in the browser from the port's own Algolia index (public search-only key,
+# printed in the site's JavaScript): hits {schipnaam, Rederij, eta_d, ets_d (epoch seconds of the local time,
+# shown with timeZone UTC), ...}.
+ZEE_ALGOLIA = ("GWKHDNJ7PR", "b6388093d08e5c9d805f187404c1fb6d", "prod_MBZ_CRUISES")
+
+
 def parse_zeebrugge(h, today):
-    """Port of Antwerp-Bruges 'Arrivals and departures of cruises in Zeebruges' (server-rendered table, 10 per page,
-    ?page=N): Arrival 'dd/mm/yyyy, HH:MM' | Departure | Ship | Shipping company | Website | Length | Flag."""
+    """Port of Antwerp-Bruges 'Arrivals and departures of cruises in Zeebruges': the Algolia JSON (see get_zeebrugge),
+    or the rendered table (10 per page, ?page=N): Arrival 'dd/mm/yyyy, HH:MM' | Departure | Ship | Shipping company |
+    Website | Length | Flag."""
     out = []
+    if h.lstrip().startswith("{"):
+        def ts(v):
+            try:
+                return datetime.fromtimestamp(int(float(v)), timezone.utc).strftime("%Y-%m-%dT%H:%M")
+            except (TypeError, ValueError, OverflowError, OSError):
+                return None
+        for hit in json.loads(h).get("hits", []):
+            ship = (hit.get("schipnaam") or "").strip()
+            a, d = ts(hit.get("eta_d")), ts(hit.get("ets_d"))
+            line = re.sub(r"\s*-\s*Hal$", "", (hit.get("Rederij") or "").strip()) or None
+            if ship and (a or d):
+                out.append(call(ship, line, "zee", a, _later(a, d)))
+        return out
     for row in re.findall(r"<tr\b[^>]*>(.*?)</tr>", h, re.S):
         c = [text(x) for x in cells(row)]
         if len(c) < 4:
@@ -353,7 +394,25 @@ def parse_zeebrugge(h, today):
 
 
 def get_zeebrugge(url):
-    """Page 1 tells 'Page 1 of N'; pages 2..N come from ?page=N (max 30)."""
+    """The served page has no table (it is built in the browser), so read the same Algolia index the page uses,
+    1000 hits per page. Falls back to the paged HTML ('Page 1 of N', ?page=N) if that fails."""
+    app, key, index = ZEE_ALGOLIA
+    try:
+        pages, n = [], 0
+        while True:
+            q = urllib.parse.urlencode({"query": "", "hitsPerPage": 1000, "page": n,
+                                        "x-algolia-application-id": app, "x-algolia-api-key": key})
+            h = get(f"https://{app}-dsn.algolia.net/1/indexes/{index}?{q}")
+            pages.append(h)
+            n += 1
+            if n >= min(int(json.loads(h).get("nbPages") or 1), 10):
+                break
+            time.sleep(DELAY)
+        if any(json.loads(h).get("hits") for h in pages):
+            return pages
+        print("     Zeebrugge: Algolia index returned no hits; reading the HTML table")
+    except Exception as e:
+        print(f"     Zeebrugge Algolia: {type(e).__name__}: {str(e)[:80]}; reading the HTML table")
     pages = [get(url)]
     m = re.search(r"</span>\s*of</span>\s*(\d+)|of</span> (\d+)", pages[0])
     n = int(m[1] or m[2]) if m else 1
@@ -482,7 +541,7 @@ def get_amsterdam(url):
         h = get(u)
         if "ship-title" not in h:
             h = render(u, "p.ship-title")
-        pages.append(h)
+        pages.append(f"<!-- gangway-year:{y} -->" + h)  # the served page may lack the active-year button
         time.sleep(DELAY)
     return pages
 
@@ -531,7 +590,7 @@ SOURCES = [
      "parse": parse_tenerife_islands},
     {"key": "ifj", "name": "Iceland & Faroe harbours (Dokk)", "url": "https://portal.dokk.is/embed/calendar",
      "parse": parse_dokk_other, "fetch": _eu.get_dokk},
-    {"key": "flm", "name": "Flåm", "url": "https://www.flamport.no/arrival-list", "parse": parse_flam},
+    {"key": "flm", "name": "Flåm", "url": "https://api.flamport.no/Open/index.php", "parse": parse_flam},  # data of flamport.no/arrival-list
     {"key": "zee", "name": "Zeebrugge",
      "url": "https://www.portofantwerpbruges.com/en/shipping/cruises/arrivals-and-departures-cruises-zeebruges",
      "parse": parse_zeebrugge, "fetch": get_zeebrugge},

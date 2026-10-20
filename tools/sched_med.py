@@ -181,18 +181,30 @@ def parse_spezia(h, today):
 
 def get_spezia(url):
     """The calendar page holds one Ninja Tables table per port, each loaded by the browser from its
-    'data_request_url' (admin-ajax, with a public nonce printed in the page). Fetch every table's JSON."""
-    page = get(url)
-    titles = re.findall(r'aria-label="([^"]*CALENDARIO[^"]*)"', page)
-    ids = re.findall(r'data-footable_id="(\d+)"', page)
-    by_id = dict(zip(ids, titles))
-    pages = []
-    for u in dict.fromkeys(re.findall(r'"data_request_url":"([^"]+)"', page)):
-        u = u.replace("\\/", "/")
-        tid = re.search(r"table_id=(\d+)", u)
+    'data_request_url' (admin-ajax, with a public nonce printed in the page). Fetch every table's JSON.
+    A page served from a stale cache carries an expired nonce and the table request then fails (HTTP 400), so on
+    failure the page is fetched once more with a cache-busting query for a fresh nonce."""
+    def tables(page):
+        titles = re.findall(r"""aria-label=["']?([^"'>]*CALENDARIO[^"'>]*)""", page)
+        ids = re.findall(r"""data-footable_id=["']?(\d+)""", page)
+        by_id = dict(zip(ids, titles))
+        out = []
+        for u in dict.fromkeys(re.findall(r'"data_request_url":"([^"]+)"', page)):
+            u = htmllib.unescape(u.replace("\\/", "/").replace("\\u0026", "&"))
+            tid = re.search(r"table_id=(\d+)", u)
+            time.sleep(DELAY)
+            out.append(f"PORT={by_id.get(tid[1] if tid else '', '')}\n" + get(u))
+        if not out:
+            raise RuntimeError("no Ninja Tables data_request_url in the page")
+        return out
+
+    fresh = f"{url}{'&' if '?' in url else '?'}nocache={int(time.time())}"
+    try:
+        return tables(get(url))
+    except Exception as e:
+        print(f"     La Spezia: {type(e).__name__}: {str(e)[:80]}; retrying with a fresh page")
         time.sleep(DELAY)
-        pages.append(f"PORT={by_id.get(tid[1] if tid else '', '')}\n" + get(u))
-    return pages
+        return tables(get(fresh))
 
 
 # ferry operators that share the passenger terminals with cruise ships
@@ -347,11 +359,12 @@ def parse_valencia(h, today):
         k = next((i for i, x in enumerate(c) if re.fullmatch(r"\d{7}|En construcci\S*", x)), None)
         if not k:
             continue
-        m = re.search(r"(\d{1,2})/(\d{1,2})/(\d{2,4})\b", " ".join(c[:k - 1]))
+        # pdftotext can leave one space between the date and the ship ('jueves, 01/01/26 MSC MAGNIFICA')
+        m = re.search(r"(\d{1,2})/(\d{1,2})/(\d{2,4})\b", " ".join(c[:k]))
         if m:
             y = int(m[3]) + (2000 if len(m[3]) == 2 else 0)
             day = (y, int(m[2]), int(m[1]))
-        ship = c[k - 1]
+        ship = re.sub(r"^.*\b\d{1,2}/\d{1,2}/\d{2,4}\s*", "", c[k - 1]).strip()
         if not day or not ship or ship.isdigit():
             continue
         rest = c[k + 1:]
