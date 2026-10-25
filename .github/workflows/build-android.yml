@@ -9,7 +9,8 @@ jobs:
   android:
     runs-on: ubuntu-latest
     env:
-      KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+      # Gangway has its own upload key (separate from Saylark's): repository secrets GANGWAY_*.
+      KEYSTORE_BASE64: ${{ secrets.GANGWAY_KEYSTORE_BASE64 }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -27,16 +28,19 @@ jobs:
         run: |
           npx cap add android
           cp -r brand/res/* android/app/src/main/res/
-          # Location lets "Find the port I'm in" work.
-          sed -i 's#<uses-permission android:name="android.permission.INTERNET" />#<uses-permission android:name="android.permission.INTERNET" />\n    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />\n    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />#' android/app/src/main/AndroidManifest.xml
+          # Approximate location lets "Find the port I'm in" work (the app never asks for precise location).
+          sed -i 's#<uses-permission android:name="android.permission.INTERNET" />#<uses-permission android:name="android.permission.INTERNET" />\n    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />#' android/app/src/main/AndroidManifest.xml
           sed -i "s/versionCode 1$/versionCode ${{ github.run_number }}/; s/versionName \"1.0\"/versionName \"1.0.${{ github.run_number }}\"/" android/app/build.gradle
+          # Play rejects an upload whose version code isn't higher than the last one, so stop here if the bump didn't apply.
+          grep -q "versionCode ${{ github.run_number }}" android/app/build.gradle
+          grep -q "ACCESS_COARSE_LOCATION" android/app/src/main/AndroidManifest.xml
           npx cap sync android
       - name: Build
         working-directory: android
         env:
-          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
-          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
-          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+          KEYSTORE_PASSWORD: ${{ secrets.GANGWAY_KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.GANGWAY_KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.GANGWAY_KEY_PASSWORD }}
         run: |
           chmod +x gradlew
           if [ -n "$KEYSTORE_BASE64" ]; then
@@ -65,4 +69,7 @@ jobs:
           body: |
             Gangway test build from ${{ github.sha }}.
             On your Android phone: download Gangway.apk, open it, and allow installing from this source when asked.
-          files: Gangway.apk
+            For Google Play: upload Gangway.aab in Play Console (it is signed with the upload key once the GANGWAY_* secrets are set).
+          files: |
+            Gangway.apk
+            Gangway.aab

@@ -6,7 +6,7 @@ Everything for the store is in this folder: listing text (`listing-en.md`), icon
 
 1. **Google Play developer account.** Use the one from Saylark, or create one at play.google.com/console ($25 once, with ID verification).
 2. **Check your employer's rules** on crew side projects before publishing. The listing names no cruise line and says the app is not affiliated with one.
-3. **Signing key.** Play needs a signed app bundle. Tell me "make the signing key" and I'll create it. You then add 4 secrets in GitHub (repo Settings > Secrets and variables > Actions): `KEYSTORE_BASE64`, `KEYSTORE_PASSWORD`, `KEY_ALIAS`, `KEY_PASSWORD`. The next build then produces a signed `Gangway.aab`.
+3. **Signing key.** Created (25 Oct): `gangway-upload-key.jks` plus `gangway-github-secrets.txt`, kept privately by you, never in the repo. Add its 4 secrets in GitHub (repo Settings > Secrets and variables > Actions): `GANGWAY_KEYSTORE_BASE64`, `GANGWAY_KEYSTORE_PASSWORD`, `GANGWAY_KEY_ALIAS`, `GANGWAY_KEY_PASSWORD`. They have their own names so Gangway and Saylark keep separate keys. Then run the "Build Gangway Android app" workflow; the signed `Gangway.aab` is attached to the "Gangway test build" release.
 4. **Closed test first.** New personal Play accounts must run a closed test with at least 12 testers for 14 days before going public. Crew friends on the ship are perfect testers: they just need a Gmail address.
 
 ## In Play Console (about 30 minutes)
