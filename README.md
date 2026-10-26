@@ -1,6 +1,6 @@
 # Gangway
 
-An offline cruise port guide for crew and passengers, built as an Android (and iOS) app with Capacitor. It covers 312 cruise ports. Download once, tap **Refresh** on ship wifi, then use it all day ashore with no signal.
+An offline cruise port guide for crew and passengers, built as an Android (and iOS) app with Capacitor. It covers 319 cruise ports. Download once, tap **Refresh** on ship wifi, then use it all day ashore with no signal.
 
 ## What's in each port
 - **Eat & drink:** restaurants, cafés and bars near the pier, with walking times.

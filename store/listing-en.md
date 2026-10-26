@@ -9,7 +9,7 @@ Your day ashore, sorted. Food, sights, wifi and SIMs near the pier, offline.
 
 Step off the ship knowing exactly where to go.
 
-Gangway is a port guide made by cruise crew for crew and passengers. It covers 312 cruise ports across the Caribbean, Alaska, Europe, Asia, Australia, South America and more, and it works offline, because ship wifi is slow and roaming is expensive.
+Gangway is a port guide made by cruise crew for crew and passengers. It covers 319 cruise ports across the Caribbean, Alaska, Europe, Asia, Australia, South America and more, and it works offline, because ship wifi is slow and roaming is expensive.
 
 WHAT'S IN EACH PORT
 • Eat & drink: restaurants, cafés and bars near the pier, with walking times
