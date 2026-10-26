@@ -3,6 +3,8 @@ on:
   push:
     paths: ["app/**", "data/**", "tools/app_test.js", ".github/workflows/app-test.yml"]
   workflow_dispatch:
+permissions:
+  contents: write
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -21,8 +23,9 @@ jobs:
           npx playwright install --with-deps chromium
       - name: Run the app test on a phone-sized screen
         run: node tools/app_test.js www test-out
-      - uses: actions/upload-artifact@v4
+      - name: Publish screenshots and report to the "App test results" release
         if: always()
-        with:
-          name: app-test-results
-          path: test-out
+        env: { GH_TOKEN: "${{ github.token }}" }
+        run: |
+          gh release view app-test-results >/dev/null 2>&1 || gh release create app-test-results --title "App test results" --notes "Latest cloud test of the app: report.txt and screenshots." --prerelease
+          gh release upload app-test-results test-out/* --clobber

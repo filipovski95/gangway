@@ -21,6 +21,7 @@ const fail = m => { problems.push(m); console.log("FAIL " + m); };
 const ok = m => { notes.push(m); console.log("ok   " + m); };
 
 (async () => {
+  process.on("unhandledRejection", e => { console.log("::notice title=App test report::Crashed: " + String(e && e.stack || e).replace(/\n/g, "%0A")); process.exit(2); });
   await new Promise(r => server.listen(8123, r));
   const browser = await chromium.launch();
   const ctx = await browser.newContext({ ...devices["Pixel 7"], geolocation: { latitude: 19.33, longitude: -81.38 }, permissions: ["geolocation"] });
@@ -103,7 +104,10 @@ const ok = m => { notes.push(m); console.log("ok   " + m); };
   await page.emulateMedia({ colorScheme: "dark" }); await page.reload(); await page.waitForTimeout(600); await shot("07-dark");
 
   await browser.close(); server.close();
-  fs.writeFileSync(path.join(out, "report.txt"), [`Problems: ${problems.length}`, ...problems.map(p => "FAIL " + p), "", ...notes.map(n => "ok   " + n)].join("\n"));
+  const report = [`Problems: ${problems.length}`, ...problems.map(p => "FAIL " + p), "", ...notes.map(n => "ok   " + n)];
+  fs.writeFileSync(path.join(out, "report.txt"), report.join("\n"));
+  // One annotation carrying the whole report, readable through the GitHub API.
+  console.log("::notice title=App test report::" + report.join("%0A").replace(/\r/g, ""));
   console.log(`\n${problems.length} problem(s)`);
   process.exit(problems.length ? 1 : 0);
-})().catch(e => { console.error(e); process.exit(2); });
+})().catch(e => { console.log("::notice title=App test report::Crashed: " + String(e && e.stack || e).replace(/\n/g, "%0A")); process.exit(2); });
