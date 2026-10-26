@@ -24,12 +24,14 @@ SHARD = tuple(map(int, os.environ["SHARD"].split("/"))) if os.environ.get("SHARD
 # queries far more readily than one large one.
 # Big-city ports have so many places that a normal query runs out of server memory:
 # for them the search circles are smaller and the query may use more memory.
-DENSE = {"nyc", "bwi", "mnl", "got"}
+# (food and essentials scale, sights scale) of the search circles. Baltimore's terminal is in a port
+# district, so food and essentials need a wider circle there while its sights stay tight.
+DENSE = {"nyc": (0.5, 0.5), "mnl": (0.5, 0.5), "got": (0.5, 0.5), "bwi": (1.6, 0.5)}
 
 
-def queries(lat, lon, dense=False):
-    k = 0.5 if dense else 1
-    a = lambda r: f"(around:{int(r * k)},{lat},{lon})"
+def queries(lat, lon, dense=None):
+    near, far = dense or (1, 1)
+    a = lambda r: f"(around:{int(r * (far if r >= 7000 else near))},{lat},{lon})"
     head = "[out:json][timeout:90][maxsize:268435456];" if dense else "[out:json][timeout:90][maxsize:32000000];"
     return [
         head + f"""nwr{a(2000)}[amenity~"^(restaurant|cafe|fast_food|bar|pub|ice_cream)$"][name];out center tags 200;""",
@@ -204,7 +206,7 @@ def fetch_ports(todo, index, done):
         path = os.path.join(OUT, "ports", f"{pid}.json")
         print(f"{pid} {name}", flush=True)
         try:
-            data = {"elements": [el for q in queries(lat, lon, pid in DENSE) for el in fetch(q).get("elements", [])]}
+            data = {"elements": [el for q in queries(lat, lon, DENSE.get(pid)) for el in fetch(q).get("elements", [])]}
         except RuntimeError as e:
             print(f"  skipped: {e}", flush=True)
             failed.append((pid, name, country, region, lat, lon, tender))
