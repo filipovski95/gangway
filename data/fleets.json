@@ -1,6 +1,6 @@
 {
  "Royal Caribbean": {
-  "color": "#1b3f8f",
+  "color": "#1B3F8F",
   "ships": [
    "Icon of the Seas",
    "Star of the Seas",
@@ -33,10 +33,11 @@
    "Grandeur of the Seas",
    "Rhapsody of the Seas"
   ],
-  "band": "#ffd200"
+  "band": "#4FC3F7",
+  "text": "#FFFFFF"
  },
  "Celebrity": {
-  "color": "#111",
+  "color": "#E87722",
   "ships": [
    "Celebrity Xcel",
    "Celebrity Ascent",
@@ -55,10 +56,11 @@
    "Celebrity Flora",
    "Celebrity Xpedition"
   ],
-  "band": "#c9c9c9"
+  "band": "#0E2240",
+  "text": "#FFFFFF"
  },
  "Princess": {
-  "color": "#1f5fa8",
+  "color": "#0072CE",
   "ships": [
    "Sun Princess",
    "Star Princess",
@@ -78,10 +80,11 @@
    "Coral Princess",
    "Island Princess"
   ],
-  "band": "#ffffff"
+  "band": "#FFFFFF",
+  "text": "#FFFFFF"
  },
  "Norwegian": {
-  "color": "#00427a",
+  "color": "#00A9E0",
   "ships": [
    "Norwegian Aqua",
    "Norwegian Viva",
@@ -105,10 +108,11 @@
    "Norwegian Spirit",
    "Pride of America"
   ],
-  "band": "#6ec1e4"
+  "band": "#00205B",
+  "text": "#FFFFFF"
  },
  "Carnival": {
-  "color": "#d6202c",
+  "color": "#E31837",
   "ships": [
    "Carnival Jubilee",
    "Carnival Celebration",
@@ -140,10 +144,11 @@
    "Carnival Encounter",
    "Mardi Gras"
   ],
-  "band": "#1f5fbf"
+  "band": "#0055A4",
+  "text": "#FFFFFF"
  },
  "MSC": {
-  "color": "#0b2a4a",
+  "color": "#C6A15B",
   "ships": [
    "MSC World America",
    "MSC World Europa",
@@ -169,10 +174,11 @@
    "MSC Armonia",
    "MSC Sinfonia"
   ],
-  "band": "#c9a24a"
+  "band": "#00285F",
+  "text": "#00285F"
  },
  "Holland America": {
-  "color": "#0d3b66",
+  "color": "#FFFFFF",
   "ships": [
    "Holland America Rotterdam",
    "Holland America Nieuw Statendam",
@@ -186,10 +192,11 @@
    "Holland America Volendam",
    "Holland America Zaandam"
   ],
-  "band": "#ffffff"
+  "band": "#0A2342",
+  "text": "#0A2342"
  },
  "Disney": {
-  "color": "#a3121f",
+  "color": "#151515",
   "ships": [
    "Disney Treasure",
    "Disney Wish",
@@ -200,30 +207,33 @@
    "Disney Wonder",
    "Disney Adventure"
   ],
-  "band": "#ffd200"
+  "band": "#C8102E",
+  "text": "#FFD200"
  },
  "Cunard": {
-  "color": "#7d1d2c",
+  "color": "#A6192E",
   "ships": [
    "Cunard Queen Anne",
    "Cunard Queen Mary 2",
    "Cunard Queen Victoria",
    "Cunard Queen Elizabeth"
   ],
-  "band": "#111111"
+  "band": "#111111",
+  "text": "#FFFFFF"
  },
  "Virgin Voyages": {
-  "color": "#c8102e",
+  "color": "#D9D9D6",
   "ships": [
    "Virgin Scarlet Lady",
    "Virgin Valiant Lady",
    "Virgin Resilient Lady",
    "Virgin Brilliant Lady"
   ],
-  "band": "#ffffff"
+  "band": "#CC0000",
+  "text": "#CC0000"
  },
  "Oceania": {
-  "color": "#00586e",
+  "color": "#00586E",
   "ships": [
    "Oceania Allura",
    "Oceania Vista",
@@ -234,10 +244,11 @@
    "Oceania Regatta",
    "Oceania Sirena"
   ],
-  "band": "#c9a24a"
+  "band": "#B9975B",
+  "text": "#FFFFFF"
  },
  "Viking": {
-  "color": "#2f4f6f",
+  "color": "#3B4A5A",
   "ships": [
    "Viking Mira",
    "Viking Vela",
@@ -255,10 +266,11 @@
    "Viking Sea",
    "Viking Sun"
   ],
-  "band": "#c9a24a"
+  "band": "#C8A25F",
+  "text": "#FFFFFF"
  },
  "Costa": {
-  "color": "#f6b21a",
+  "color": "#FFC72C",
   "ships": [
    "Costa Smeralda",
    "Costa Toscana",
@@ -272,10 +284,11 @@
    "Costa Serena",
    "Costa Fortuna"
   ],
-  "band": "#1f5fbf"
+  "band": "#003F87",
+  "text": "#003F87"
  },
  "P&O Cruises": {
-  "color": "#00205b",
+  "color": "#0A1F44",
   "ships": [
    "Arvia",
    "Iona",
@@ -285,6 +298,7 @@
    "Arcadia",
    "Aurora"
   ],
-  "band": "#ffd200"
+  "band": "#FFB81C",
+  "text": "#FFB81C"
  }
 }

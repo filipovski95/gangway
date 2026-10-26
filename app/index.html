@@ -357,7 +357,16 @@ main .wrap > * { min-width: 0; }
 .fleet button { border: 2px solid var(--line); background: var(--surface-2); border-radius: 14px; padding: 10px 12px; text-align: left; font-weight: 700; display: grid; gap: 2px; }
 .fleet button small { font-weight: 500; color: var(--muted); font-size: 12.5px; }
 .fleet button[aria-pressed="true"] { border-color: var(--signal); background: color-mix(in srgb, var(--signal) 20%, var(--surface)); }
-.fleet.lines button { display: flex; align-items: center; gap: 10px; }
+.fleet.lines button { display: flex; align-items: center; gap: 8px; border-left: 6px solid var(--lc, var(--line)); padding: 8px 10px 8px 6px; min-height: 64px; }
+.fleet.lines button .funnel { width: 40px; height: 44px; }
+.linenow { font-style: normal; justify-self: start; margin-top: 2px; font-size: 11.5px; font-weight: 600; background: #d7f0df; color: #14532d; border-radius: 6px; padding: 1px 6px; }
+.shipsearch { display: flex; align-items: center; gap: 8px; border: 2px solid var(--line); background: var(--surface-2); border-radius: 14px; padding: 0 12px; }
+.shipsearch svg { width: 18px; height: 18px; color: var(--muted); flex: none; }
+.shipsearch input { flex: 1; min-width: 0; border: 0; background: transparent; font: inherit; font-size: 16px; padding: 12px 0; color: inherit; outline: none; }
+.shipsearch:focus-within { border-color: var(--signal); }
+.fleet.found { grid-template-columns: 1fr; }
+.nofind { padding: 4px 2px; }
+[hidden] { display: none !important; }
 .lineb { width: 36px; height: 36px; border-radius: 10px; background: var(--lc); color: #fff; display: grid; place-items: center; font: 800 15px/1 var(--display); letter-spacing: .04em; flex: none; box-shadow: inset 0 -3px 0 #0003; }
 .fleet.lines button > span:last-child { display: grid; gap: 2px; }
 .todayport { display: grid; gap: 12px; }
@@ -618,7 +627,7 @@ const LIGHTHOUSE = `<svg class="lighthouse" viewBox="0 0 120 150" aria-hidden="t
   <path d="M20 134c20-8 60-8 80 0v16H20z" fill="#3c4f5c"/></svg>`;
 // A funnel in the cruise line's colours, used as its badge.
 // A funnel in the line's own colours (hull colour and band), with its initials: never a copy of the line's logo.
-const funnel = (color, txt, band = "#fff") => `<svg class="funnel" viewBox="0 0 44 48" aria-hidden="true"><path d="M8 46 13 4h26l-5 42z" fill="${color}"/><path d="M12 12.5h26.6" stroke="${band}" stroke-width="5"/><path d="M13 4h26" stroke="#0d2536" stroke-width="3"/><path d="M34 6l-5 40h5l5-42z" fill="#000" opacity=".22"/><text x="23" y="34" text-anchor="middle" font-family="Big Shoulders Display, Arial Narrow, sans-serif" font-weight="800" font-size="${txt.length > 1 ? 14 : 17}" fill="#fff">${txt}</text></svg>`;
+const funnel = (color, txt, band = "#fff", ink = "#fff") => `<svg class="funnel" viewBox="0 0 44 48" aria-hidden="true"><path d="M8 46 13 4h26l-5 42z" fill="${color}" stroke="#0b1820" stroke-opacity=".3" stroke-width="1"/><path d="M11.7 15h27.3l-.7 5.5H11z" fill="${band}"/><path d="M13 4h26l-.5 4H12.5z" fill="#0b1820"/><path d="M34 6l-5 40h5l5-42z" fill="#000" opacity=".16"/><text x="23" y="38" text-anchor="middle" font-family="Big Shoulders Display, Arial Narrow, sans-serif" font-weight="800" font-size="${txt.length > 1 ? 13 : 16}" fill="${ink}">${txt}</text></svg>`;
 // Nautical signal flags on a line.
 function bunting() {
   const flags = [["#e2412f", "#fff"], ["#ffc21a", "#0d2536"], ["#1f5fbf", "#fff"], ["#fff", "#e2412f"], ["#0d2536", "#ffc21a"], ["#18915a", "#fff"],
@@ -636,9 +645,16 @@ const img = (src, cls, alt = "") => src ? `<img class="${cls}" src="${esc(src)}"
 const wikiUrl = t => "https://en.wikipedia.org/wiki/" + encodeURIComponent(t.replace(/ /g, "_"));
 
 /* ---- Cruise lines and their ships (data/fleets.json), with photos (data/ship_photos.json) ---- */
-let FLEETS = {}, LINE_COLOR = {}, LINE_BAND = {}, PHOTOS = {}, INFO = {};
-function setFleets(f) { FLEETS = {}; LINE_COLOR = {}; LINE_BAND = {}; for (const [l, x] of Object.entries(f)) { FLEETS[l] = x.ships; LINE_COLOR[l] = x.color; LINE_BAND[l] = x.band; } }
+let FLEETS = {}, LINE_COLOR = {}, LINE_BAND = {}, LINE_TEXT = {}, PHOTOS = {}, INFO = {};
+function setFleets(f) { FLEETS = {}; LINE_COLOR = {}; LINE_BAND = {}; LINE_TEXT = {}; for (const [l, x] of Object.entries(f)) { FLEETS[l] = x.ships; LINE_COLOR[l] = x.color; LINE_BAND[l] = x.band; LINE_TEXT[l] = x.text; } }
 const lineColor = l => LINE_COLOR[l] || "#557080";
+// Relative brightness of a #rrggbb colour (0 dark to 1 light).
+const lum = h => { const m = /^#?([\da-f]{2})([\da-f]{2})([\da-f]{2})$/i.exec(h || "") || /^#?([\da-f])([\da-f])([\da-f])$/i.exec(h || ""); if (!m) return 0; const v = m.slice(1).map(x => parseInt(x.length < 2 ? x + x : x, 16) / 255); return .2126 * v[0] + .7152 * v[1] + .0722 * v[2]; };
+// A strong colour for headers and stripes: a light livery (white or pale funnel) falls back to its band colour.
+const lineDeep = l => lum(lineColor(l)) > .6 ? (LINE_BAND[l] && lum(LINE_BAND[l]) < .6 ? LINE_BAND[l] : "#0d2536") : lineColor(l);
+// Initials on the funnel: the line's own text colour, else white or navy, whichever reads.
+const lineInk = l => LINE_TEXT[l] || (lum(lineColor(l)) > .6 ? "#0d2536" : "#fff");
+const lineBadge = l => funnel(lineColor(l), esc(initials(l)), LINE_BAND[l], lineInk(l));
 const initials = l => l.split(/\s|&/).filter(Boolean).map(w => w[0]).join("").slice(0, 2);
 // The ship's photo ships inside the app; one added after this build comes from the online copy.
 function shipPhoto(name, cls = "") {
@@ -714,7 +730,7 @@ addEventListener("resize", setBandHeight);
 function shipHero(name, line, sub) {
   const ph = name ? shipPhoto(name, "shipphoto") : "";
   return `<div class="hero${ph ? " photo" : ""}">${ph}<div class="scene">${bunting()}<div class="sun"></div><div class="sea"></div>${shipArt(lineColor(line), true)}</div>
-    <div class="ovl">${line ? funnel(lineColor(line), esc(initials(line)), LINE_BAND[line]) : `<svg class="wheel" viewBox="0 0 48 48" aria-hidden="true"><use href="#wheel"/></svg>`}
+    <div class="ovl">${line ? lineBadge(line) : `<svg class="wheel" viewBox="0 0 48 48" aria-hidden="true"><use href="#wheel"/></svg>`}
     <span><span class="lbl">${sub}</span><span class="shipname">${esc(name || "Which ship are you on?")}</span></span></div></div>`;
 }
 // A row of brass plaques with the ship's basic facts (data/ship_info.json, from Wikipedia).
@@ -994,24 +1010,38 @@ function pickShip(line) {
   const el = document.createElement("div");
   el.className = "sheet";
   const close = () => closeSheet();
+  const shipBtn = (n, l, withLine) => { const c = today(n); const short = n.replace(new RegExp("^(" + l.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + "|Celebrity|Norwegian|Carnival|MSC|Costa|Disney|Oceania|Holland America|Cunard|Viking|Virgin) "), ""); return `<button data-ship="${esc(n)}" data-sline="${esc(l)}" aria-pressed="${sameShip(n, cur)}"><span class="porthole sm" aria-hidden="true">${shipArt(lineColor(l))}${shipPhoto(n)}</span><span>${esc(short)}<small>${withLine ? esc(l) + " · " : ""}${c ? "⛴ " + esc(c.p ? portName(c.p) : c.n) + " today" : sched(n) ? "At sea or no port today" : "No published schedule"}</small></span></button>`; };
+  const bindShips = root => root.querySelectorAll("[data-ship]").forEach(b => b.onclick = () => { store.set("ship", b.dataset.ship); store.set("line", b.dataset.sline); close(); state.listY = null; scrollTo(0, 0); });
   const draw = l => {
     if (!l) {
       el.innerHTML = `<div class="in" role="dialog" aria-label="Choose your cruise line">
         ${sheetHead("#0d2536", `<svg class="sh-wheel" viewBox="0 0 48 48" aria-hidden="true"><use href="#wheel"/></svg>`, "Which cruise line?", "Then pick your ship", true)}
         <p>Gangway then shows today's port and your all-aboard time.</p>
-        <div class="fleet lines">${lines.map(x => { const n = all[x].filter(today).length; return `<button data-line="${esc(x)}">${funnel(lineColor(x), esc(initials(x)), LINE_BAND[x])}<span>${esc(x)}<small>${all[x].length} ships${n ? ` · ${n} in port today` : ""}</small></span></button>`; }).join("")}</div>
+        <label class="shipsearch"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="2"/><path d="M16.5 16.5 21 21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><input type="search" data-find placeholder="Search your ship, like Wonder" autocomplete="off" aria-label="Search your ship"></label>
+        <div class="fleet ships found" data-found hidden></div>
+        <div class="fleet lines" data-lines>${lines.map(x => { const n = all[x].filter(today).length; return `<button data-line="${esc(x)}" style="--lc:${lineDeep(x)}">${lineBadge(x)}<span>${esc(x)}<small>${all[x].length} ships</small>${n ? `<em class="linenow">${n} in port today</em>` : ""}</span></button>`; }).join("")}</div>
         <p>All aboard is how long before sailing?</p>
         <div class="seg">${[30, 45, 60, 90].map(m => `<button class="chip" data-off="${m}" aria-pressed="${m === offset()}">${m} min</button>`).join("")}</div>
         <div class="seg">${cur ? `<button class="btn" data-clear>Not on a ship</button>` : ""}<button class="btn go" data-done style="margin-left:auto">Done</button></div></div>`;
     } else {
       const ships = [...all[l]].sort((a, b) => !!today(b) - !!today(a) || a.localeCompare(b));
       el.innerHTML = `<div class="in" role="dialog" aria-label="Choose your ship">
-        ${sheetHead(lineColor(l), funnel(lineColor(l), esc(initials(l)), LINE_BAND[l]), esc(l), `${all[l].length} ships · tap yours`, true)}
+        ${sheetHead(lineDeep(l), lineBadge(l), esc(l), `${all[l].length} ships · tap yours`, true)}
         <p>Ships with a port today come first. Wrong cruise line? Tap the back arrow.</p>
-        <div class="fleet ships">${ships.map(n => { const c = today(n); const short = n.replace(new RegExp("^(" + l + "|Celebrity|Norwegian|Carnival|MSC|Costa|Disney|Oceania|Holland America|Cunard|Viking|Virgin) "), ""); return `<button data-ship="${esc(n)}" aria-pressed="${sameShip(n, cur)}"><span class="porthole sm" aria-hidden="true">${shipArt(lineColor(l))}${shipPhoto(n)}</span><span>${esc(short)}<small>${c ? "⛴ " + esc(c.p ? portName(c.p) : c.n) + " today" : sched(n) ? "At sea or no port today" : "No published schedule"}</small></span></button>`; }).join("")}</div></div>`;
+        <div class="fleet ships">${ships.map(n => shipBtn(n, l)).join("")}</div></div>`;
     }
     el.querySelectorAll("[data-line]").forEach(b => b.onclick = () => { sheetPush(() => draw(null)); draw(b.dataset.line); });
-    el.querySelectorAll("[data-ship]").forEach(b => b.onclick = () => { store.set("ship", b.dataset.ship); store.set("line", l); close(); state.listY = null; scrollTo(0, 0); });
+    bindShips(el);
+    const find = el.querySelector("[data-find]");
+    if (find) find.oninput = () => {
+      const t = find.value.trim().toLowerCase(), box = el.querySelector("[data-found]"), grid = el.querySelector("[data-lines]");
+      if (t.length < 2) { box.hidden = true; box.innerHTML = ""; grid.hidden = false; return; }
+      const hits = [];
+      for (const x of lines) for (const n of all[x]) if (n.toLowerCase().includes(t)) hits.push([n, x]);
+      hits.sort((a, b) => !!today(b[0]) - !!today(a[0]) || a[0].localeCompare(b[0]));
+      box.innerHTML = hits.length ? hits.slice(0, 30).map(([n, x]) => shipBtn(n, x, true)).join("") : `<p class="nofind">No ship called “${esc(find.value.trim())}”. Try part of the name, or pick your cruise line below.</p>`;
+      box.hidden = false; grid.hidden = hits.length > 0; bindShips(box);
+    };
     el.querySelectorAll("[data-off]").forEach(b => b.onclick = () => { store.set("offset", +b.dataset.off); el.querySelectorAll("[data-off]").forEach(x => x.setAttribute("aria-pressed", x === b)); });
     const q = sel => el.querySelector(sel);
     if (q("[data-back]")) q("[data-back]").onclick = () => history.back();
