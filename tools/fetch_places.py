@@ -22,9 +22,15 @@ SHARD = tuple(map(int, os.environ["SHARD"].split("/"))) if os.environ.get("SHARD
 
 # Three small queries per port: busy Overpass servers accept short, light
 # queries far more readily than one large one.
-def queries(lat, lon):
-    a = lambda r: f"(around:{r},{lat},{lon})"
-    head = "[out:json][timeout:90][maxsize:32000000];"  # dense city ports (New York, Manila) need the longer limit
+# Big-city ports have so many places that a normal query runs out of server memory:
+# for them the search circles are smaller and the query may use more memory.
+DENSE = {"nyc", "bwi", "mnl", "got"}
+
+
+def queries(lat, lon, dense=False):
+    k = 0.5 if dense else 1
+    a = lambda r: f"(around:{int(r * k)},{lat},{lon})"
+    head = "[out:json][timeout:90][maxsize:268435456];" if dense else "[out:json][timeout:90][maxsize:32000000];"
     return [
         head + f"""nwr{a(2000)}[amenity~"^(restaurant|cafe|fast_food|bar|pub|ice_cream)$"][name];out center tags 200;""",
         head + f"""(nwr{a(7000)}[tourism~"^(attraction|museum|viewpoint|gallery|zoo|aquarium|theme_park)$"][name];
@@ -198,7 +204,7 @@ def fetch_ports(todo, index, done):
         path = os.path.join(OUT, "ports", f"{pid}.json")
         print(f"{pid} {name}", flush=True)
         try:
-            data = {"elements": [el for q in queries(lat, lon) for el in fetch(q).get("elements", [])]}
+            data = {"elements": [el for q in queries(lat, lon, pid in DENSE) for el in fetch(q).get("elements", [])]}
         except RuntimeError as e:
             print(f"  skipped: {e}", flush=True)
             failed.append((pid, name, country, region, lat, lon, tender))
