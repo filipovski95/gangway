@@ -24,7 +24,7 @@ SHARD = tuple(map(int, os.environ["SHARD"].split("/"))) if os.environ.get("SHARD
 # queries far more readily than one large one.
 def queries(lat, lon):
     a = lambda r: f"(around:{r},{lat},{lon})"
-    head = "[out:json][timeout:30][maxsize:16000000];"
+    head = "[out:json][timeout:90][maxsize:32000000];"  # dense city ports (New York, Manila) need the longer limit
     return [
         head + f"""nwr{a(2000)}[amenity~"^(restaurant|cafe|fast_food|bar|pub|ice_cream)$"][name];out center tags 200;""",
         head + f"""(nwr{a(7000)}[tourism~"^(attraction|museum|viewpoint|gallery|zoo|aquarium|theme_park)$"][name];
@@ -43,7 +43,7 @@ def fetch(q):
         url = MIRRORS[(attempt + (SHARD[0] if SHARD else 0)) % len(MIRRORS)]
         try:
             req = urllib.request.Request(url, data=body, headers={"User-Agent": UA})
-            with urllib.request.urlopen(req, timeout=60) as r:
+            with urllib.request.urlopen(req, timeout=120) as r:
                 data = json.load(r)
             # A busy server can time out mid-query and still answer 200 with a partial result.
             if "remark" in data and ("error" in data["remark"] or "timed out" in data["remark"]):
