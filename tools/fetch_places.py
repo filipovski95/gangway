@@ -52,6 +52,8 @@ def fetch(q):
         except Exception as e:  # busy servers and timeouts: rotate mirrors, back off
             last = e
             print(f"  {url.split('/')[2]}: {e}", flush=True)
+            if os.environ.get("GITHUB_ACTIONS"):  # visible in the run's annotations
+                print(f"::warning title=Overpass::{url.split('/')[2]}: {str(e)[:160]}", flush=True)
             time.sleep(3 + 4 * attempt)
     raise RuntimeError(f"Overpass failed: {last}")
 
