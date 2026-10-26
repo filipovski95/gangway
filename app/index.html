@@ -647,14 +647,21 @@ const wikiUrl = t => "https://en.wikipedia.org/wiki/" + encodeURIComponent(t.rep
 /* ---- Cruise lines and their ships (data/fleets.json), with photos (data/ship_photos.json) ---- */
 let FLEETS = {}, LINE_COLOR = {}, LINE_BAND = {}, LINE_TEXT = {}, PHOTOS = {}, INFO = {};
 function setFleets(f) { FLEETS = {}; LINE_COLOR = {}; LINE_BAND = {}; LINE_TEXT = {}; for (const [l, x] of Object.entries(f)) { FLEETS[l] = x.ships; LINE_COLOR[l] = x.color; LINE_BAND[l] = x.band; LINE_TEXT[l] = x.text; } }
-const lineColor = l => LINE_COLOR[l] || "#557080";
+// Colours for cruise lines that only appear in ship schedules: [funnel, band, initials], each line its own.
+const EXTRA_LIVERY = { "AIDA": ["#D6006F", "#0055A4", "#fff"], "TUI Cruises": ["#70CBF4", "#D40E14", "#0d2536"], "Marella": ["#00A19A", "#092A5E", "#fff"],
+  "Silversea": ["#A7A9AC", "#0A2342", "#0A2342"], "Regent Seven Seas": ["#4A2545", "#D4AF37", "#fff"], "Azamara": ["#4A6FA5", "#FFFFFF", "#fff"],
+  "Seabourn": ["#2B2B2B", "#FFFFFF", "#fff"], "Ponant": ["#BFD3E6", "#0A2342", "#0A2342"], "Windstar": ["#1F6F5C", "#FFFFFF", "#fff"],
+  "Explora Journeys": ["#E3D7C1", "#3A3A3A", "#3A3A3A"], "Crystal": ["#9C8DC9", "#FFFFFF", "#fff"], "Emerald": ["#00A86B", "#D4AF37", "#fff"],
+  "Other lines": ["#7A8A94", "#FFFFFF", "#fff"] };
+const lineColor = l => LINE_COLOR[l] || (EXTRA_LIVERY[l] || [])[0] || "#7A8A94";
+const lineBand = l => LINE_BAND[l] || (EXTRA_LIVERY[l] || [])[1] || "#fff";
 // Relative brightness of a #rrggbb colour (0 dark to 1 light).
 const lum = h => { const m = /^#?([\da-f]{2})([\da-f]{2})([\da-f]{2})$/i.exec(h || "") || /^#?([\da-f])([\da-f])([\da-f])$/i.exec(h || ""); if (!m) return 0; const v = m.slice(1).map(x => parseInt(x.length < 2 ? x + x : x, 16) / 255); return .2126 * v[0] + .7152 * v[1] + .0722 * v[2]; };
 // A strong colour for headers and stripes: a light livery (white or pale funnel) falls back to its band colour.
-const lineDeep = l => lum(lineColor(l)) > .6 ? (LINE_BAND[l] && lum(LINE_BAND[l]) < .6 ? LINE_BAND[l] : "#0d2536") : lineColor(l);
+const lineDeep = l => lum(lineColor(l)) > .6 ? (lum(lineBand(l)) < .6 ? lineBand(l) : "#0d2536") : lineColor(l);
 // Initials on the funnel: the line's own text colour, else white or navy, whichever reads.
-const lineInk = l => LINE_TEXT[l] || (lum(lineColor(l)) > .6 ? "#0d2536" : "#fff");
-const lineBadge = l => funnel(lineColor(l), esc(initials(l)), LINE_BAND[l], lineInk(l));
+const lineInk = l => LINE_TEXT[l] || (EXTRA_LIVERY[l] || [])[2] || (lum(lineColor(l)) > .6 ? "#0d2536" : "#fff");
+const lineBadge = l => funnel(lineColor(l), esc(initials(l)), lineBand(l), lineInk(l));
 const initials = l => l.split(/\s|&/).filter(Boolean).map(w => w[0]).join("").slice(0, 2);
 // The ship's photo ships inside the app; one added after this build comes from the online copy.
 function shipPhoto(name, cls = "") {
