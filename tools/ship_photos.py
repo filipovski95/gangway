@@ -9,7 +9,7 @@ import gzip, json, os, re, sys, time, urllib.parse, urllib.request
 
 DATA = os.path.join(os.path.dirname(__file__), "..", "data")
 API = "https://en.wikipedia.org/w/api.php"
-UA = "Gangway/0.2 (offline cruise port guide; https://github.com/filipovski95/linguapath)"
+UA = "Gangway/0.2 (offline cruise port guide; https://github.com/filipovski95/gangway)"
 WIDTH = 480
 
 

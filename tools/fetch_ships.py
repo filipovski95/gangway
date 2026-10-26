@@ -10,7 +10,7 @@ sys.path.insert(0, os.path.dirname(__file__))
 from ports_src import PORTS
 
 OUT = os.path.join(os.path.dirname(__file__), "..", "data", "ships.json")
-UA = "Gangway/0.2 (offline cruise port guide for crew; https://github.com/filipovski95/linguapath)"
+UA = "Gangway/0.2 (offline cruise port guide for crew; https://github.com/filipovski95/gangway)"
 SHIPS = ["Silhouette", "Xcel", "Ascent", "Beyond", "Apex", "Edge", "Reflection", "Eclipse", "Equinox",
          "Solstice", "Constellation", "Infinity", "Summit", "Millennium"]
 # Itinerary names that don't contain our port's name.

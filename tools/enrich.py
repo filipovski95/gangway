@@ -10,7 +10,7 @@ from datetime import date
 
 OUT = os.path.join(os.path.dirname(__file__), "..", "data")
 API = "https://en.wikipedia.org/w/api.php"
-UA = "Gangway/0.2 (offline cruise port guide; https://github.com/filipovski95/linguapath)"
+UA = "Gangway/0.2 (offline cruise port guide; https://github.com/filipovski95/gangway)"
 MAX_SIGHTS = 50
 
 LANDMARK = re.compile(r"\b(church|cathedral|basilica|chapel|mosque|temple|shrine|synagogue|monastery|abbey|convent|museum|gallery|"

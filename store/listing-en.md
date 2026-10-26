@@ -40,7 +40,7 @@ Place data © OpenStreetMap contributors. Gangway is an independent app and is n
 **Category:** Travel & Local
 **Tags:** Cruise, Travel guide, Offline maps
 **Contact email:** filipovskisasho95@gmail.com
-**Privacy policy URL:** https://github.com/filipovski95/linguapath/blob/claude/project-thread-gib0pa/PRIVACY.md (move to Gangway's own repository later)
+**Privacy policy URL:** https://github.com/filipovski95/gangway/blob/main/PRIVACY.md
 
 ## Data safety form answers
 • Does the app collect or share user data? No.

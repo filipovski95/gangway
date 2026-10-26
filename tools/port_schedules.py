@@ -21,7 +21,7 @@ import urllib.request
 from datetime import date, datetime, timedelta, timezone
 
 OUT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "data", "ships.json")
-UA = "Gangway/0.2 (offline cruise port guide for crew; https://github.com/filipovski95/linguapath)"
+UA = "Gangway/0.2 (offline cruise port guide for crew; https://github.com/filipovski95/gangway)"
 TIMEOUT = 40
 DELAY = 2.0
 # Keep everything ports publish up to the end of next year: together the ports give each ship's itinerary.
