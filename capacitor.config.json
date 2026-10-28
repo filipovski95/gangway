@@ -1,0 +1,10 @@
+{
+  "appId": "com.filipovski.plume",
+  "appName": "Plume",
+  "webDir": "www",
+  "backgroundColor": "#F7F3EE",
+  "plugins": {
+    "SystemBars": { "insetsHandling": "css", "initialViewportFitValueHint": "cover", "style": "DEFAULT" },
+    "LocalNotifications": { "iconColor": "#7B3FB0" }
+  }
+}

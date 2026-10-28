@@ -1,0 +1,7 @@
+node_modules/
+www/
+android/
+ios/
+test-out/
+*.jks
+*.keystore

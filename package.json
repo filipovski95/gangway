@@ -1,0 +1,14 @@
+{
+  "name": "plume",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Plume: a private GLP-1 shot, protein, water and weight tracker",
+  "dependencies": {
+    "@capacitor/android": "8.5.2",
+    "@capacitor/cli": "8.5.2",
+    "@capacitor/core": "8.5.2",
+    "@capacitor/ios": "8.5.2",
+    "@capacitor/local-notifications": "^8.0.0",
+    "@capacitor/share": "^8.0.0"
+  }
+}

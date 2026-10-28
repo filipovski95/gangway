@@ -1,0 +1,92 @@
+name: Plume app
+on:
+  push:
+    branches: [plume]
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  test:
+    name: Test on a phone-sized screen
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: "22" }
+      - name: Install a headless browser
+        run: |
+          npm install --no-save playwright@1
+          npx playwright install --with-deps chromium
+      - name: Run the app test
+        run: node tools/app_test.js app test-out
+      - name: Publish screenshots and report to the "Plume test results" release
+        if: always()
+        env: { GH_TOKEN: "${{ github.token }}" }
+        run: |
+          gh release view plume-test-results >/dev/null 2>&1 || gh release create plume-test-results --target "${{ github.sha }}" --title "Plume test results" --notes "Latest cloud test of the Plume app: report.txt and screenshots." --prerelease
+          gh release upload plume-test-results test-out/* --clobber
+
+  android:
+    name: Build Android app
+    runs-on: ubuntu-latest
+    env:
+      KEYSTORE_BASE64: ${{ secrets.PLUME_KEYSTORE_BASE64 }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: "22" }
+      - uses: actions/setup-java@v5
+        with: { distribution: temurin, java-version: "21" }
+      - name: Assemble web app
+        run: |
+          mkdir -p www && cp -r app/. www/
+          cp brand/play-icon-512.png www/icon.png
+      - run: npm install
+      - name: Create Android project
+        run: |
+          npx cap add android
+          cp -r brand/res/* android/app/src/main/res/
+          sed -i "s/versionCode 1$/versionCode ${{ github.run_number }}/; s/versionName \"1.0\"/versionName \"1.0.${{ github.run_number }}\"/" android/app/build.gradle
+          # Play rejects an upload whose version code isn't higher than the last one, so stop here if the bump didn't apply.
+          grep -q "versionCode ${{ github.run_number }}" android/app/build.gradle
+          npx cap sync android
+      - name: Build
+        working-directory: android
+        env:
+          KEYSTORE_PASSWORD: ${{ secrets.PLUME_KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.PLUME_KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.PLUME_KEY_PASSWORD }}
+        run: |
+          chmod +x gradlew
+          if [ -n "$KEYSTORE_BASE64" ]; then
+            echo "$KEYSTORE_BASE64" | base64 -d > "$RUNNER_TEMP/upload.jks"
+            SIGN="-Pandroid.injected.signing.store.file=$RUNNER_TEMP/upload.jks -Pandroid.injected.signing.store.password=$KEYSTORE_PASSWORD -Pandroid.injected.signing.key.alias=$KEY_ALIAS -Pandroid.injected.signing.key.password=$KEY_PASSWORD"
+            ./gradlew bundleRelease assembleRelease $SIGN
+            cp app/build/outputs/apk/release/app-release.apk ../Plume.apk
+          else
+            ./gradlew bundleRelease assembleDebug
+            cp app/build/outputs/apk/debug/app-debug.apk ../Plume.apk
+          fi
+          cp app/build/outputs/bundle/release/app-release.aab ../Plume.aab
+      - uses: actions/upload-artifact@v4
+        with:
+          name: plume-android
+          path: |
+            Plume.apk
+            Plume.aab
+      - name: Publish test build for phones
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: plume-test-build
+          target_commitish: ${{ github.sha }}
+          name: Plume test build
+          prerelease: true
+          make_latest: false
+          body: |
+            Plume test build from ${{ github.sha }}.
+            On your Android phone: download Plume.apk, open it, and allow installing from this source when asked.
+            For Google Play: upload Plume.aab in Play Console (signed with the upload key once the PLUME_* secrets are set).
+          files: |
+            Plume.apk
+            Plume.aab
