@@ -65,6 +65,8 @@ function sampleData(now) {
 
   // ---------- Onboarding ----------
   await shot("01-welcome");
+  if (await page.locator("#nav").isVisible()) fail("Bottom nav bar should be hidden during onboarding");
+  else ok("Nav bar hidden during onboarding");
   await tap('[data-action="ob-next"]');
   await tap('[data-action="ob-set"][data-k="med"][data-v="Zepbound"]');
   await tap('[data-action="ob-set"][data-k="dose"][data-v="5 mg"]');
