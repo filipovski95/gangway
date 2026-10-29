@@ -252,6 +252,7 @@ textarea.input { height: 84px; padding: 14px 16px; resize: none; }
 .rem-row { padding: 12px 16px; }
 .rem-text { flex: 1; text-align: left; min-width: 0; }
 .rem-text b { display: block; font-weight: 600; font-size: 15px; }
+.rem-more { font-style: normal; color: var(--muted); font-weight: 400; }
 .rem-text span { display: block; color: var(--muted); font-size: 13px; margin-top: 2px; line-height: 1.35; }
 .toggle { width: 50px; height: 30px; border-radius: 999px; background: var(--line); position: relative; flex: none; transition: background .2s; }
 .toggle::after { content: ""; position: absolute; top: 3px; left: 3px; width: 24px; height: 24px; border-radius: 50%; background: #fff; transition: transform .2s; box-shadow: 0 1px 3px #0003; }
@@ -783,7 +784,7 @@ function hourLabel(h) { return h === 0 || h === 24 ? "12 AM" : h === 12 ? "12 PM
 function reminderRow(k, title, sub, editAction) {
   const on = S.settings[k];
   return `<div class="set-row rem-row">
-    <button class="rem-text" ${editAction ? `data-action="${editAction}"` : `data-action="toggle" data-k="${k}"`}><b>${title}${editAction ? ` <span style="color:var(--muted);font-weight:400">›</span>` : ""}</b><span>${sub}</span></button>
+    <button class="rem-text" ${editAction ? `data-action="${editAction}"` : `data-action="toggle" data-k="${k}"`}><b>${title}${editAction ? ` <i class="rem-more">›</i>` : ""}</b><span>${sub}</span></button>
     <button class="toggle ${on ? "on" : ""}" data-action="toggle" data-k="${k}" aria-label="${title} reminder"></button></div>`;
 }
 
