@@ -249,6 +249,10 @@ textarea.input { height: 84px; padding: 14px 16px; resize: none; }
 .set-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 15px 16px; width: 100%; text-align: left; font-size: 15px; }
 .set-row + .set-row { border-top: 1px solid var(--line); }
 .set-row .v { color: var(--muted); font-size: 14px; }
+.rem-row { padding: 12px 16px; }
+.rem-text { flex: 1; text-align: left; min-width: 0; }
+.rem-text b { display: block; font-weight: 600; font-size: 15px; }
+.rem-text span { display: block; color: var(--muted); font-size: 13px; margin-top: 2px; line-height: 1.35; }
 .toggle { width: 50px; height: 30px; border-radius: 999px; background: var(--line); position: relative; flex: none; transition: background .2s; }
 .toggle::after { content: ""; position: absolute; top: 3px; left: 3px; width: 24px; height: 24px; border-radius: 50%; background: #fff; transition: transform .2s; box-shadow: 0 1px 3px #0003; }
 .toggle.on { background: var(--mint); }
@@ -334,7 +338,8 @@ function freshState() {
     settings: {
       onboarded: false, name: "", med: "Zepbound", dose: "2.5 mg", shotDay: 1, shotTime: "19:00",
       unit: "lb", goalWeight: null, proteinGoal: 100, waterGoal: 8,
-      remindShot: true, remindDaily: false, pro: false,
+      remindShot: true, remindWater: true, remindProtein: true, remindWeigh: true, remindCheckin: true, remindDaily: false,
+      waterStart: 9, waterEnd: 19, waterEvery: 2, pro: false,
     },
     shots: [],    // { id, ts, med, dose, site, note }
     weights: [],  // { id, date, value }  value in the user's unit at the time it was saved (converted on unit change)
@@ -749,8 +754,13 @@ function viewMe() {
   </div>
   <div class="section-title">Reminders</div>
   <div class="list">
-    <button class="set-row" data-action="toggle" data-k="remindShot"><span>Shot day reminder</span><span class="toggle ${s.remindShot ? "on" : ""}"></span></button>
-    <button class="set-row" data-action="toggle" data-k="remindDaily"><span>Evening protein &amp; water check-in</span><span class="toggle ${s.remindDaily ? "on" : ""}"></span></button>
+    ${reminderRow("remindShot", "💉 Shot day", `${DAY_LONG[s.shotDay]}s at ${fmtTime(atTime(new Date(), s.shotTime))}, plus a nudge if you're late`)}
+    ${reminderRow("remindWater", "💧 Water", `Every ${s.waterEvery === 1 ? "hour" : s.waterEvery + " hours"}, ${hourLabel(s.waterStart)}–${hourLabel(s.waterEnd)}. Stops once you hit your goal`, "edit-water")}
+    ${reminderRow("remindProtein", "🥩 Lunch protein", "1 PM, skipped if you've hit your goal")}
+    ${reminderRow("remindWeigh", "⚖️ Weekly weigh-in", `${DAY_LONG[s.shotDay]} mornings at 8 AM`)}
+    ${reminderRow("remindCheckin", "🌿 Day-after-shot check-in", `${DAY_LONG[(s.shotDay + 1) % 7]}s at 6 PM`)}
+    ${reminderRow("remindDaily", "🌙 Evening wrap-up", "Every day at 8 PM")}
+    <button class="set-row" data-action="test-notif"><span>🔔 Send a test notification</span><span class="v">Hear the sounds ›</span></button>
   </div>
   <div class="section-title">Goals</div>
   <div class="list">
@@ -767,6 +777,14 @@ function viewMe() {
     ${TEST_BUILD && s.pro ? `<button class="set-row" data-action="unpro"><span>Turn Pro off (test build)</span><span class="v">›</span></button>` : ""}
   </div>
   <div class="disclaimer">Plume is a personal tracking tool, not medical advice. Always follow your prescriber's instructions. Medication names are trademarks of their owners; Plume isn't affiliated with any drug maker.<br><br>Plume 1.0</div>`;
+}
+
+function hourLabel(h) { return h === 0 || h === 24 ? "12 AM" : h === 12 ? "12 PM" : h < 12 ? `${h} AM` : `${h - 12} PM`; }
+function reminderRow(k, title, sub, editAction) {
+  const on = S.settings[k];
+  return `<div class="set-row rem-row">
+    <button class="rem-text" ${editAction ? `data-action="${editAction}"` : `data-action="toggle" data-k="${k}"`}><b>${title}${editAction ? ` <span style="color:var(--muted);font-weight:400">›</span>` : ""}</b><span>${sub}</span></button>
+    <button class="toggle ${on ? "on" : ""}" data-action="toggle" data-k="${k}" aria-label="${title} reminder"></button></div>`;
 }
 
 /* ---------- Onboarding ---------- */
@@ -962,6 +980,18 @@ function sheetGoals() {
   draw();
 }
 function convert(v, from, to) { if (v == null || from === to) return v; return to === "kg" ? v / 2.20462 : v * 2.20462; }
+function sheetWater() {
+  const s = S.settings;
+  sheetCtx = { waterStart: s.waterStart, waterEnd: s.waterEnd, waterEvery: s.waterEvery };
+  const hours = [6, 7, 8, 9, 10, 11, 12], ends = [17, 18, 19, 20, 21, 22];
+  const draw = () => openSheet(`<h2>Water reminders 💧</h2><p class="hint">Plume stops reminding you for the day once you reach ${s.waterGoal} cups.</p>
+    <div class="field"><label>Start</label><div class="opts">${hours.map(h => `<button class="opt ${sheetCtx.waterStart === h ? "on" : ""}" data-action="water-opt" data-k="waterStart" data-v="${h}">${hourLabel(h)}</button>`).join("")}</div></div>
+    <div class="field"><label>Last reminder before</label><div class="opts">${ends.map(h => `<button class="opt ${sheetCtx.waterEnd === h ? "on" : ""}" data-action="water-opt" data-k="waterEnd" data-v="${h}">${hourLabel(h)}</button>`).join("")}</div></div>
+    <div class="field"><label>How often</label><div class="opts">${[1, 2, 3].map(h => `<button class="opt ${sheetCtx.waterEvery === h ? "on" : ""}" data-action="water-opt" data-k="waterEvery" data-v="${h}">Every ${h === 1 ? "hour" : h + " hours"}</button>`).join("")}</div></div>
+    <div class="actions"><button class="btn btn-plum" data-action="water-save">Save</button></div>`, sheetCtx);
+  sheetCtx.redraw = draw;
+  draw();
+}
 function sheetName() {
   openSheet(`<h2>Your name</h2><p class="hint">Used for your greeting only.</p>
     <div class="field"><input class="input" id="n-val" placeholder="First name" value="${esc(S.settings.name)}"></div>
@@ -1038,28 +1068,105 @@ async function shareReport() {
 /* ============================================================
    Reminders (Android notifications through Capacitor)
    ============================================================ */
+/* Smart reminders: the daily nudges are planned one by one for the next 8 days, so today's water or protein
+   reminders are skipped once the goal is hit. The plan is rebuilt whenever the app opens or something is logged.
+   The shot-day reminder repeats weekly on its own, so it keeps working even if the app isn't opened for weeks. */
+const REMINDER_KEYS = ["remindShot", "remindWater", "remindProtein", "remindWeigh", "remindCheckin", "remindDaily"];
+const WATER_LINES = [
+  ["Water break 💧", "A few sips now helps with nausea and headaches."],
+  ["Time for a glass 💧", "Staying hydrated keeps things moving on a GLP-1."],
+  ["Sip, sip 💧", "Tap to add a cup to today."],
+  ["Hydration check 💧", "How many cups so far? Tap to log."],
+];
+function atTime(base, hhmm) { const [h, m] = String(hhmm).split(":").map(Number); const d = new Date(base); d.setHours(h, m || 0, 0, 0); return d; }
+function reminderPlan(now = new Date()) {
+  const s = S.settings, list = [];
+  const soon = new Date(+now + 60000);
+  const t = S.days[dayKey(now)] || { protein: 0, water: 0 };
+  const [sh, sm] = s.shotTime.split(":").map(Number);
+  if (s.remindShot) {
+    list.push({ id: 1, title: "It's shot day 💉", body: `${s.med} ${s.dose}. Suggested site: ${siteLabel(suggestedSite())}.`,
+      schedule: { on: { weekday: s.shotDay + 1, hour: sh, minute: sm }, allowWhileIdle: true } });
+    // Overdue nudge: if the shot is late, remind again at 10 AM the next morning.
+    const st = shotStatus();
+    if (st.overdue) {
+      let at = atTime(now, "10:00"); if (at <= soon) at = new Date(+at + DAY);
+      list.push({ id: 6000, title: "Did you take your shot? 💉", body: "It's past shot day. Log it once you've taken it so your countdown stays right.", schedule: { at, allowWhileIdle: true } });
+    }
+  }
+  for (let i = 0; i <= 7; i++) {
+    const day = new Date(+now + i * DAY); day.setHours(12, 0, 0, 0);
+    const isToday = i === 0, wd = day.getDay();
+    if (s.remindWater && !(isToday && t.water >= s.waterGoal)) {
+      let idx = 0;
+      for (let h = s.waterStart; h < s.waterEnd; h += s.waterEvery) {
+        const at = atTime(day, `${h}:00`);
+        if (at > soon) { const [title, body] = WATER_LINES[(i + idx) % WATER_LINES.length]; list.push({ id: 1000 + i * 20 + idx, title, body, channelId: "plume-water", schedule: { at, allowWhileIdle: true } }); }
+        idx++;
+      }
+    }
+    if (s.remindProtein && !(isToday && t.protein >= s.proteinGoal)) {
+      const at = atTime(day, "13:00");
+      if (at > soon) list.push({ id: 2000 + i, title: "Protein first 🥩", body: `Aim for about ${Math.round(s.proteinGoal / 3)} g at lunch. Tap to log what you ate.`, schedule: { at, allowWhileIdle: true } });
+    }
+    if (s.remindWeigh && wd === s.shotDay) {
+      const at = atTime(day, "08:00");
+      if (at > soon) list.push({ id: 5000 + i, title: "Weigh-in morning ⚖️", body: "Before breakfast, same scale. Small steps add up.", schedule: { at, allowWhileIdle: true } });
+    }
+    if (s.remindCheckin && wd === (s.shotDay + 1) % 7) {
+      const at = atTime(day, "18:00");
+      if (at > soon) list.push({ id: 4000 + i, title: "How are you feeling? 🌿", body: "The day after a shot is when side effects often show up. Tap to log.", schedule: { at, allowWhileIdle: true } });
+    }
+    if (s.remindDaily) {
+      const at = atTime(day, "20:00");
+      if (at > soon) list.push({ id: 3000 + i, title: "Evening check-in 🌙", body: "How did protein and water go today? Tap to log.", schedule: { at, allowWhileIdle: true } });
+    }
+  }
+  list.forEach(n => { if (!n.channelId) n.channelId = "plume-reminders"; n.smallIcon = "ic_stat_plume"; n.iconColor = "#7B3FB0"; });
+  return list;
+}
+// Android plays sounds per "channel". Channel settings can't change once created, so new sounds need new channel ids.
+let channelsReady = false;
+async function ensureChannels(LN) {
+  if (channelsReady || !LN.createChannel) return;
+  try {
+    await LN.createChannel({ id: "plume-reminders", name: "Reminders", description: "Shot day, protein, weigh-in and check-in reminders", importance: 4, sound: "plume_chime.wav", vibration: true, visibility: 1, lights: true, lightColor: "#7B3FB0" });
+    await LN.createChannel({ id: "plume-water", name: "Water reminders", description: "Gentle nudges to drink water", importance: 4, sound: "plume_water.wav", vibration: true, visibility: 1 });
+    channelsReady = true;
+  } catch (e) { console.warn("channels", e); }
+}
+async function testNotifications() {
+  const LN = window.Capacitor?.Plugins?.LocalNotifications;
+  if (!LN) { toast("Test notifications work in the phone app"); return; }
+  try {
+    let p = await LN.checkPermissions();
+    if (p.display !== "granted") p = await LN.requestPermissions();
+    if (p.display !== "granted") { toast("Turn on notifications for Plume in Android settings"); return; }
+    await ensureChannels(LN);
+    const now = Date.now(), s = S.settings;
+    await LN.schedule({ notifications: [
+      { id: 9001, title: "It's shot day 💉", body: `${s.med} ${s.dose}. Suggested site: ${siteLabel(suggestedSite())}. (Test)`, channelId: "plume-reminders", smallIcon: "ic_stat_plume", iconColor: "#7B3FB0", schedule: { at: new Date(now + 4000), allowWhileIdle: true } },
+      { id: 9002, title: "Water break 💧", body: "This is how water reminders sound. (Test)", channelId: "plume-water", smallIcon: "ic_stat_plume", iconColor: "#7B3FB0", schedule: { at: new Date(now + 10000), allowWhileIdle: true } },
+    ] });
+    toast("Test reminders in 4 and 10 seconds 🔔");
+  } catch (e) { console.warn("test notification", e); toast("Couldn't send a test notification"); }
+}
+let reminderTimer = null;
+function refreshReminders() { clearTimeout(reminderTimer); reminderTimer = setTimeout(() => syncReminders(false), 800); }
 async function syncReminders(askPermission) {
   const LN = window.Capacitor?.Plugins?.LocalNotifications;
-  if (!LN) return true;
+  if (!LN || !S.settings.onboarded) return true;
   try {
-    const s = S.settings;
-    if (askPermission && (s.remindShot || s.remindDaily)) {
+    const s = S.settings, anyOn = REMINDER_KEYS.some(k => s[k]);
+    if (askPermission && anyOn) {
       let p = await LN.checkPermissions();
       if (p.display !== "granted") p = await LN.requestPermissions();
       if (p.display !== "granted") { toast("Turn on notifications for Plume in Android settings"); return false; }
     }
-    const pending = await LN.getPending();
-    if (pending.notifications.length) await LN.cancel({ notifications: pending.notifications.map(n => ({ id: n.id })) });
-    const list = [];
-    const [h, m] = s.shotTime.split(":").map(Number);
-    if (s.remindShot) list.push({
-      id: 1, title: "It's shot day 💉", body: `${s.med} ${s.dose}. Suggested site: ${siteLabel(suggestedSite())}.`,
-      schedule: { on: { weekday: s.shotDay + 1, hour: h, minute: m }, allowWhileIdle: true },
-    });
-    if (s.remindDaily) list.push({
-      id: 2, title: "Quick check-in 🌙", body: "How did protein and water go today? Tap to log.",
-      schedule: { on: { hour: 20, minute: 0 }, allowWhileIdle: true },
-    });
+    await ensureChannels(LN);
+    const pending = (await LN.getPending()).notifications.filter(n => n.id < 9000);
+    if (pending.length) await LN.cancel({ notifications: pending.map(n => ({ id: n.id })) });
+    const list = anyOn ? reminderPlan() : [];
     if (list.length) await LN.schedule({ notifications: list });
     return true;
   } catch (e) { console.warn("reminders", e); return true; }
@@ -1078,6 +1185,7 @@ function addProtein(g) {
   const t = today(); t.protein = Math.max(0, t.protein + g);
   (t.pLog = t.pLog || []).push(g);
   save();
+  refreshReminders();
   if (t.protein >= S.settings.proteinGoal && t.protein - g < S.settings.proteinGoal) toast("Protein goal hit! 🎉");
   else toast(`+${g} g protein`);
 }
@@ -1132,7 +1240,7 @@ document.addEventListener("click", async ev => {
       toast(el.dataset.id ? "Shot updated" : "Shot logged. See you next week 💜");
       break;
     }
-    case "del-shot": S.shots = S.shots.filter(x => x.id !== el.dataset.id); save(); closeSheet(); render(); toast("Shot deleted"); break;
+    case "del-shot": S.shots = S.shots.filter(x => x.id !== el.dataset.id); save(); closeSheet(); render(); refreshReminders(); toast("Shot deleted"); break;
 
     case "log-weight": sheetWeight(); break;
     case "edit-weight": sheetWeight(S.weights.find(x => x.id === el.dataset.id)); break;
@@ -1158,8 +1266,8 @@ document.addEventListener("click", async ev => {
       if (g) { t.protein = Math.max(0, t.protein - g); save(); toast(`Removed ${g} g`); render(); closeSheet(); } else toast("Nothing to remove today");
       break;
     }
-    case "water": { const t = today(); t.water = Math.max(0, Math.min(30, t.water + Number(v))); save(); render(); if (Number(v) > 0 && t.water === s.waterGoal) toast("Water goal hit! 💧"); break; }
-    case "water-set": { const t = today(); const n = Number(v); t.water = t.water === n ? n - 1 : n; save(); render(); if (t.water === s.waterGoal) toast("Water goal hit! 💧"); break; }
+    case "water": { const t = today(); t.water = Math.max(0, Math.min(30, t.water + Number(v))); save(); render(); refreshReminders(); if (Number(v) > 0 && t.water === s.waterGoal) toast("Water goal hit! 💧"); break; }
+    case "water-set": { const t = today(); const n = Number(v); t.water = t.water === n ? n - 1 : n; save(); render(); refreshReminders(); if (t.water === s.waterGoal) toast("Water goal hit! 💧"); break; }
 
     case "effect": sheetEffect(el.dataset.type); break;
     case "effect-pick": sheetEffectPick(); break;
@@ -1216,6 +1324,17 @@ document.addEventListener("click", async ev => {
       else toast(s[k] ? "Reminder on 🔔" : "Reminder off");
       break;
     }
+    case "test-notif": testNotifications(); break;
+    case "edit-water": sheetWater(); break;
+    case "water-opt": sheetCtx[el.dataset.k] = Number(v); sheetCtx.redraw(); break;
+    case "water-save": {
+      s.waterStart = sheetCtx.waterStart; s.waterEnd = sheetCtx.waterEnd; s.waterEvery = sheetCtx.waterEvery;
+      const turnOn = !s.remindWater; s.remindWater = true;
+      save(); closeSheet(); render();
+      const ok = await syncReminders(turnOn);
+      if (!ok) { s.remindWater = false; save(); render(); } else toast("Water reminders saved 💧");
+      break;
+    }
     case "pro": sheetPro(); break;
     case "buy":
       // TODO(Play Billing): replace with a real one-time in-app purchase before publishing.
@@ -1233,9 +1352,10 @@ $("#backdrop").addEventListener("click", () => closeSheet());
 
 // Keep the countdown fresh while the app is open, and catch up when it comes back from the background.
 setInterval(() => { if (S.settings.onboarded && tab === "today" && !sheetOpen) render(); }, 60000);
-document.addEventListener("visibilitychange", () => { if (!document.hidden && !sheetOpen) render(); });
+document.addEventListener("visibilitychange", () => { if (!document.hidden) { if (!sheetOpen) render(); refreshReminders(); } });
 
 render();
+refreshReminders();
 </script>
 </body>
 </html>

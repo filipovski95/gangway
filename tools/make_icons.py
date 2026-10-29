@@ -91,3 +91,8 @@ for dname,(w,h) in sizes.items():
     s=int(min(w,h)*0.28); ic=rounded(icon.resize((s,s),Image.LANCZOS),0.28)
     im.paste(ic,((w-s)//2,(h-s)//2),ic); im.save(f"{d}/splash.png")
 print("icons written")
+
+# Status-bar icon: Android needs a plain white silhouette on a transparent background.
+for name,px in {"mdpi":24,"hdpi":36,"xhdpi":48,"xxhdpi":72,"xxxhdpi":96}.items():
+    d=os.path.join(ROOT,"res",f"drawable-{name}"); os.makedirs(d,exist_ok=True)
+    feather(px, color=(255,255,255), quill=(255,255,255), quill_tail=(255,255,255), scale=1.45).save(f"{d}/ic_stat_plume.png")

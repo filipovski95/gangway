@@ -4,7 +4,14 @@
   "webDir": "www",
   "backgroundColor": "#F7F3EE",
   "plugins": {
-    "SystemBars": { "insetsHandling": "css", "initialViewportFitValueHint": "cover", "style": "DEFAULT" },
-    "LocalNotifications": { "iconColor": "#7B3FB0" }
+    "SystemBars": {
+      "insetsHandling": "css",
+      "initialViewportFitValueHint": "cover",
+      "style": "DEFAULT"
+    },
+    "LocalNotifications": {
+      "smallIcon": "ic_stat_plume",
+      "iconColor": "#7B3FB0"
+    }
   }
 }

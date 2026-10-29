@@ -49,6 +49,18 @@ function sampleData(now) {
   await new Promise(r => server.listen(8124, r));
   const browser = await chromium.launch();
   const ctx = await browser.newContext({ ...devices["Pixel 7"] });
+  // Stand-in for the Android notification plugin, so the test can see exactly what gets scheduled.
+  await ctx.addInitScript(() => {
+    window.__scheduled = []; window.__scheduleCalls = 0;
+    window.Capacitor = { Plugins: { LocalNotifications: {
+      checkPermissions: async () => ({ display: "granted" }),
+      requestPermissions: async () => ({ display: "granted" }),
+      createChannel: async c => { (window.__channels = window.__channels || []).push(c); },
+      getPending: async () => ({ notifications: window.__scheduled.map(n => ({ id: n.id })) }),
+      cancel: async ({ notifications }) => { const ids = new Set(notifications.map(n => n.id)); window.__scheduled = window.__scheduled.filter(n => !ids.has(n.id)); },
+      schedule: async ({ notifications }) => { window.__scheduleCalls++; window.__scheduled.push(...notifications); return { notifications }; },
+    } } };
+  });
   const page = await ctx.newPage();
   page.on("pageerror", e => fail("JavaScript error: " + e.message));
   page.on("console", m => { if (m.type() === "error" && !/Failed to load resource|net::ERR/.test(m.text())) fail("Console error: " + m.text()); });
@@ -86,6 +98,31 @@ function sampleData(now) {
   else if (s.settings.dose !== "5 mg" || s.settings.shotDay !== 1 || s.weights.length !== 1 || s.settings.name !== "Alex") fail("Onboarding saved wrong values: " + JSON.stringify(s.settings));
   else ok("Onboarding saves medication, dose, shot day, weight and name");
   await shot("05-today-new");
+
+  // ---------- Reminders ----------
+  await page.waitForTimeout(1200);
+  let sched = await page.evaluate(() => window.__scheduled);
+  const shotRem = sched.find(n => n.id === 1);
+  if (!shotRem || !shotRem.schedule.on || shotRem.schedule.on.weekday !== 2) fail("Weekly shot reminder missing or on the wrong day: " + JSON.stringify(shotRem));
+  else ok("Shot reminder repeats weekly on Monday 7 PM");
+  // Plan for "today at 8 AM" so the result doesn't depend on when the test runs.
+  const plan = () => page.evaluate(() => { const n = new Date(); n.setHours(8, 0, 0, 0); return reminderPlan(n).map(x => x.id); });
+  let ids = await plan();
+  const todayWater = l => l.filter(i => i >= 1000 && i < 1020).length;
+  if (todayWater(ids) !== 5) fail("Expected 5 water reminders today (9, 11, 1, 3, 5), got " + todayWater(ids));
+  else ok("5 water reminders a day, every 2 hours from 9 AM");
+  if (!ids.includes(2000)) fail("Lunch protein reminder missing");
+  if (ids.filter(i => i >= 5000 && i < 5100).length !== 1) fail("Expected exactly one weigh-in reminder in the coming week, got " + ids.filter(i => i >= 5000 && i < 5100).length);
+  else ok("One weigh-in reminder per week");
+  if (ids.filter(i => i >= 4000 && i < 4100).length !== 1) fail("Expected one day-after-shot check-in per week");
+  else ok("One day-after-shot check-in per week");
+  if (ids.some(i => i >= 3000 && i < 3100)) fail("Evening wrap-up should be off by default");
+  await page.evaluate(() => { const t = today(); t.water = S.settings.waterGoal; t.protein = S.settings.proteinGoal; save(); });
+  ids = await plan();
+  if (todayWater(ids) !== 0 || ids.includes(2000)) fail("Today's water/protein reminders should stop once goals are hit");
+  else if (!ids.some(i => i >= 1020 && i < 1040)) fail("Tomorrow's water reminders should still be there");
+  else ok("Water and protein reminders stop for the day once goals are hit, and come back tomorrow");
+  await page.evaluate(() => { const t = today(); t.water = 0; t.protein = 0; save(); render(); });
   await noOverflow("Today (new user)");
 
   // ---------- Log a shot ----------
@@ -177,6 +214,32 @@ function sampleData(now) {
   await tap('.nav [data-tab="me"]');
   await page.evaluate(() => window.scrollTo(0, 0));
   await shot("20-settings");
+  await page.locator(".rem-row").first().scrollIntoViewIfNeeded();
+  await page.evaluate(() => window.scrollBy(0, -120));
+  await shot("20b-reminders");
+  await tap('.rem-text[data-action="edit-water"]');
+  await tap('[data-action="water-opt"][data-k="waterEvery"][data-v="3"]');
+  await shot("20c-water-reminders");
+  await tap('[data-action="water-save"]');
+  await page.waitForTimeout(300);
+  ids = await plan();
+  if (todayWater(ids) !== 4) fail("Every 3 hours from 9 AM to 7 PM should give 4 reminders, got " + todayWater(ids));
+  else ok("Changing water reminders to every 3 hours works");
+  await tap('.toggle[data-k="remindWater"]');
+  await page.waitForTimeout(400);
+  sched = await page.evaluate(() => window.__scheduled.map(n => n.id));
+  if (sched.some(i => i >= 1000 && i < 1200)) fail("Turning water reminders off should cancel them");
+  else ok("Turning a reminder off cancels it");
+  await tap('.toggle[data-k="remindWater"]');
+  const ch = await page.evaluate(() => (window.__channels || []).map(c => c.id + ":" + c.sound));
+  if (!ch.includes("plume-reminders:plume_chime.wav") || !ch.includes("plume-water:plume_water.wav")) fail("Notification sound channels not set up: " + JSON.stringify(ch));
+  else ok("Notification channels use the Plume chime and water-drop sounds");
+  await tap('[data-action="test-notif"]');
+  await page.waitForTimeout(300);
+  const tests = await page.evaluate(() => window.__scheduled.filter(n => n.id >= 9000).map(n => n.channelId));
+  if (tests.length !== 2 || !tests.includes("plume-water")) fail("Test notification button should schedule 2 test reminders, got " + JSON.stringify(tests));
+  else ok("'Send a test notification' schedules a chime and a water-drop reminder");
+  await shot("20d-test-notification");
   await noOverflow("Settings");
   await tap('[data-action="edit-goals"]');
   await tap('[data-action="goal-unit"][data-v="kg"]');

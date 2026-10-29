@@ -47,6 +47,10 @@ jobs:
         run: |
           npx cap add android
           cp -r brand/res/* android/app/src/main/res/
+          # Notifications: permission to show them (Android 13+) and to fire on the exact minute (Android 12+).
+          sed -i 's#<uses-permission android:name="android.permission.INTERNET" />#<uses-permission android:name="android.permission.INTERNET" />\n    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />\n    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />#' android/app/src/main/AndroidManifest.xml
+          grep -q "SCHEDULE_EXACT_ALARM" android/app/src/main/AndroidManifest.xml
+          test -f android/app/src/main/res/raw/plume_chime.wav
           sed -i "s/versionCode 1$/versionCode ${{ github.run_number }}/; s/versionName \"1.0\"/versionName \"1.0.${{ github.run_number }}\"/" android/app/build.gradle
           # Play rejects an upload whose version code isn't higher than the last one, so stop here if the bump didn't apply.
           grep -q "versionCode ${{ github.run_number }}" android/app/build.gradle
