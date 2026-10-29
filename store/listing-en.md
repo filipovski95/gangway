@@ -1,9 +1,9 @@
 # Google Play listing (English, US)
 
-**App name (30 max):** Plume: GLP-1 Shot Tracker
+**App name (30 max):** Plume: GLP-1 & Weight Loss
 
 **Short description (80 max):**
-Track GLP-1 shots, sites, protein, water & weight. Private. No subscription.
+GLP-1 shot tracker: doses, sites, protein, water & weight. No subscription.
 
 **Full description:**
 Plume is the calm, private companion for your GLP-1 journey, whether you take Zepbound®, Mounjaro®, Wegovy®, Ozempic® or a compounded version.

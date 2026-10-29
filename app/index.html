@@ -460,9 +460,7 @@ function ring(size, stroke, frac, color, track) {
     <circle cx="${size / 2}" cy="${size / 2}" r="${r}" fill="none" stroke="${color}" stroke-width="${stroke}" stroke-linecap="round"
       stroke-dasharray="${c}" stroke-dashoffset="${off}" style="transition:stroke-dashoffset .6s ease"/></svg>`;
 }
-const LOGO = `<svg width="54" height="54" viewBox="0 0 64 64" fill="none">
-  <path d="M46 10C30 12 18 26 16 46l4 4c20-2 34-14 36-30-3 1-6 1-9 0 3-2 5-5 6-8-2 0-5-1-7-2z" fill="#D8F264"/>
-  <path d="M14 52 40 24" stroke="#4B2270" stroke-width="3.5" stroke-linecap="round"/></svg>`;
+const LOGO = `<img src="logo.png" width="74" height="74" alt="">`;
 function bodySVG(selected, suggested) {
   const dots = SITES.map(s => `<g class="site-dot ${s.id === selected ? "on" : ""} ${s.id === suggested && s.id !== selected ? "sugg" : ""}" data-site="${s.id}">
       <circle class="hit" cx="${s.x}" cy="${s.y}" r="18"/><circle class="d" cx="${s.x}" cy="${s.y}" r="9"/></g>`).join("");
