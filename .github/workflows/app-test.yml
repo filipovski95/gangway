@@ -23,6 +23,8 @@ jobs:
           npx playwright install --with-deps chromium
       - name: Run the app test on a phone-sized screen
         run: node tools/app_test.js www test-out
+      - name: Test port days shared by crew (fake database)
+        run: node tools/crew_test.js www test-out
       - name: Publish screenshots and report to the "App test results" release
         if: always()
         env: { GH_TOKEN: "${{ github.token }}" }

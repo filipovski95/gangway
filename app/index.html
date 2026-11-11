@@ -166,6 +166,7 @@ main .wrap > * { min-width: 0; }
 .additin input, .additin select { font: inherit; padding: 9px 10px; border-radius: 12px; border: 1px solid var(--line); background: var(--surface-2); color: inherit; min-width: 0; }
 .additin select, .additin .btn { grid-column: 1 / -1; }
 .additin select { grid-row: 1; }
+.additin .share { grid-column: 1 / -1; display: flex; gap: 8px; align-items: center; font-size: 13px; color: var(--muted); }
 .ticket { position: relative; display: grid; grid-template-columns: 1fr auto; }
 .ticket::before, .ticket::after { content: ""; position: absolute; width: 22px; height: 22px; border-radius: 50%; background: var(--bg); right: 104px; border: 1px solid var(--line); z-index: 1; }
 .ticket::before { top: -12px; } .ticket::after { bottom: -12px; }
@@ -545,6 +546,7 @@ async function refresh() {
     state.index = await fetchJSON(REMOTE + "index.json", true); store.set("index", state.index);
     if (state.port) state.port = await loadPort(state.port.id, true);
     try { SHIPS = await fetchJSON(REMOTE + "ships.json", true); store.set("ships", SHIPS); } catch {}
+    try { await flushCrew(); await loadCrew(); } catch {}
     try { const f = await fetchJSON(REMOTE + "fleets.json", true); setFleets(f); store.set("fleets", f); PHOTOS = await fetchJSON(REMOTE + "ship_photos.json", true); store.set("photos", PHOTOS); INFO = await fetchJSON(REMOTE + "ship_info.json", true); store.set("info", INFO); } catch {}
     store.set("checked", Date.now());
     toast(state.port ? `${state.port.name} is up to date for ${DAY_NAMES[new Date().getDay()]}` : "Ports are up to date");
@@ -703,7 +705,7 @@ function todayCall(ship, day = dayStr()) {
 function myShip() {
   const n = store.get("ship", "");
   if (!n) return null;
-  return (SHIPS && SHIPS.ships.find(s => sameShip(s.name, n))) || { name: n, calls: [] };
+  return allShips().find(s => sameShip(s.name, n)) || { name: n, calls: [] };
 }
 const offset = () => store.get("offset", 30);
 // The port the user said they're in today, for when no schedule lists their ship (or it changed last minute).
@@ -713,7 +715,7 @@ function herePort() {
 }
 const setHere = (p, d) => store.set("here:" + dayStr(), { p, d: d || "" });
 function shipsInPort(pid, day = dayStr()) {
-  return SHIPS ? SHIPS.ships.map(s => ({ s, c: todayCall(s, day) })).filter(x => x.c && x.c.p === pid) : [];
+  return allShips().map(s => ({ s, c: todayCall(s, day) })).filter(x => x.c && x.c.p === pid);
 }
 // All aboard = departure minus the offset, only on the day the ship sails.
 function autoAboard(c) {
@@ -723,6 +725,105 @@ function autoAboard(c) {
 }
 const portName = id => (state.index.ports.find(p => p.id === id) || {}).name;
 const short = n => n.replace(/^Celebrity /, "");
+
+/* ---- Port days shared by crew ----
+   Not every port publishes its schedule, so crew fill the gaps: a day one crew member adds is shared
+   with everyone who picked the same ship. Stored in Supabase (see supabase/crew_days.sql): ship, date,
+   port, sailing time and a random id per phone; nothing personal. Official port schedules always win. */
+// Fill in after setting up Supabase (Project Settings -> API: project URL and the anon public key). Empty = sharing off.
+const CREW_DB = { url: "", key: "" };
+let CREW = store.get("crew", null);          // { at, rows: [{ ship_key, ship, day, port, n, sail_out }] }
+const crewOn = () => !!(CREW_DB.url && CREW_DB.key);
+const crewHeaders = () => ({ apikey: CREW_DB.key, Authorization: "Bearer " + CREW_DB.key, "Content-Type": "application/json" });
+function deviceId() {
+  let id = store.get("device", "");
+  if (!id) {
+    id = (self.crypto && crypto.randomUUID) ? crypto.randomUUID()
+      : "10000000-1000-4000-8000-100000000000".replace(/[018]/g, c => (c ^ (Math.random() * 16) >> c / 4).toString(16));
+    store.set("device", id);
+  }
+  return id;
+}
+async function loadCrew() {
+  if (!crewOn()) return false;
+  const rows = [], size = 1000;
+  for (let from = 0; from < 50000; from += size) {
+    const r = await fetch(CREW_DB.url + "/rest/v1/crew_consensus?select=ship_key,ship,day,port,n,sail_out&order=day,ship_key,port",
+      { headers: { ...crewHeaders(), Range: `${from}-${from + size - 1}` }, cache: "no-store" });
+    if (!r.ok) throw new Error(r.status);
+    const page = await r.json(); rows.push(...page);
+    if (page.length < size) break;
+  }
+  CREW = { at: Date.now(), rows }; store.set("crew", CREW);
+  return true;
+}
+// Changes wait in a queue on the phone and go out when there's a connection.
+function crewSend(op) {
+  if (!crewOn() || !op.ship) return;
+  const q = store.get("crewq", []).filter(x => !(sameShip(x.ship, op.ship) && x.day === op.day));
+  q.push({ ...op, t: Date.now() }); store.set("crewq", q);
+  flushCrew();
+}
+async function flushCrew() {
+  if (!crewOn() || flushCrew.busy) return;
+  flushCrew.busy = true;
+  try {
+    for (let q = store.get("crewq", []); q.length; q = store.get("crewq", [])) {
+      const op = q[0], add = !!op.port;
+      const body = add ? { p_device: deviceId(), p_ship: op.ship, p_day: op.day, p_port: op.port, p_out: op.out || null }
+                       : { p_device: deviceId(), p_ship: op.ship, p_day: op.day };
+      let r;
+      try { r = await fetch(CREW_DB.url + "/rest/v1/rpc/" + (add ? "add_crew_day" : "remove_crew_day"), { method: "POST", headers: crewHeaders(), body: JSON.stringify(body) }); }
+      catch { break; }                                              // offline: try again later
+      if (!r.ok && (r.status >= 500 || r.status === 408 || r.status === 429)) break;
+      // Sent, or refused for good (bad date, too many entries): either way it leaves the queue.
+      store.set("crewq", store.get("crewq", []).filter(x => x.t !== op.t));
+    }
+  } finally { flushCrew.busy = false; }
+}
+const crewShareOn = () => crewOn() && store.get("crewshare", true);
+function crewShare(day, port, out) { const s = store.get("ship", ""); if (s && crewShareOn()) crewSend({ ship: s, day, port, out: out || "" }); }
+function crewUnshare(day, port) {
+  const s = store.get("ship", ""); if (!s || !crewOn()) return;
+  crewSend({ ship: s, day });
+  // Take this phone's report out of the saved counts too, so the day doesn't come straight back as "added by crew".
+  if (CREW && port) {
+    const k = shipKey(s), row = CREW.rows.find(r => r.ship_key === k && r.day === day && r.port === port);
+    if (row) { row.n--; if (row.n < 1) CREW.rows = CREW.rows.filter(r => r !== row); CREW = { ...CREW }; store.set("crew", CREW); }
+  }
+}
+// Every ship's calls: the published ones, plus crew days on dates no port lists for that ship.
+// Where crew disagree, the port most phones reported wins.
+let MERGED = {};
+function allShips() {
+  if (MERGED.s === SHIPS && MERGED.c === CREW && MERGED.i === state.index) return MERGED.list;
+  const list = (SHIPS ? SHIPS.ships : []).map(s => ({ ...s, calls: s.calls }));
+  if (CREW && CREW.rows.length && state.index) {
+    const byKey = new Map(list.map(s => [shipKey(s.name), s])), best = new Map();
+    for (const r of CREW.rows) {
+      if (!portName(r.port)) continue;
+      const k = r.ship_key + "|" + r.day, b = best.get(k);
+      if (!b || r.n > b.n || (r.n === b.n && r.port < b.port)) best.set(k, r);
+    }
+    const extra = new Map();
+    for (const r of best.values()) {
+      let s = byKey.get(r.ship_key);
+      if (!s) { s = { name: r.ship, calls: [] }; byKey.set(r.ship_key, s); list.push(s); }
+      (extra.get(s) || extra.set(s, []).get(s)).push(r);
+    }
+    for (const [s, rows] of extra) {
+      const taken = new Set();
+      for (const c of s.calls) { let [d, e] = callDays(c); for (let i = 0; d <= e && i < 40; i++, d = nextDay(d)) taken.add(d); }
+      const add = rows.filter(r => !taken.has(r.day)).map(r => ({ n: portName(r.port), p: r.port, a: r.day + "T00:00",
+        d: r.sail_out ? r.day + "T" + r.sail_out.slice(0, 5) : null, crew: r.n }));
+      if (add.length) s.calls = [...s.calls, ...add].sort((a, b) => (a.a || a.d).localeCompare(b.a || b.d));
+    }
+  }
+  MERGED = { s: SHIPS, c: CREW, i: state.index, list };
+  return list;
+}
+const crewNote = c => c && c.crew ? `added by crew${c.crew > 1 ? ` · ${c.crew} confirmed` : ""}` : "";
+
 
 function render() {
   $("#back").hidden = !state.port; $("#brand").hidden = !!state.port;
@@ -780,7 +881,7 @@ function passCardRaw() {
   const nextUp = next.find(x => x !== c);
   let line2;
   if (c && c.manual) line2 = `Today: <b>${esc(here)}</b>${c.d ? ` · out ${tm(c.d)}` : ""} <small class="setby">(set by you)</small>`;
-  else if (c) line2 = `Today: <b>${esc(here || c.n.split(",")[0])}</b>${tm(c.a) && c.a.slice(0, 10) === dayStr() ? ` · in ${tm(c.a)}` : ""}${c.d ? ` · out ${c.d.slice(0, 10) === dayStr() ? tm(c.d) : new Date(c.d).toLocaleDateString([], { weekday: "short" }) + " " + tm(c.d)}` : ""}`;
+  else if (c) line2 = `Today: <b>${esc(here || c.n.split(",")[0])}</b>${tm(c.a) && c.a.slice(0, 10) === dayStr() ? ` · in ${tm(c.a)}` : ""}${c.d ? ` · out ${c.d.slice(0, 10) === dayStr() ? tm(c.d) : new Date(c.d).toLocaleDateString([], { weekday: "short" }) + " " + tm(c.d)}` : ""}${c.crew ? ` <small class="setby">(${crewNote(c)})</small>` : ""}`;
   else {
     // Only say "at sea" when published calls sit close on both sides of today; otherwise the schedule just has a gap.
     const today = dayStr(), near = n => Math.abs(new Date(n) - new Date(today)) <= 2 * 864e5;
@@ -898,27 +999,29 @@ function itinCardRaw() {
     const country = c.p && (state.index.ports.find(p => p.id === c.p) || {}).country;
     const times = [tm(c.a) && c.a.slice(0, 10) === day && "in " + tm(c.a), c.d && "out " + (c.d.slice(0, 10) === day ? tm(c.d) : new Date(c.d).toLocaleDateString([], { weekday: "short" }) + " " + tm(c.d))].filter(Boolean).join(" · ");
     return gap + head + `<li><button class="it" ${c.p ? `data-port="${c.p}"` : "disabled"}><span class="dt"><b>${dt.getDate()}</b><small>${dt.toLocaleDateString([], { weekday: "short" })}</small></span>
-      <span class="ph">${c.p ? flag(country) : "⚓"}</span><span class="txt"><b>${esc(c.p ? portName(c.p) : c.n.split(",")[0])}</b><small>${times || (manual ? "Added by you" : "")}${day === dayStr() ? " · today" : ""}</small></span></button>
-      ${manual ? `<button class="roundbtn rm" data-unhere="${day}" aria-label="Remove this day">${icon.x}</button>` : ""}</li>`;
+      <span class="ph">${c.p ? flag(country) : "⚓"}</span><span class="txt"><b>${esc(c.p ? portName(c.p) : c.n.split(",")[0])}</b><small>${[times, manual && !times && "Added by you", crewNote(c)].filter(Boolean).join(" · ")}${day === dayStr() ? " · today" : ""}</small></span></button>
+      ${manual ? `<button class="roundbtn rm" data-unhere="${day}" data-p="${c.p}" aria-label="Remove this day">${icon.x}</button>` : ""}</li>`;
   }).join("");
   const opts = state.index.ports.map(p => [p.name, p.id]).sort((a, b) => a[0].localeCompare(b[0])).map(([n, id]) => `<option value="${id}">${esc(n)}</option>`).join("");
   return `<section class="itin"><h3 class="tp-h"><span class="badge">${icon.anchor}</span>${esc(short(ship.name))}'s itinerary</h3>
     ${days.length ? `<ul class="itlist">${rows}</ul>${days.length > 6 ? `<button class="btn" data-itall>${all ? "Show less" : `Show all ${days.length} port days`}</button>` : ""}`
       : `<p class="note">No port has published ${esc(ship.name)}'s schedule yet.</p>`}
-    <p class="note">Built from the schedules ports publish. Not every port publishes one, so some days are missing: add the ones you know from the ship's schedule.</p>
+    <p class="note">Built from the schedules ports publish${crewOn() ? ", plus days other crew on this ship have added" : ""}. Not every port publishes one, so some days are missing: add the ones you know from the ship's schedule${crewShareOn() ? " and they'll show for the rest of the crew too" : ""}.</p>
     <div class="additin"><input type="date" id="itDay" min="${dayStr()}" max="${new Date().getFullYear() + 1}-12-31" aria-label="Date"><select id="itPort" aria-label="Port"><option value="">Port…</option>${opts}</select>
-      <input type="time" id="itOut" aria-label="Sailing time (optional)" title="Sailing time (optional)"><button class="btn go" data-itadd>Add</button></div></section>`;
+      <input type="time" id="itOut" aria-label="Sailing time (optional)" title="Sailing time (optional)">${crewOn() ? `<label class="share"><input type="checkbox" id="itShare"${crewShareOn() ? " checked" : ""}> Share the days I add with other crew on ${esc(short(ship.name))}</label>` : ""}<button class="btn go" data-itadd>Add</button></div></section>`;
 }
 function bindItin() {
   const box = $("#itin"); if (!box) return;
   const redraw = () => { box.innerHTML = itinCard(); bindItin(); };
   box.querySelectorAll("[data-port]").forEach(b => b.onclick = () => openPort(b.dataset.port));
+  box.querySelectorAll("#itShare").forEach(b => b.onchange = () => { store.set("crewshare", b.checked); toast(b.checked ? "Days you add will be shared with your crew" : "Days you add stay on this phone"); });
   box.querySelectorAll("[data-itall]").forEach(b => b.onclick = () => { state.itinAll = !state.itinAll; redraw(); });
-  box.querySelectorAll("[data-unhere]").forEach(b => b.onclick = () => { try { localStorage.removeItem("gw:here:" + b.dataset.unhere); } catch {} redraw(); $("#pass").innerHTML = passCard(); bindPass(); });
+  box.querySelectorAll("[data-unhere]").forEach(b => b.onclick = () => { try { localStorage.removeItem("gw:here:" + b.dataset.unhere); } catch {} crewUnshare(b.dataset.unhere, b.dataset.p); redraw(); $("#pass").innerHTML = passCard(); bindPass(); });
   box.querySelectorAll("[data-itadd]").forEach(b => b.onclick = () => {
     const d = $("#itDay").value, p = $("#itPort").value;
     if (!d || !p) return toast("Pick a date and a port");
-    store.set("here:" + d, { p, d: $("#itOut").value || "" }); toast(`Added ${portName(p)} on ${new Date(d + "T12:00").toLocaleDateString([], { day: "numeric", month: "short" })}`);
+    store.set("here:" + d, { p, d: $("#itOut").value || "" }); crewShare(d, p, $("#itOut").value);
+    toast(`Added ${portName(p)} on ${new Date(d + "T12:00").toLocaleDateString([], { day: "numeric", month: "short" })}`);
     redraw(); if (d === dayStr()) { $("#pass").innerHTML = passCard(); bindPass(); }
   });
 }
@@ -1007,7 +1110,7 @@ function closeSheet(keepHistory) {
 // Pick a cruise line, then a ship; ships with a published port call today come first.
 function pickShip(line) {
   const cur = store.get("ship", "");
-  const known = SHIPS ? SHIPS.ships : [];
+  const known = allShips();
   const all = {};
   for (const [l, ships] of Object.entries(FLEETS)) all[l] = [...ships];
   for (const s of known) { const l = lineOf(s.name); if (!(all[l] ||= []).some(x => sameShip(x, s.name))) all[l].push(s.name); }
@@ -1103,7 +1206,7 @@ function checkIn(id) {
     <div class="seg"><button class="btn" data-wrong>${icon.left}Wrong port</button><button class="btn" data-skip>Just show the guide</button><button class="btn go" data-go style="margin-left:auto">${icon.go}Go ashore</button></div></div>`;
   openSheet(el);
   // The sheet's history entry becomes the port's, so the phone's back button returns home.
-  const go = (d) => { setHere(id, d); closeSheet(true); state.q = ""; history.replaceState({ port: id }, "", "#" + id); openPort(id); };
+  const go = (d) => { setHere(id, d); crewShare(dayStr(), id, d); closeSheet(true); state.q = ""; history.replaceState({ port: id }, "", "#" + id); openPort(id); };
   el.querySelector("[data-close]").onclick = () => closeSheet();
   el.querySelector("[data-wrong]").onclick = () => { closeSheet(); const q = $("#q"); if (q) { q.focus(); q.select(); } };
   el.querySelectorAll("[data-off]").forEach(b => b.onclick = () => { store.set("offset", +b.dataset.off); el.querySelectorAll("[data-off]").forEach(x => x.setAttribute("aria-pressed", x === b)); });
@@ -1206,8 +1309,8 @@ function renderPort() {
 function drawHarbour() {
   const box = $("#harbour"), P = state.port;
   if (!box || !P) return;
-  const covered = SHIPS && SHIPS.ships.some(s => s.calls.some(c => c.p === P.id));
-  if (!covered) { box.innerHTML = `<p class="harbour-none">⚓ ${esc(P.name)} doesn't publish its ship schedule, so Gangway can't show which ships are coming.</p>`; return; }
+  const covered = allShips().some(s => s.calls.some(c => c.p === P.id));
+  if (!covered) { box.innerHTML = `<p class="harbour-none">⚓ ${esc(P.name)} doesn't publish its ship schedule${crewOn() ? ", and no crew have added a day here yet" : ""}, so Gangway can't show which ships are coming.</p>`; return; }
   const day = state.shipDay || dayStr(), mine = myShip();
   const days = Array.from({ length: 14 }, (_, i) => { const d = new Date(); d.setDate(d.getDate() + i); return d; });
   const label = d => { const k = dayStr(d); return k === dayStr() ? "Today" : d.toLocaleDateString([], { weekday: "short", day: "numeric" }); };
@@ -1217,9 +1320,9 @@ function drawHarbour() {
   box.innerHTML = `<div class="hh"><span class="lbl">⚓ Ships in port</span><label class="datepick">📅 Pick a date<input type="date" id="shipDay" min="${dayStr()}" value="${day}" aria-label="Pick a date"></label></div>
     <div class="chips days">${days.map(d => { const k = dayStr(d), n = shipsInPort(P.id, k).length; return `<button class="chip day" data-day="${k}" aria-pressed="${k === day}">${label(d)}<small>${n ? `⛴ ${n}` : "–"}</small></button>`; }).join("")}</div>
     <div class="shiplist">${list.length ? list.map(x => `<div class="shiprow${mine && x.s === mine ? " mine" : ""}"><span class="porthole sm">${shipArt(lineColor(lineOf(x.s.name)))}${shipPhoto(x.s.name)}</span>
-      <span class="sr-t"><b>${esc(x.s.name)}</b><small>${esc(lineOf(x.s.name))}</small></span><span class="sr-time"><small>in</small> ${t(x.c.a, day)}<br><small>out</small> ${t(x.c.d, day)}</span></div>`).join("")
+      <span class="sr-t"><b>${esc(x.s.name)}</b><small>${esc(lineOf(x.s.name))}${x.c.crew ? " · " + crewNote(x.c) : ""}</small></span><span class="sr-time"><small>in</small> ${t(x.c.a, day)}<br><small>out</small> ${t(x.c.d, day)}</span></div>`).join("")
       : `<p class="harbour-none">No ships listed for ${nice}.</p>`}</div>
-    <small class="harbour-note">Times are local, from the port's published schedule. Schedules change, so check nearer the day.</small>`;
+    <small class="harbour-note">Times are local, from the port's published schedule${crewOn() ? "; ships marked “added by crew” come from other crew, not the port" : ""}. Schedules change, so check nearer the day.</small>`;
   box.querySelectorAll("[data-day]").forEach(b => b.onclick = () => { state.shipDay = b.dataset.day; drawHarbour(); });
   $("#shipDay").onchange = e => { if (e.target.value) { state.shipDay = e.target.value; drawHarbour(); } };
   const sel = box.querySelector('.day[aria-pressed="true"]'); if (sel) sel.scrollIntoView({ inline: "nearest", block: "nearest" });
@@ -1304,6 +1407,8 @@ $("#refresh").onclick = refresh;
   INFO = store.get("info", {});
   getJSON("ship_info.json").then(p => { INFO = { ...p, ...store.get("info", {}) }; render(); }).catch(() => {});
   getJSON("ships.json").then(d => { if (!SHIPS || d.updated > SHIPS.updated) { SHIPS = d; store.set("ships", d); render(); } }).catch(() => {});
+  flushCrew(); loadCrew().then(ok => ok && render()).catch(() => {});
+  addEventListener("online", () => { flushCrew(); });
   getJSON("countries.json").then(c => { COUNTRIES = c; store.set("countries", c); if (state.port) renderPort(); })
     .catch(() => { COUNTRIES = store.get("countries", {}); });
   if (!state.index) { try { state.index = await getJSON("index.json"); store.set("index", state.index); } catch { $("#view").innerHTML = `<p class="empty">Connect to wifi and tap Refresh to download the ports.</p>`; return; } }

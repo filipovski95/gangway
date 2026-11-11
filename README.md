@@ -24,5 +24,17 @@ tools/      scripts that fetch places, schedules and ship info
 PRIVACY.md  privacy policy (linked from the Play Store listing)
 ```
 
+## Port days shared by crew
+
+Ports that don't publish schedules leave gaps in each ship's itinerary. Crew fill them: a day one crew member adds (or today's port they pick) is shared with everyone on the same ship, labelled "added by crew" with how many phones reported it. Official port schedules always win on the same day.
+
+One-time setup (free Supabase project):
+
+1. Create a project at supabase.com.
+2. SQL Editor → New query → paste `supabase/crew_days.sql` → Run.
+3. Project Settings → API: copy the project URL and the `anon` public key into `CREW_DB` near the top of the script in `app/index.html`.
+
+With `CREW_DB` empty the app works as before and keeps added days on the phone only. `tools/crew_test.js` tests the feature against a fake database.
+
 ## Publishing
 See `store/NEXT-STEPS.md`. The signed release bundle (`Gangway.aab`) is built by the "Build Gangway Android app" workflow once the four `GANGWAY_*` secrets are added under Settings > Secrets and variables > Actions.
