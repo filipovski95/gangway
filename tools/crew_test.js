@@ -5,7 +5,7 @@ const http = require("http"), fs = require("fs"), path = require("path");
 const root = path.resolve(process.argv[2]), out = path.resolve(process.argv[3]);
 fs.mkdirSync(out, { recursive: true });
 // Same page, with the database switched on.
-const html = fs.readFileSync(path.join(root, "index.html"), "utf8").replace('const CREW_DB = { url: "", key: "" };', 'const CREW_DB = { url: "https://crew.example.co", key: "anon-test" };');
+const html = fs.readFileSync(path.join(root, "index.html"), "utf8").replace(/const CREW_DB = \{[^}]*\};/, 'const CREW_DB = { url: "https://crew.example.co", key: "anon-test" };');
 if (!html.includes("crew.example.co")) throw new Error("CREW_DB line not found");
 fs.writeFileSync(path.join(root, "crew.html"), html);
 const types = { ".html": "text/html", ".json": "application/json", ".css": "text/css", ".woff2": "font/woff2", ".jpg": "image/jpeg", ".png": "image/png", ".svg": "image/svg+xml" };

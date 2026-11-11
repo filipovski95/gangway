@@ -730,11 +730,11 @@ const short = n => n.replace(/^Celebrity /, "");
    Not every port publishes its schedule, so crew fill the gaps: a day one crew member adds is shared
    with everyone who picked the same ship. Stored in Supabase (see supabase/crew_days.sql): ship, date,
    port, sailing time and a random id per phone; nothing personal. Official port schedules always win. */
-// Fill in after setting up Supabase (Project Settings -> API: project URL and the anon public key). Empty = sharing off.
-const CREW_DB = { url: "", key: "" };
+// Supabase project URL and publishable key (public by design; access is limited by supabase/crew_days.sql). Empty = sharing off.
+const CREW_DB = { url: "https://isftfnraiqpzfcsothha.supabase.co", key: "sb_publishable_WP5SkLazo6-xIBqDxwwqfw_cJds23A8" };
 let CREW = store.get("crew", null);          // { at, rows: [{ ship_key, ship, day, port, n, sail_out }] }
 const crewOn = () => !!(CREW_DB.url && CREW_DB.key);
-const crewHeaders = () => ({ apikey: CREW_DB.key, Authorization: "Bearer " + CREW_DB.key, "Content-Type": "application/json" });
+const crewHeaders = () => ({ apikey: CREW_DB.key, "Content-Type": "application/json" });
 function deviceId() {
   let id = store.get("device", "");
   if (!id) {
