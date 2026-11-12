@@ -1199,6 +1199,10 @@
 "f": "ships/voyageroftheseas.jpg",
 "wpu": "Voyager of the Seas"
 },
+"windstar": {
+"f": "ships/windstar.jpg",
+"wpu": "Wind Star (ship)"
+},
 "wonderoftheseas": {
 "f": "ships/wonderoftheseas.jpg",
 "wpu": "Wonder of the Seas"
